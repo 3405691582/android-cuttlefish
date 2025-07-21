@@ -529,6 +529,7 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
   std::vector<bool> use_random_serial_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(
       use_random_serial));
   std::vector<bool> use_allocd_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(use_allocd));
+  std::vector<bool> use_cvdalloc_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(use_cvdalloc));
   std::vector<bool> use_sdcard_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(use_sdcard));
   std::vector<bool> pause_in_bootloader_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(
       pause_in_bootloader));
