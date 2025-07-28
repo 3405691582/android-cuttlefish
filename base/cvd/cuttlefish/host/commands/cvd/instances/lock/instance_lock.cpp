@@ -39,6 +39,8 @@
 #include "cuttlefish/common/libs/utils/result.h"
 #include "cuttlefish/host/commands/cvd/utils/common.h"
 
+#include "absl/strings/match.h"
+
 namespace cuttlefish {
 
 InstanceLockFile::InstanceLockFile(LockFile&& lock_file, const int instance_num)
@@ -248,6 +250,43 @@ Result<void> InstanceLockFileManager::RemoveLockFile(int instance_num) {
   const auto lock_file_path = CF_EXPECT(LockFilePath(instance_num));
   CF_EXPECT(RemoveFile(lock_file_path), std::strerror(errno));
   return {};
+}
+
+Result<std::set<int>> InstanceLockFileManager::GetLocks() {
+  std::stringstream path;
+  path << TempDir() << "/acloud_cvd_temp/";
+  if (!DirectoryExists(path.str())) {
+    return {};
+  }
+
+  std::set<int> r;
+  std::vector<std::string> contents = CF_EXPECT(DirectoryContents(path.str()));
+  for (const std::string& filepath : contents) {
+    // "local-instance-%d.lock"
+    if (!absl::StartsWith(filepath, "local-instance-") ||
+        !absl::EndsWith(filepath, ".lock")) {
+      continue;
+    }
+    auto tokens = android::base::Tokenize(filepath, "-.");
+    r.insert(std::stoi(tokens[2]));
+  }
+  return r;
+}
+
+Result<std::set<InstanceLockFile>> InstanceLockFileManager::LockAnother(
+    int number) {
+  std::set<int> all = CF_EXPECT(GetLocks());
+  int max = 0;
+  if (!all.empty()) {
+    auto mi = std::max_element(all.begin(), all.end());
+    max = *mi;
+  }
+  max++;  // Since max is already allocated, pick the next.
+  std::set<int> more;
+  for (int i = max; i < max + number; i++) {
+    more.insert(i);
+  }
+  return CF_EXPECT(TryAcquireLocks(more));
 }
 
 }  // namespace cuttlefish

@@ -65,6 +65,9 @@ class InstanceLockFileManager {
   // calling this. It is a quick fix for b/316824572
   Result<void> RemoveLockFile(int instance_num);
 
+  Result<std::set<int>> GetLocks();
+  Result<std::set<InstanceLockFile>> LockAnother(int number);
+
  private:
   /*
    * Generate value to initialize

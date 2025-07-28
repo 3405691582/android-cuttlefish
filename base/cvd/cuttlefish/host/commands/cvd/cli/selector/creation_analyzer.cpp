@@ -120,7 +120,7 @@ CreationAnalyzer::CreationAnalyzer(
       instance_lock_file_manager_{instance_lock_file_manager} {}
 
 static std::unordered_map<unsigned, InstanceLockFile> ConstructIdLockFileMap(
-    std::vector<InstanceLockFile>&& lock_files) {
+    std::set<InstanceLockFile>&& lock_files) {
   std::unordered_map<unsigned, InstanceLockFile> mapping;
   for (auto& lock_file : lock_files) {
     const unsigned id = static_cast<unsigned>(lock_file.Instance());
@@ -159,7 +159,7 @@ CreationAnalyzer::AnalyzeInstanceIdsInternal(
     return instance_info;
   }
   auto acquired_all_file_locks =
-      CF_EXPECT(instance_lock_file_manager_.LockAllAvailable());
+      CF_EXPECT(instance_lock_file_manager_.LockAllAvailable());  // XXX
   auto id_to_lockfile_map =
       ConstructIdLockFileMap(std::move(acquired_all_file_locks));
   for (const auto& [id, instance_name] : id_name_pairs) {
@@ -182,7 +182,9 @@ CreationAnalyzer::AnalyzeInstanceIdsInternal(bool acquire_file_locks,
   // As this test was done earlier, this line must not fail
   const auto n_instances = selector_options_parser_.RequestedNumInstances();
   auto acquired_all_file_locks =
-      CF_EXPECT(instance_lock_file_manager_.LockAllAvailable());
+      use_cvdalloc
+          ? CF_EXPECT(instance_lock_file_manager_.LockAnother(n_instances))
+          : CF_EXPECT(instance_lock_file_manager_.LockAllAvailable());
   auto id_to_lockfile_map =
       ConstructIdLockFileMap(std::move(acquired_all_file_locks));
 
