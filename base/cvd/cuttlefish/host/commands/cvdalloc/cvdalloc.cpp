@@ -27,6 +27,7 @@
 #include "cuttlefish/common/libs/fs/shared_fd.h"
 #include "cuttlefish/common/libs/fs/shared_select.h"
 #include "cuttlefish/host/commands/cvdalloc/interface.h"
+#include "cuttlefish/host/commands/cvdalloc/sem.h"
 
 ABSL_FLAG(int, id, 0, "Id");
 ABSL_FLAG(int, socket, 0, "Socket");
@@ -86,6 +87,11 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
     return CF_ERRNO("close: " << strerror(errno));
   }
 
+  auto shutdown = android::base::ScopeGuard([sock]() {
+    LOG(INFO) << "cvdalloc: shutting down socket...";
+    sock->Shutdown(SHUT_RDWR);
+  });
+
   /*
    * Explicit setuid calls seem to be required.
    *
@@ -114,28 +120,27 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
   }
 
   std::string bridge_name = "cvd-pi-br";
+  bool clean_teardown = false;
 
-  auto teardown = android::base::ScopeGuard([id, bridge_name, sock]() {
-    sock->Shutdown(SHUT_RDWR);
-
+  auto teardown = android::base::ScopeGuard([id, bridge_name, sock, clean_teardown]() {
     Teardown(id, bridge_name);
+    /* Forcible shutdowns on error happen by scopeguard above. */
+    if (!clean_teardown) {
+        return;
+    }
+    (void)Post(sock);
   });
 
   CF_EXPECT(Allocate(id, bridge_name));
 
-  int i = 0;
-  r = sock->Write(&i, sizeof(int));
-  if (r == -1) {
-    return CF_ERRNO("Write: " << strerror(errno));
-  }
+  CF_EXPECT(Post(sock));
 
   LOG(INFO) << "cvdalloc: waiting to teardown";
 
-  if (sock->Read(&i, sizeof(i)) < 0) {
-    return CF_ERRNO("Read: " << strerror(errno));
-  }
+  CF_EXPECT(Wait(sock, 0));
 
   /* Teardown invoked by scopeguard above. */
+  clean_teardown = true;
 
   return 0;
 }
