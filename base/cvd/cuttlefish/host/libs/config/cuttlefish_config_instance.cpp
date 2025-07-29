@@ -1587,15 +1587,6 @@ void CuttlefishConfig::MutableInstanceSpecific::set_ethernet_ipv6(
   (*Dictionary())[kEthernetIPV6] = ip;
 }
 
-static constexpr char kUseAllocd[] = "use_allocd";
-bool CuttlefishConfig::InstanceSpecific::use_allocd() const {
-  return (*Dictionary())[kUseAllocd].asBool();
-}
-void CuttlefishConfig::MutableInstanceSpecific::set_use_allocd(
-    bool use_allocd) {
-  (*Dictionary())[kUseAllocd] = use_allocd;
-}
-
 static constexpr char kUseCvdalloc[] = "use_cvdalloc";
 bool CuttlefishConfig::InstanceSpecific::use_cvdalloc() const {
   return (*Dictionary())[kUseCvdalloc].asBool();
