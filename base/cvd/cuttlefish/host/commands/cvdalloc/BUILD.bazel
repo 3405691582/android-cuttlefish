@@ -1,0 +1,21 @@
+load("//cuttlefish/bazel:rules.bzl", "cf_cc_binary", "cf_cc_library")
+
+package(
+    default_visibility = ["//:android_cuttlefish"],
+)
+
+cf_cc_binary(
+    name = "cvdalloc",
+    srcs = [
+        "cvdalloc.cpp",
+    ],
+    deps = [
+        "//allocd:alloc_utils",
+        "//cuttlefish/common/libs/fs",
+        "//libbase",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
+        "@abseil-cpp//absl/strings:strings",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
