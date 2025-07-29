@@ -158,6 +158,11 @@ class CvdResetCommandHandler : public CvdCommandHandler {
     }
     CF_EXPECT(KillAllCuttlefishInstances(
         /* clear_instance_dirs*/ options.clean_runtime_dir));
+
+    if (DirectoryExists(InstanceLocksPath())) {
+      CF_EXPECT(RecursivelyRemoveDirectory(InstanceLocksPath()));
+    }
+
     return {};
   }
   cvd_common::Args CmdList() const override { return {kResetSubcmd}; }
