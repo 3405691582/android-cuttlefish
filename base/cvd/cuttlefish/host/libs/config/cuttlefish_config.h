@@ -352,7 +352,6 @@ class CuttlefishConfig {
     std::string ethernet_mac() const;
     std::string ethernet_ipv6() const;
     uint32_t session_id() const;
-    bool use_allocd() const;
     bool use_cvdalloc() const;
     int vsock_guest_cid() const;
     std::string vsock_guest_group() const;
@@ -701,7 +700,6 @@ class CuttlefishConfig {
     void set_ethernet_mac(const std::string& mac);
     void set_ethernet_ipv6(const std::string& ip);
     void set_session_id(uint32_t session_id);
-    void set_use_allocd(bool use_allocd);
     void set_use_cvdalloc(bool use_cvdalloc);
     void set_vsock_guest_cid(int vsock_guest_cid);
     void set_vsock_guest_group(const std::string& vsock_guest_group);
