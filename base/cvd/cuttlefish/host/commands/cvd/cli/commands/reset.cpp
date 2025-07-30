@@ -159,8 +159,8 @@ class CvdResetCommandHandler : public CvdCommandHandler {
     CF_EXPECT(KillAllCuttlefishInstances(
         /* clear_instance_dirs*/ options.clean_runtime_dir));
 
-    if (DirectoryExists("/tmp/acloud_cvd_temp/")) {
-      CF_EXPECT(RecursivelyRemoveDirectory("/tmp/acloud_cvd_temp/"));
+    if (DirectoryExists(InstanceLocksPath())) {
+      CF_EXPECT(RecursivelyRemoveDirectory(InstanceLocksPath()));
     }
 
     return {};
