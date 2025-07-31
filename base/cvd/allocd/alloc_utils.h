@@ -61,7 +61,7 @@ struct GatewayConfig {
   bool has_iptable = false;
 };
 
-int RunExternalCommand(const std::string& command);
+int RunExternalCommand(const std::string& command, int retry = 0);
 std::optional<std::string> GetUserName(uid_t uid);
 
 bool AddTapIface(const std::string& name);
