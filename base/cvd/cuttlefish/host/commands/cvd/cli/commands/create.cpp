@@ -141,6 +141,7 @@ struct CreateFlags {
   std::string config_file;
   bool acquire_file_locks;
   bool prepare_for_acloud_delete;
+  bool use_cvdalloc;
 };
 
 Result<CreateFlags> ParseCommandFlags(const cvd_common::Envs& envs,
@@ -152,6 +153,7 @@ Result<CreateFlags> ParseCommandFlags(const cvd_common::Envs& envs,
       .config_file = "",
       .acquire_file_locks = GetAcquireFileLockEnvValue(envs).value_or(true),
       .prepare_for_acloud_delete = false,
+      .use_cvdalloc = false,
   };
   std::vector<Flag> flags = {
       GflagsCompatFlag("host_path", flag_values.host_path),
@@ -161,6 +163,7 @@ Result<CreateFlags> ParseCommandFlags(const cvd_common::Envs& envs,
       GflagsCompatFlag(kAcquireFileLock, flag_values.acquire_file_locks),
       GflagsCompatFlag("internal_prepare_for_acloud_delete",
                        flag_values.prepare_for_acloud_delete),
+      GflagsCompatFlag("use_cvdalloc", flag_values.use_cvdalloc),
   };
   CF_EXPECT(ConsumeFlags(flags, args));
   return flag_values;
@@ -251,7 +254,8 @@ class CvdCreateCommandHandler : public CvdCommandHandler {
  private:
   Result<LocalInstanceGroup> GetOrCreateGroup(
       const cvd_common::Args& subcmd_args, const cvd_common::Envs& envs,
-      const CommandRequest& request, bool acquire_file_locks);
+      const CommandRequest& request, bool acquire_file_locks,
+      bool use_cvdalloc);
   Result<void> CreateSymlinks(const LocalInstanceGroup& group);
 
   static void MarkLockfiles(std::vector<InstanceLockFile>& lock_files,
@@ -277,13 +281,14 @@ void CvdCreateCommandHandler::MarkLockfiles(
 
 Result<LocalInstanceGroup> CvdCreateCommandHandler::GetOrCreateGroup(
     const std::vector<std::string>& subcmd_args, const cvd_common::Envs& envs,
-    const CommandRequest& request, bool acquire_file_locks) {
+    const CommandRequest& request, bool acquire_file_locks, bool use_cvdalloc) {
   GroupCreationInfo group_creation_info = CF_EXPECT(AnalyzeCreation(
       {
           .cmd_args = subcmd_args,
           .envs = envs,
           .selectors = request.Selectors(),
           .acquire_file_locks = acquire_file_locks,
+          .use_cvdalloc = use_cvdalloc,
       },
       lock_manager_));
 
@@ -391,8 +396,9 @@ Result<void> CvdCreateCommandHandler::Handle(const CommandRequest& request) {
   // CreationAnalyzer needs these to be set in the environment
   envs[kAndroidHostOut] = AbsolutePath(flags.host_path);
   envs[kAndroidProductOut] = AbsolutePath(flags.product_path);
-  auto group = CF_EXPECT(
-      GetOrCreateGroup(subcmd_args, envs, request, flags.acquire_file_locks));
+  auto group =
+      CF_EXPECT(GetOrCreateGroup(subcmd_args, envs, request,
+                                 flags.acquire_file_locks, flags.use_cvdalloc));
 
   group.SetAllStates(cvd::INSTANCE_STATE_STOPPED);
   group.SetStartTime(CvdServerClock::now());

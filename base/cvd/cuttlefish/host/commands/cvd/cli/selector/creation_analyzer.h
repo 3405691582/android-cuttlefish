@@ -73,6 +73,7 @@ struct CreationAnalyzerParam {
   const std::unordered_map<std::string, std::string>& envs;
   const SelectorOptions& selectors;
   bool acquire_file_locks;
+  bool use_cvdalloc;
 };
 
 /**

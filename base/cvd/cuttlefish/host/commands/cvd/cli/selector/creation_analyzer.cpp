@@ -49,7 +49,8 @@ class CreationAnalyzer {
   static Result<CreationAnalyzer> Create(const CreationAnalyzerParam& param,
                                          InstanceLockFileManager&);
 
-  Result<GroupCreationInfo> ExtractGroupInfo(bool acquire_file_locks);
+  Result<GroupCreationInfo> ExtractGroupInfo(bool acquire_file_locks,
+                                             bool use_cvdalloc);
 
  private:
   using IdAllocator = UniqueResourceAllocator<unsigned>;
@@ -62,7 +63,7 @@ class CreationAnalyzer {
    * calculate n_instances_ and instance_ids_
    */
   Result<std::vector<PerInstanceInfo>> AnalyzeInstanceIds(
-      bool acquire_file_locks);
+      bool acquire_file_locks, bool use_cvdalloc);
 
   /*
    * When group name is nil, it is auto-generated using instance ids
@@ -87,10 +88,10 @@ class CreationAnalyzer {
   Result<std::string> AnalyzeHome() const;
 
   Result<std::vector<PerInstanceInfo>> AnalyzeInstanceIdsInternal(
-      bool acquire_file_locks);
+      bool acquire_file_locks, bool use_cvdalloc);
   Result<std::vector<PerInstanceInfo>> AnalyzeInstanceIdsInternal(
       const std::vector<unsigned>& requested_instance_ids,
-      bool acquire_file_locks);
+      bool acquire_file_locks, bool use_cvdalloc);
 
   // inputs
   std::unordered_map<std::string, std::string> envs_;
@@ -132,7 +133,7 @@ static std::unordered_map<unsigned, InstanceLockFile> ConstructIdLockFileMap(
 Result<std::vector<PerInstanceInfo>>
 CreationAnalyzer::AnalyzeInstanceIdsInternal(
     const std::vector<unsigned>& requested_instance_ids,
-    bool acquire_file_locks) {
+    bool acquire_file_locks, bool use_cvdalloc) {
   CF_EXPECT(!requested_instance_ids.empty(),
             "Instance IDs were specified, so should be one or more.");
   std::vector<std::string> per_instance_names;
@@ -172,7 +173,8 @@ CreationAnalyzer::AnalyzeInstanceIdsInternal(
 }
 
 Result<std::vector<PerInstanceInfo>>
-CreationAnalyzer::AnalyzeInstanceIdsInternal(bool acquire_file_locks) {
+CreationAnalyzer::AnalyzeInstanceIdsInternal(bool acquire_file_locks,
+                                             bool use_cvdalloc) {
   CF_EXPECT(!!acquire_file_locks,  // !! because CF_EXPECT expects rvalue
             "For now, cvd server always acquire the file locks "
                 << "when IDs are automatically allocated.");
@@ -230,17 +232,19 @@ CreationAnalyzer::AnalyzeInstanceIdsInternal(bool acquire_file_locks) {
 }
 
 Result<std::vector<PerInstanceInfo>> CreationAnalyzer::AnalyzeInstanceIds(
-    bool acquire_file_locks) {
+    bool acquire_file_locks, bool use_cvdalloc) {
   auto requested_instance_ids = selector_options_parser_.InstanceIds();
   return requested_instance_ids
-             ? CF_EXPECT(AnalyzeInstanceIdsInternal(*requested_instance_ids,
-                                                    acquire_file_locks))
-             : CF_EXPECT(AnalyzeInstanceIdsInternal(acquire_file_locks));
+             ? CF_EXPECT(AnalyzeInstanceIdsInternal(
+                   *requested_instance_ids, acquire_file_locks, use_cvdalloc))
+             : CF_EXPECT(AnalyzeInstanceIdsInternal(acquire_file_locks,
+                                                    use_cvdalloc));
 }
 
 Result<GroupCreationInfo> CreationAnalyzer::ExtractGroupInfo(
-    bool acquire_file_locks) {
-  auto instance_info = CF_EXPECT(AnalyzeInstanceIds(acquire_file_locks));
+    bool acquire_file_locks, bool use_cvdalloc) {
+  auto instance_info =
+      CF_EXPECT(AnalyzeInstanceIds(acquire_file_locks, use_cvdalloc));
   std::vector<unsigned> ids;
   ids.reserve(instance_info.size());
   for (const auto& instance : instance_info) {
@@ -292,7 +296,8 @@ Result<GroupCreationInfo> AnalyzeCreation(
     InstanceLockFileManager& lock_file_manager) {
   CreationAnalyzer analyzer =
       CF_EXPECT(CreationAnalyzer::Create(params, lock_file_manager));
-  return CF_EXPECT(analyzer.ExtractGroupInfo(params.acquire_file_locks));
+  return CF_EXPECT(analyzer.ExtractGroupInfo(params.acquire_file_locks,
+                                             params.use_cvdalloc));
 }
 
 }  // namespace selector
