@@ -22,7 +22,9 @@
 
 namespace cuttlefish {
 
-int RunExternalCommand(const std::string& command) {
+constexpr const int kAllocRetryLimit = 3;
+
+int RunExternalCommand(const std::string& command, int retry) {
   FILE* fp;
   LOG(INFO) << "Running external command: " << command;
   fp = popen(command.c_str(), "r");
@@ -33,20 +35,27 @@ int RunExternalCommand(const std::string& command) {
   }
 
   int status = pclose(fp);
-  int ret = -1;
   if (status == -1) {
-    LOG(WARNING) << "pclose error";
-  } else {
-    if (WIFEXITED(status)) {
-      LOG(INFO) << "child process exited normally";
-      ret = WEXITSTATUS(status);
-    } else if (WIFSIGNALED(status)) {
-      LOG(WARNING) << "child process was terminated by a signal";
-    } else {
-      LOG(WARNING) << "child process did not terminate normally";
-    }
+    LOG(WARNING) << "pclose error: " << strerror(errno);
+    return -1;
+  } 
+
+  if (retry > kAllocRetryLimit) {
+    LOG(WARNING) << "RunExternalCommand: not retrying further";
+    return -1;
   }
-  return ret;
+
+  if (WIFEXITED(status)) {
+    LOG(INFO) << "child process exited normally";
+    return WEXITSTATUS(status);
+  } 
+
+  if (WIFSIGNALED(status)) {
+    LOG(WARNING) << "child process was terminated by a signal";
+  } 
+
+  LOG(WARNING) << "child process did not terminate normally";
+  return RunExternalCommand(command, retry++);
 }
 
 bool AddTapIface(const std::string& name) {
