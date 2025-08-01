@@ -36,6 +36,7 @@
 #include <android-base/logging.h>
 #include <android-base/strings.h>
 #include <fmt/core.h>
+#include <sys/stat.h>
 
 #include "cuttlefish/common/libs/utils/contains.h"
 #include "cuttlefish/common/libs/utils/environment.h"
@@ -366,6 +367,20 @@ Result<void> CvdCreateCommandHandler::CreateSymlinks(
   return {};
 }
 
+Result<void> ValidateCvdallocPermissions(const std::string &host_path) {
+  std::string path = host_path + "/bin/" + "cvdalloc";
+  struct stat st;
+  int r = stat(path.c_str(), &st);
+  CF_EXPECT(r == 0, "Could not stat the cvdalloc binary at "
+                        << path << ": " << strerror(errno));
+  auto msg = fmt::format(
+      "cvdalloc binary does not have permissions to allocate resources.\n"
+      "As root, please\n\n    chown root {}\n    chmod u+s {}",
+       path, path);
+  CF_EXPECT((st.st_mode & S_ISUID) != 0 && st.st_uid == 0, msg);
+  return {};
+}
+
 Result<void> CvdCreateCommandHandler::Handle(const CommandRequest& request) {
   CF_EXPECT(CanHandle(request));
   std::vector<std::string> subcmd_args = request.SubcommandArguments();
@@ -380,6 +395,10 @@ Result<void> CvdCreateCommandHandler::Handle(const CommandRequest& request) {
         CF_EXPECT(CreateLoadCommand(request, subcmd_args, flags.config_file));
     CF_EXPECT(command_executor_.ExecuteOne(subrequest, std::cerr));
     return {};
+  }
+
+  if (flags.use_cvdalloc) {
+    CF_EXPECT(ValidateCvdallocPermissions(flags.host_path));
   }
 
   // Validate the host artifacts path before proceeding
