@@ -16,6 +16,7 @@
 
 #include "cuttlefish/host/commands/cvd/cli/selector/creation_analyzer.h"
 
+#include <sys/stat.h>
 #include <sys/types.h>
 
 #include <algorithm>
@@ -85,6 +86,8 @@ class CreationAnalyzer {
    *
    */
   Result<std::string> AnalyzeHome() const;
+
+  Result<void> AnalyzeCvdallocPermissions(const std::string& path) const;
 
   Result<std::vector<PerInstanceInfo>> AnalyzeInstanceIdsInternal(
       bool acquire_file_locks);
@@ -263,6 +266,11 @@ Result<GroupCreationInfo> CreationAnalyzer::ExtractGroupInfo(
   std::string android_product_out_path = Contains(envs_, kAndroidProductOut)
                                              ? envs_.at(kAndroidProductOut)
                                              : android_host_out;
+
+  if (selector_options_parser_.UseCvdalloc()) {
+    CF_EXPECT(AnalyzeCvdallocPermissions(android_product_out_path));
+  }
+
   return GroupCreationInfo{
       .home = home,
       .host_artifacts_path = android_host_out,
@@ -292,6 +300,23 @@ Result<std::string> CreationAnalyzer::AnalyzeHome() const {
   std::string auto_generated_home = DefaultBaseDir() + "/home";
   CF_EXPECT(EnsureDirectoryExists(auto_generated_home));
   return auto_generated_home;
+}
+
+Result<void> CreationAnalyzer::AnalyzeCvdallocPermissions(
+    const std::string& host_path) const {
+  std::string path = host_path + "/bin/cvdalloc";
+  struct stat st;
+  int r = stat(path.c_str(), &st);
+  CF_EXPECT(r == 0, "Could not stat the cvdalloc binary at "
+                        << path << ": " << strerror(errno));
+
+  auto no_suid_msg = fmt::format(
+      "cvdalloc binary does not have permissions to allocate resources.\n"
+      "As root, please\n\n    chown root {}\n    chmod u+s {}",
+      path, path);
+  CF_EXPECT((st.st_mode & S_ISUID) != 0 && st.st_uid == 0, no_suid_msg);
+
+  return {};
 }
 
 }  // namespace
