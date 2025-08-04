@@ -20,6 +20,8 @@
 #include <optional>
 #include <string>
 
+#include "cuttlefish/host/libs/config/cuttlefish_config.h"
+
 namespace cuttlefish {
 
 struct IfaceData {
@@ -35,7 +37,8 @@ struct IfaceConfig {
   IfaceData ethernet_tap;
 };
 
-IfaceConfig DefaultNetworkInterfaces(int num);
+IfaceConfig DefaultNetworkInterfaces(
+    const CuttlefishConfig::InstanceSpecific &instance);
 
 // Acquires interfaces from the resource allocator daemon.
 std::optional<IfaceConfig> AllocateNetworkInterfaces();
