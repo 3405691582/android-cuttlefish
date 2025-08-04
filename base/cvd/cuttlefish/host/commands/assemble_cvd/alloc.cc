@@ -22,6 +22,7 @@
 #include "cuttlefish/common/libs/fs/shared_fd.h"
 #include "cuttlefish/host/libs/allocd/request.h"
 #include "cuttlefish/host/libs/allocd/utils.h"
+#include "cuttlefish/host/libs/config/cuttlefish_config.h"
 
 namespace cuttlefish {
 
@@ -31,7 +32,9 @@ static std::string StrForInstance(const std::string& prefix, int num) {
   return stream.str();
 }
 
-IfaceConfig DefaultNetworkInterfaces(int num) {
+IfaceConfig DefaultNetworkInterfaces(
+    const CuttlefishConfig::InstanceSpecific& instance) {
+  int num = std::stoi(instance.id());
   IfaceConfig config{};
   config.mobile_tap.name = StrForInstance("cvd-mtap-", num);
   config.mobile_tap.resource_id = 0;
