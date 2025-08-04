@@ -16,6 +16,11 @@
 
 #include "cuttlefish/host/commands/cvd/cli/selector/creation_analyzer.h"
 
+#if defined(__linux__)
+#include <linux/capability.h>
+#include <linux/xattr.h>
+#include <sys/xattr.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -304,11 +309,24 @@ Result<void> CreationAnalyzer::AnalyzeCvdallocPermissions(
   CF_EXPECT(r == 0, "Could not stat the cvdalloc binary at "
                         << path << ": " << strerror(errno));
 
+#if defined(__linux__)
+  auto no_cap_msg = fmt::format(
+      "cvdalloc binary does not have permissions to allocate resources.\n"
+      "As root, please\n\n    setcap cap_net_admin=+ep `realpath {}`",
+      path);
+
+  /* Try and determine if the cvdalloc binary has any capabilities. */
+  struct vfs_cap_data cap;
+  ssize_t s = getxattr(path.c_str(), XATTR_NAME_CAPS, &cap, sizeof(cap));
+  CF_EXPECT(s != -1, no_cap_msg);
+  CF_EXPECT((cap.data[0].permitted & (1 << CAP_NET_ADMIN)) != 0, no_cap_msg);
+#else
   auto no_suid_msg = fmt::format(
       "cvdalloc binary does not have permissions to allocate resources.\n"
       "As root, please\n\n    chown root {}\n    chmod u+s {}",
       path, path);
   CF_EXPECT((st.st_mode & S_ISUID) != 0 && st.st_uid == 0, no_suid_msg);
+#endif
 
   return {};
 }

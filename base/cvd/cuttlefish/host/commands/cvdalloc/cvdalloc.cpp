@@ -74,6 +74,14 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
     return 1;
   }
 
+  int r;
+#if defined(__linux__)
+  r = SetAmbientCapabilities();
+  if (r == -1) {
+    return 1;
+  }
+#endif
+
   /*
    * Explicit setuid calls seem to be required.
    *
@@ -92,11 +100,13 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
   int id = absl::GetFlag(FLAGS_id);
   std::string bridge_name = "cvd-pi-br";
 
+#if !defined(__linux__)
   int r = setuid(0);
   if (r == -1) {
     LOG(ERROR) << "Couldn't setuid root: " << strerror(errno);
     return 1;
   }
+#endif
 
   Allocate(id, bridge_name);
 
@@ -124,7 +134,7 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
 
   Teardown(id, bridge_name);
 
-  r = setuid(orig);
+  r = DropPrivileges(orig);
   if (r == -1) {
     LOG(WARNING) << "cvdalloc: couldn't drop privileges: " << strerror(errno);
     return 1;
