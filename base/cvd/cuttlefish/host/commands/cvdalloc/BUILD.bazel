@@ -19,6 +19,8 @@ cf_cc_binary(
     name = "cvdalloc",
     srcs = [
         "cvdalloc.cpp",
+        "privilege.h",
+        "privilege.cpp",
     ],
     deps = [
         ":interface",

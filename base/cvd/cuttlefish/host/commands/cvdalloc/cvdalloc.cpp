@@ -103,15 +103,19 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
   uid_t orig = getuid();
 
   auto drop_privileges = android::base::ScopeGuard([orig]() {
-    int r = setuid(orig);
+    int r = DropPrivileges(orig);
     if (r == -1) {
       LOG(ERROR) << "cvdalloc: couldn't drop privileges: " << strerror(errno);
     }
   });
 
+#if defined(__linux__)
+  r = SetAmbientCapabilities();
+#else
   r = setuid(0);
+#endif
   if (r == -1) {
-    return CF_ERRNO("Couldn't setuid root: " << strerror(errno));
+    return CF_ERRNO("Couldn't elevate permissions: " << strerror(errno));
   }
 
   std::string bridge_name = "cvd-pi-br";
