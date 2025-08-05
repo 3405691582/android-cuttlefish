@@ -24,6 +24,8 @@
 
 namespace cuttlefish {
 
+const std::string kDefaultInterfacePrefix = "cvd";
+
 struct IfaceData {
   std::string name;
   uint32_t session_id;
