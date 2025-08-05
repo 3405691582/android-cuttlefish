@@ -23,6 +23,8 @@
 
 #include "allocd/alloc_utils.h"
 #include "cuttlefish/common/libs/fs/shared_fd.h"
+#include "cuttlefish/host/commands/cvdalloc/interface.h"
+#include "cuttlefish/host/commands/cvdalloc/privilege.h"
 
 ABSL_FLAG(int, id, 0, "Id");
 ABSL_FLAG(int, teardown_event_socket, 0, "Socket");
@@ -37,24 +39,26 @@ static void usage() {
 namespace cuttlefish {
 namespace {
 
-Result<void> Allocate(int id) {
+Result<void> Allocate(int id, const std::string &bridge_name) {
   LOG(INFO) << "cvdalloc: allocating network resources";
 
-  CreateBridge("cvd-br");
-  CreateMobileIface(absl::StrFormat("cvd-mtap-%02d", id), id, kMobileIp);
-  CreateMobileIface(absl::StrFormat("cvd-wtap-%02d", id), id, kWirelessIp);
-  CreateEthernetIface(absl::StrFormat("cvd-etap-%02d", id), "cvd-br", true,
+  CreateBridge(bridge_name);
+  CreateMobileIface(CvdallocInterfaceName("mtap", id), id, kMobileIp);
+  CreateMobileIface(CvdallocInterfaceName("wtap", id), id, kWirelessIp);
+  CreateEthernetIface(CvdallocInterfaceName("etap", id), bridge_name, true,
                       true, false);
+
   return {};
 }
 
-Result<void> Teardown(int id) {
+Result<void> Teardown(int id, const std::string &bridge_name) {
   LOG(INFO) << "cvdalloc: tearing down resources";
 
-  DestroyMobileIface(absl::StrFormat("cvd-mtap-%02d", id), id, kMobileIp);
-  DestroyMobileIface(absl::StrFormat("cvd-wtap-%02d", id), id, kWirelessIp);
-  DestroyEthernetIface(absl::StrFormat("cvd-etap-%02d", id), true, true, false);
-  DestroyBridge("cvd-br");
+  DestroyMobileIface(CvdallocInterfaceName("mtap", id), id, kMobileIp);
+  DestroyMobileIface(CvdallocInterfaceName("wtap", id), id, kWirelessIp);
+  DestroyEthernetIface(CvdallocInterfaceName("etap", id), true, true, false);
+  DestroyBridge(bridge_name);
+
   return {};
 }
 
@@ -86,6 +90,7 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
   uid_t orig = getuid();
 
   int id = absl::GetFlag(FLAGS_id);
+  std::string bridge_name = "cvd-pi-br";
 
   int r = setuid(0);
   if (r == -1) {
@@ -93,7 +98,7 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
     return 1;
   }
 
-  Allocate(id);
+  Allocate(id, bridge_name);
 
   auto sock = SharedFD::Dup(absl::GetFlag(FLAGS_allocate_event_socket));
   if (!sock->IsOpen()) {
@@ -117,7 +122,7 @@ Result<int> CvdallocMain(int argc, char *argv[]) {
     return 1;
   }
 
-  Teardown(id);
+  Teardown(id, bridge_name);
 
   r = setuid(orig);
   if (r == -1) {
