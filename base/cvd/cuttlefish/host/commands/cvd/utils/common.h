@@ -83,6 +83,7 @@ std::string PerUserCacheDir();
 
 std::string InstanceDatabasePath();
 
+std::string AcloudInstanceLocksPath();
 std::string InstanceLocksPath();
 
 std::string DefaultBaseDir();
