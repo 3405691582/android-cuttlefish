@@ -20,6 +20,8 @@
 
 #include "android-base/logging.h"
 
+#include "cuttlefish/host/commands/cvd/utils/common.h"
+
 namespace cuttlefish {
 
 constexpr const int kAllocRetryLimit = 3;
@@ -373,7 +375,7 @@ bool SetupBridgeGateway(const std::string& bridge_name,
 
   config.has_gateway = true;
 
-  if (StartDnsmasq(bridge_name, gateway, dhcp_range)) {
+  if (!StartDnsmasq(bridge_name, gateway, dhcp_range)) {
     CleanupBridgeGateway(bridge_name, ipaddr, config);
     return false;
   }
@@ -428,8 +430,10 @@ bool StartDnsmasq(const std::string& bridge_name, const std::string& gateway,
     " --dhcp-option=\"option:dns-server," << dns_servers << "\""
     " --dhcp-option=\"option6:dns-server," << dns6_servers << "\""
     " --conf-file=\"\""
-    " --pid-file=/var/run/cuttlefish-dnsmasq-" << bridge_name << ".pid"
-    " --dhcp-leasefile=/var/run/cuttlefish-dnsmasq-" << bridge_name << ".leases"
+    " --pid-file=" << CvdDir()
+         << "/cuttlefish-dnsmasq-" << bridge_name << ".pid"
+    " --dhcp-leasefile=" << CvdDir()
+         << "/cuttlefish-dnsmasq-" << bridge_name << ".leases"
     " --dhcp-no-override ";
   // clang-format on
 
