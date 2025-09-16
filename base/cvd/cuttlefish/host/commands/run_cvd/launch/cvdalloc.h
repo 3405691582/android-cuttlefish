@@ -49,6 +49,8 @@ class Cvdalloc : public vm_manager::VmmDependencyCommand {
 
   const CuttlefishConfig::InstanceSpecific &instance_;
   SharedFD socket_, their_socket_;
+  std::mutex availability_mutex_;
+  std::atomic<bool> available_;
 };
 
 fruit::Component<fruit::Required<const CuttlefishConfig::InstanceSpecific>>

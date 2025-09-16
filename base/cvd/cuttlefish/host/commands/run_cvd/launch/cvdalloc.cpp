@@ -47,7 +47,7 @@ constexpr std::chrono::seconds kCvdAllocateTimeout = std::chrono::seconds(30);
 constexpr std::chrono::seconds kCvdTeardownTimeout = std::chrono::seconds(2);
 
 Cvdalloc::Cvdalloc(const CuttlefishConfig::InstanceSpecific& instance)
-    : instance_(instance) {}
+    : instance_(instance), available_(false) {}
 
 Result<std::vector<MonitorCommand>> Cvdalloc::Commands() {
   std::string path = CvdallocBinary();
@@ -67,10 +67,16 @@ bool Cvdalloc::Enabled() const { return instance_.use_cvdalloc(); }
 std::unordered_set<SetupFeature *> Cvdalloc::Dependencies() const { return {}; }
 
 Result<void> Cvdalloc::WaitForAvailability() {
-  LOG(INFO) << "cvdalloc (run_cvd): waiting to finish allocation.";
-  CF_EXPECT(cvdalloc::Wait(socket_, kCvdAllocateTimeout),
-            "cvdalloc (run_cvd): Wait failed");
-  LOG(INFO) << "cvdalloc (run_cvd): allocation is done.";
+  LOG(INFO) << "cvdalloc (run_cvd): WaitForAvailability";
+  std::lock_guard<std::mutex> lock(availability_mutex_);
+  if (!available_.load()) {
+    LOG(INFO) << "cvdalloc (run_cvd): waiting to finish allocation.";
+    CF_EXPECT(cvdalloc::Wait(socket_, kCvdAllocateTimeout),
+              "cvdalloc (run_cvd): Wait failed");
+    LOG(INFO) << "cvdalloc (run_cvd): allocation is done.";
+    available_.store(true);
+  }
+  LOG(INFO) << "cvdalloc (run_cvd): WaitForAvailability: available.";
 
   return {};
 }
