@@ -34,10 +34,14 @@
 
 namespace cuttlefish {
 
+constexpr char kDefaultsFilePath[] =
+    "/usr/lib/cuttlefish-common/etc/cf_defaults";
+
 Result<void> SetFlagDefaultsForVmm(
     const std::vector<GuestConfig>& guest_configs,
     const SystemImageDirFlag& system_image_dir,
     const VmManagerFlag& vm_manager_flag);
+Result<void> SetFlagDefaultsFromConfig();
 // Must be called after ParseCommandLineFlags.
 Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
     const std::string& root_dir, const std::vector<GuestConfig>& guest_configs,

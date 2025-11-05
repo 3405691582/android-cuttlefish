@@ -658,6 +658,12 @@ Result<int> AssembleCvdMain(int argc, char** argv) {
   CF_EXPECT(
       SetFlagDefaultsForVmm(guest_configs, system_image_dir, vm_manager_flag));
 
+  auto res = SetFlagDefaultsFromConfig();
+  if (!res.ok()) {
+    LOG(FATAL) << "assemble_cvd: Couldn't set flag defaults from config; "
+                  "aborting: " << res.error().Message();
+  }
+
   auto config =
       CF_EXPECT(InitFilesystemAndCreateConfig(
                     std::move(fetcher_configs), guest_configs, injector, log,

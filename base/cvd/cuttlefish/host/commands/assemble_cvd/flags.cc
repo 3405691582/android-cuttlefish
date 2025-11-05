@@ -37,6 +37,7 @@
 #include <json/json.h>
 #include <json/writer.h>
 
+#include "cuttlefish/common/libs/key_equals_value/key_equals_value.h"
 #include "cuttlefish/common/libs/utils/base64.h"
 #include "cuttlefish/common/libs/utils/container.h"
 #include "cuttlefish/common/libs/utils/contains.h"
@@ -1443,6 +1444,25 @@ Result<void> SetFlagDefaultsForVmm(
   // Set the env variable to empty (in case the caller passed a value for it).
   unsetenv(kCuttlefishConfigEnvVarName);
 
+  return {};
+}
+
+Result<void> SetFlagDefaultsFromConfig() {
+  if (!FileExists(kDefaultsFilePath)) {
+    LOG(INFO) << "SetFlagDefaultsFromConfig: No flag defaults to override.";
+    return {};
+  }
+
+  std::string defaults_str;
+  CF_EXPECT(android::base::ReadFileToString(kDefaultsFilePath, &defaults_str),
+            "Couldn't read defaults file.");
+  std::map<std::string, std::string> defaults = CF_EXPECT(
+      ParseKeyEqualsValue(defaults_str), "Couldn't parse defaults file.");
+
+  for (const auto& kv : defaults) {
+    SetCommandLineOptionWithMode(kv.first.c_str(), kv.second.c_str(),
+                                 google::FlagSettingMode::SET_FLAGS_DEFAULT);
+  }
   return {};
 }
 
