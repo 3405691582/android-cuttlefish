@@ -79,6 +79,7 @@ Package: cuttlefish-common
 Architecture: any
 Depends: cuttlefish-base,
          cuttlefish-user,
+         cuttlefish-defaults,
          ${misc:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Description: Cuttlefish Android Virtual Device companion package
@@ -98,3 +99,9 @@ Provides: ${diverted-files}
 Description: Utilities for Android cuttlefish devices in the cloud
  Configuration and utilities for Android cuttlefish devices running on
  Google Compute Engine. Not intended for use on developer machines.
+
+Package: cuttlefish-defaults
+Architecture: any
+Depends: cuttlefish-base,
+Description: May potentially enable new or experimental cuttlefish
+ features before being enabled by default.
