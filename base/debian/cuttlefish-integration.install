@@ -1,1 +1,2 @@
+cvd/bazel-bin/cuttlefish/package/cuttlefish-integration/bin/* /usr/local/bin
 host/packages/cuttlefish-integration/* /
