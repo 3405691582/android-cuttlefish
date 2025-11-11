@@ -327,7 +327,8 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
     const KernelPathFlag& kernel_path, const SuperImageFlag& super_image,
     const SystemImageDirFlag& system_image_dir,
     const VendorBootImageFlag& vendor_boot_image,
-    const VmManagerFlag& vm_manager_flag) {
+    const VmManagerFlag& vm_manager_flag,
+    std::map<std::string, std::string> defaults) {
   CuttlefishConfig tmp_config_obj;
   // If a snapshot path is provided, do not read all flags to set up the config.
   // Instead, read the config that was saved at time of snapshot and restore
@@ -494,7 +495,7 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
   std::vector<bool> use_random_serial_vec =
       CF_EXPECT(GET_FLAG_BOOL_VALUE(use_random_serial));
   UseCvdallocFlag use_cvdalloc_values =
-      CF_EXPECT(UseCvdallocFlag::FromGlobalGflags());
+      CF_EXPECT(UseCvdallocFlag::FromGlobalGflags(defaults));
   std::vector<bool> use_sdcard_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(use_sdcard));
   std::vector<bool> pause_in_bootloader_vec = CF_EXPECT(GET_FLAG_BOOL_VALUE(
       pause_in_bootloader));
@@ -1449,7 +1450,7 @@ Result<void> SetFlagDefaultsForVmm(
   return {};
 }
 
-Result<void> SetFlagDefaultsFromConfig() {
+Result<std::map<std::string, std::string>> GetFlagDefaultsFromConfig() {
   if (!FileExists(kDefaultsFilePath)) {
     LOG(INFO) << "SetFlagDefaultsFromConfig: No flag defaults to override.";
     return {};
@@ -1458,14 +1459,8 @@ Result<void> SetFlagDefaultsFromConfig() {
   std::string defaults_str;
   CF_EXPECT(android::base::ReadFileToString(kDefaultsFilePath, &defaults_str),
             "Couldn't read defaults file.");
-  std::map<std::string, std::string> defaults = CF_EXPECT(
-      ParseKeyEqualsValue(defaults_str), "Couldn't parse defaults file.");
-
-  for (const auto& kv : defaults) {
-    SetCommandLineOptionWithMode(kv.first.c_str(), kv.second.c_str(),
-                                 google::FlagSettingMode::SET_FLAGS_DEFAULT);
-  }
-  return {};
+  return CF_EXPECT(ParseKeyEqualsValue(defaults_str),
+                   "Couldn't parse defaults file.");
 }
 
 std::string GetConfigFilePath(const CuttlefishConfig& config) {

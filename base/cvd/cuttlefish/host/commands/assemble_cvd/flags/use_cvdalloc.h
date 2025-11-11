@@ -17,6 +17,7 @@
 
 #include <stddef.h>
 
+#include <map>
 #include <vector>
 
 #include "cuttlefish/common/libs/utils/result.h"
@@ -26,7 +27,8 @@ namespace cuttlefish {
 /* `--use_cvdalloc` flag */
 class UseCvdallocFlag {
  public:
-  static Result<UseCvdallocFlag> FromGlobalGflags();
+  static Result<UseCvdallocFlag> FromGlobalGflags(
+      std::map<std::string, std::string> defaults);
 
   bool ForIndex(const std::size_t index) const;
 
