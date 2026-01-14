@@ -37,6 +37,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -536,16 +537,9 @@ struct ExtraParam {
   int wait_options;
   siginfo_t* infop;
 };
-Result<int> ExecuteImpl(const std::vector<std::string>& command,
-                        const std::optional<std::vector<std::string>>& envs,
-                        std::optional<ExtraParam> extra_param) {
-  Command cmd(command[0]);
-  for (size_t i = 1; i < command.size(); ++i) {
-    cmd.AddParameter(command[i]);
-  }
-  if (envs) {
-    cmd.SetEnvironment(*envs);
-  }
+
+Result<int> StartAndWait(const Command& cmd,
+                         std::optional<ExtraParam> extra_param) {
   auto subprocess =
       (!extra_param ? cmd.Start()
                     : cmd.Start(std::move(extra_param->subprocess_options)));
@@ -559,6 +553,40 @@ Result<int> ExecuteImpl(const std::vector<std::string>& command,
   } else {
     return subprocess.Wait();
   }
+}
+
+Result<int> ExecuteImpl(
+    const std::vector<std::string_view>& command,
+    const std::optional<std::vector<std::string_view>>& envs,
+    std::optional<ExtraParam> extra_param) {
+  // Command will own all the strings and the string vector created here.
+  auto command0 = std::string(command[0]);
+  Command cmd(command0);
+  for (size_t i = 1; i < command.size(); ++i) {
+    auto arg = std::string(command[i]);
+    cmd.AddParameter(arg);
+  }
+  if (envs) {
+    std::vector<std::string> strs;
+    for (auto v : *envs) {
+      strs.push_back(std::string(v));
+    }
+    cmd.SetEnvironment(strs);
+  }
+  return CF_EXPECT(StartAndWait(cmd, extra_param));
+}
+
+Result<int> ExecuteImpl(const std::vector<std::string>& command,
+                        const std::optional<std::vector<std::string>>& envs,
+                        std::optional<ExtraParam> extra_param) {
+  Command cmd(command[0]);
+  for (size_t i = 1; i < command.size(); ++i) {
+    cmd.AddParameter(command[i]);
+  }
+  if (envs) {
+    cmd.SetEnvironment(*envs);
+  }
+  return CF_EXPECT(StartAndWait(cmd, extra_param));
 }
 
 }  // namespace
