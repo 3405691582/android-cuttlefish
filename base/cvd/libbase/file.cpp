@@ -491,7 +491,7 @@ std::string GetExecutablePath() {
 #elif defined(__EMSCRIPTEN__)
   abort();
 #else
-#error unknown OS
+  abort();
 #endif
 }
 

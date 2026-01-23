@@ -94,7 +94,7 @@ int memfd_create_wrapper(const char* name, unsigned int flags) {
   return memfd_create(name, flags);
 #else
   (void)flags;
-  return shm_open(name, O_RDWR);
+  return shm_open(name, O_RDWR, 0600);
 #endif
 }
 
@@ -474,9 +474,13 @@ SharedFD SharedFD::Open(const char* path, int flags, mode_t mode) {
 }
 
 SharedFD SharedFD::InotifyFd(void) {
+#if !defined(__linux__)
+  return SharedFD(std::shared_ptr<FileInstance>(new FileInstance(-1, 1)));
+#else
   errno = 0;
   int fd = TEMP_FAILURE_RETRY(inotify_init1(IN_CLOEXEC));
   return SharedFD(std::shared_ptr<FileInstance>(new FileInstance(fd, errno)));
+#endif
 }
 
 SharedFD SharedFD::Creat(const std::string& path, mode_t mode) {
@@ -621,6 +625,8 @@ SharedFD SharedFD::Socket6Client(const std::string& host, const std::string& int
     if (rval->SetSockOpt(IPPROTO_IP, IP_BOUND_IF, &idx, sizeof(idx)) == -1) {
       return SharedFD::ErrorFD(rval->GetErrno());
     }
+#elif defined(__OpenBSD__)
+// XXX
 #else
 #error "Unsupported operating system"
 #endif
@@ -1061,6 +1067,7 @@ Result<std::string> FileInstance::ProcFdLinkTarget() const {
 }
 #endif
 
+#if defined(__linux__)
 // inotify related functions
 int FileInstance::InotifyAddWatch(const std::string& pathname, uint32_t mask) {
   return inotify_add_watch(fd_, pathname.c_str(), mask);
@@ -1069,6 +1076,7 @@ int FileInstance::InotifyAddWatch(const std::string& pathname, uint32_t mask) {
 void FileInstance::InotifyRmWatch(int watch) {
   inotify_rm_watch(fd_, watch);
 }
+#endif
 
 FileInstance::FileInstance(int fd, int in_errno)
     : fd_(fd), errno_(in_errno), is_regular_file_(IsRegularFile(fd_)) {

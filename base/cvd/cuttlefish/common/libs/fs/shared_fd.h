@@ -22,8 +22,8 @@
 #ifdef __linux__
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
-#endif
 #include <sys/inotify.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/select.h>

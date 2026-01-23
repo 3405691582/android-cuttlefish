@@ -271,7 +271,7 @@ Result<UnixSocketMessage> UnixMessageSocket::ReadMessage() {
 
 #ifdef __linux__
   auto bytes_read = socket_->RecvMsg(&message_header, MSG_CMSG_CLOEXEC);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__OpenBSD__)
   auto bytes_read = socket_->RecvMsg(&message_header, 0);
 #else
 #error "Unsupported operating system"

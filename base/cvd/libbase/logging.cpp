@@ -62,7 +62,7 @@ namespace android {
 namespace base {
 
 // BSD-based systems like Android/macOS have getprogname(). Others need us to provide one.
-#if !defined(__APPLE__) && !defined(__BIONIC__)
+#if !defined(__APPLE__) && !defined(__BIONIC__) && !defined(__OpenBSD__)
 static const char* getprogname() {
 #ifdef _WIN32
   static bool first = true;
