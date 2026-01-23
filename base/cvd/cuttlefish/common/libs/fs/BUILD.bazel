@@ -15,6 +15,9 @@ cf_cc_library(
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/result",
     ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
 )
 
 cf_cc_library(

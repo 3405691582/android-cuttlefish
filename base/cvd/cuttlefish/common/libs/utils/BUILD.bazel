@@ -111,6 +111,9 @@ cf_cc_library(
         "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/strings",
     ],
+    target_compatible_with = [
+        "@platforms//os:linux",  # SEEK_DATA
+    ],
 )
 
 cf_cc_library(
@@ -208,6 +211,9 @@ cf_cc_library(
     deps = [
         "//libbase",
         "@abseil-cpp//absl/log",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
     ],
 )
 
@@ -333,6 +339,9 @@ cf_cc_library(
         "//libbase",
         "@abseil-cpp//absl/log",
     ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
 )
 
 cf_cc_library(
@@ -454,6 +463,9 @@ cf_cc_library(
         "//libbase",
         "@abseil-cpp//absl/log",
         "@jsoncpp",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
     ],
 )
 
