@@ -1,10 +1,10 @@
-load("//cuttlefish/bazel:rules.bzl", "cf_cc_library", "cf_cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary", "cc_test")
 
 package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-cf_cc_library(
+cc_library(
     name = "error_type",
     srcs = ["error_type.cc"],
     hdrs = ["error_type.h"],
@@ -15,7 +15,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "expect",
     hdrs = ["expect.h"],
     deps = [
@@ -27,7 +27,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "result",
     hdrs = ["result.h"],
     deps = [
@@ -36,7 +36,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "result_test",
     srcs = ["result_test.cpp"],
     deps = [
@@ -48,7 +48,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "result_type",
     hdrs = ["result_type.h"],
     deps = [
@@ -58,7 +58,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "result_matchers",
     testonly = 1,
     hdrs = ["result_matchers.h"],

@@ -36,6 +36,15 @@ filegroup(
     ],
 )
 
+cc_library(
+    name = "fruit-headers",
+    hdrs = ["fruit-config-base.h"],
+    # Load-bearing so that angle bracket includes work. See
+    # https://stackoverflow.com/a/51441444
+    include_prefix = "fruit/impl",
+    visibility = ["//visibility:public"],
+)
+
 # for crosvm/jail. Has to be in the base repository, as the @crosvm repository isn't visible.
 #
 # Collections of python files can be combined into a zip file. The python
@@ -64,13 +73,5 @@ alias(
 alias(
     name = "gfxstream_backend",
     actual = "@gfxstream//host:gfxstream_backend",
-    visibility = ["//visibility:public"],
-)
-
-# Useful for `rust_library()`s which can not directly depend on a `cc_shared_library()`.
-# TODO: remove after ag/33719949 and update alias above to reference directly.
-cc_import(
-    name = "gfxstream_backend_import",
-    shared_library = ":gfxstream_backend",
     visibility = ["//visibility:public"],
 )

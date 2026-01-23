@@ -1,10 +1,10 @@
-load("//cuttlefish/bazel:rules.bzl", "cf_cc_library", "cf_cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary", "cc_test")
 
 package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-cf_cc_library(
+cc_library(
     name = "epoll",
     srcs = ["epoll.cpp"],
     hdrs = ["epoll.h"],
@@ -20,7 +20,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "fs",
     srcs = [
         "shared_buf.cc",
@@ -46,7 +46,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "fs_test",
     srcs = [
         "shared_fd_test.cpp",
@@ -59,7 +59,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "shared_fd_stream",
     srcs = ["shared_fd_stream.cpp"],
     hdrs = ["shared_fd_stream.h"],

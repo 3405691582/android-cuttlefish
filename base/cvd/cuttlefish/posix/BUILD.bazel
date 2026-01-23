@@ -1,10 +1,10 @@
-load("//cuttlefish/bazel:rules.bzl", "cf_cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary")
 
 package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-cf_cc_library(
+cc_library(
     name = "strerror",
     srcs = ["strerror.cc"],
     hdrs = ["strerror.h"],
@@ -13,7 +13,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "symlink",
     srcs = ["symlink.cc"],
     hdrs = ["symlink.h"],

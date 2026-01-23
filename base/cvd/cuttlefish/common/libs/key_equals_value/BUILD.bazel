@@ -1,10 +1,10 @@
-load("//cuttlefish/bazel:rules.bzl", "cf_cc_library", "cf_cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary", "cc_test")
 
 package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-cf_cc_library(
+cc_library(
     name = "key_equals_value",
     srcs = ["key_equals_value.cc"],
     hdrs = ["key_equals_value.h"],
@@ -16,7 +16,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "key_equals_value_test",
     srcs = ["key_equals_value_test.cc"],
     deps = [

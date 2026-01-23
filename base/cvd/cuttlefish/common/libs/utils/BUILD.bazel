@@ -1,10 +1,10 @@
-load("//cuttlefish/bazel:rules.bzl", "cf_cc_library", "cf_cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary", "cc_test")
 
 package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-cf_cc_library(
+cc_library(
     name = "archive",
     srcs = ["archive.cpp"],
     hdrs = ["archive.h"],
@@ -18,14 +18,14 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "base64",
     srcs = ["base64.cpp"],
     hdrs = ["base64.h"],
     deps = ["@boringssl//:crypto"],
 )
 
-cf_cc_test(
+cc_test(
     name = "base64_test",
     srcs = ["base64_test.cpp"],
     deps = [
@@ -35,7 +35,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "cf_endian",
     hdrs = ["cf_endian.h"],
     deps = [
@@ -43,19 +43,19 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "container",
     srcs = ["container.cpp"],
     hdrs = ["container.h"],
     deps = ["//cuttlefish/common/libs/utils:files"],
 )
 
-cf_cc_library(
+cc_library(
     name = "contains",
     hdrs = ["contains.h"],
 )
 
-cf_cc_library(
+cc_library(
     name = "device_type",
     srcs = ["device_type.cpp"],
     hdrs = ["device_type.h"],
@@ -64,7 +64,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "disk_usage",
     srcs = ["disk_usage.cpp"],
     hdrs = ["disk_usage.h"],
@@ -76,7 +76,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "environment",
     srcs = [
         "environment.cpp",
@@ -91,7 +91,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "files",
     srcs = ["files.cpp"],
     hdrs = ["files.h"],
@@ -116,7 +116,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "files_test_helper",
     testonly = 1,
     srcs = ["files_test_helper.cpp"],
@@ -127,7 +127,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "files_test",
     srcs = ["files_test.cpp"],
     deps = [
@@ -141,7 +141,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "flag_parser",
     srcs = ["flag_parser.cpp"],
     hdrs = ["flag_parser.h"],
@@ -156,7 +156,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "flag_parser_test",
     srcs = ["flag_parser_test.cpp"],
     # `layering_check` conflicts with the combination of the clang prebuilt and
@@ -175,7 +175,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "flags_validator",
     srcs = ["flags_validator.cpp"],
     hdrs = ["flags_validator.h"],
@@ -184,7 +184,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "host_info",
     srcs = ["host_info.cpp"],
     hdrs = ["host_info.h"],
@@ -195,13 +195,13 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "in_sandbox",
     srcs = ["in_sandbox.cpp"],
     hdrs = ["in_sandbox.h"],
 )
 
-cf_cc_library(
+cc_library(
     name = "inotify",
     srcs = ["inotify.cpp"],
     hdrs = ["inotify.h"],
@@ -217,7 +217,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "json",
     srcs = ["json.cpp"],
     hdrs = ["json.h"],
@@ -228,7 +228,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "network",
     srcs = ["network.cpp"],
     hdrs = ["network.h"],
@@ -244,7 +244,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "network_test",
     srcs = ["network_test.cpp"],
     deps = [
@@ -254,7 +254,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "proc_file_utils",
     srcs = ["proc_file_utils.cpp"],
     hdrs = ["proc_file_utils.h"],
@@ -269,7 +269,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "proc_file_utils_test",
     srcs = ["proc_file_utils_test.cpp"],
     deps = [
@@ -281,7 +281,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "proto",
     hdrs = ["proto.h"],
     deps = [
@@ -291,7 +291,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "random",
     srcs = [
         "random.cpp",
@@ -301,7 +301,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "shared_fd_flag",
     srcs = ["shared_fd_flag.cpp"],
     hdrs = ["shared_fd_flag.h"],
@@ -312,7 +312,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "signals",
     srcs = ["signals.cpp"],
     hdrs = ["signals.h"],
@@ -322,12 +322,12 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "size_utils",
     hdrs = ["size_utils.h"],
 )
 
-cf_cc_library(
+cc_library(
     name = "socket2socket_proxy",
     srcs = ["socket2socket_proxy.cpp"],
     hdrs = ["socket2socket_proxy.h"],
@@ -344,7 +344,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "subprocess",
     srcs = ["subprocess.cpp"],
     hdrs = ["subprocess.h"],
@@ -360,7 +360,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "subprocess_managed_stdio",
     srcs = ["subprocess_managed_stdio.cc"],
     hdrs = ["subprocess_managed_stdio.h"],
@@ -373,7 +373,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "tee_logging",
     srcs = ["tee_logging.cpp"],
     hdrs = ["tee_logging.h"],
@@ -393,12 +393,12 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "type_name",
     hdrs = ["type_name.h"],
 )
 
-cf_cc_library(
+cc_library(
     name = "uuid",
     srcs = [
         "uuid.cpp",
@@ -411,7 +411,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "unix_sockets",
     srcs = ["unix_sockets.cpp"],
     hdrs = ["unix_sockets.h"],
@@ -424,7 +424,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_test(
+cc_test(
     name = "unix_sockets_test",
     srcs = ["unix_sockets_test.cpp"],
     deps = [
@@ -438,7 +438,7 @@ cf_cc_test(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "users",
     srcs = ["users.cpp"],
     hdrs = ["users.h"],
@@ -450,11 +450,10 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "vsock_connection",
     srcs = ["vsock_connection.cpp"],
     hdrs = ["vsock_connection.h"],
-    clang_tidy_enabled = False,  # TODO: b/403278821 - fix warnings and re-enable after migration work
     target_compatible_with = [
         "@platforms//os:linux",
     ],
@@ -464,12 +463,9 @@ cf_cc_library(
         "@abseil-cpp//absl/log",
         "@jsoncpp",
     ],
-    target_compatible_with = [
-        "@platforms//os:linux",
-    ],
 )
 
-cf_cc_library(
+cc_library(
     name = "wait_for_file",
     srcs = ["wait_for_file.cc"],
     hdrs = ["wait_for_file.h"],
@@ -482,7 +478,7 @@ cf_cc_library(
     ],
 )
 
-cf_cc_library(
+cc_library(
     name = "wait_for_unix_socket",
     srcs = ["wait_for_unix_socket.cpp"],
     hdrs = ["wait_for_unix_socket.h"],
