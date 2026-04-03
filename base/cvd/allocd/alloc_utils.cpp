@@ -28,8 +28,28 @@
 
 #include "allocd/alloc_driver.h"
 #include "cuttlefish/common/libs/utils/subprocess.h"
+#include "cuttlefish/common/libs/utils/files.h"
 #include "cuttlefish/host/commands/cvd/utils/common.h"
 #include "cuttlefish/result/result.h"
+
+namespace {
+
+cuttlefish::Result<std::string> SearchForIptables() {
+  cuttlefish::Result<std::string> p =
+      cuttlefish::Search(cuttlefish::Path(), "iptables");
+  if (p.ok()) {
+    return p;
+  }
+
+  p = cuttlefish::Search({"/usr/sbin", "/sbin"}, "iptables");
+  if (p.ok()) {
+    return p;
+  }
+
+  return p;
+}
+
+}  // namespace
 
 namespace cuttlefish {
 
@@ -309,17 +329,10 @@ bool DestroyEthernetBridgeIface(std::string_view name,
 }
 
 Result<std::string> IptablesPath() {
-  Result<std::string> path = Search(Path(), "iptables");
-  if (path.ok()) {
-    return *path;
-  }
+  static const std::string iptables_path = SearchForIptables().value_or("");
 
-  path = Search({"/usr/sbin", "/sbin"}, "iptables");
-  if (path.ok()) {
-    return *path;
-  }
-
-  return CF_ERR("iptables not found in PATH or standard system locations");
+  CF_EXPECT(!iptables_path.empty(), "could not find iptables");
+  return iptables_path;
 }
 
 }  // namespace cuttlefish
