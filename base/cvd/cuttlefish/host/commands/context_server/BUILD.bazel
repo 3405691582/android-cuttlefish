@@ -1,0 +1,42 @@
+load("@grpc//bazel:cc_grpc_library.bzl", "cc_grpc_library")
+load("@protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@protobuf//bazel:proto_library.bzl", "proto_library")
+load("//cuttlefish/bazel:rules.bzl", "cf_cc_binary")
+
+package(
+    default_visibility = ["//:android_cuttlefish"],
+)
+
+proto_library(
+    name = "context_server_proto",
+    srcs = ["context.proto"],
+)
+
+cc_proto_library(
+    name = "context_server_cc_proto",
+    deps = [":context_server_proto"],
+)
+
+cc_grpc_library(
+    name = "libcontext_server",
+    srcs = [":context_server_proto"],
+    grpc_only = True,
+    deps = [
+        ":context_server_cc_proto",
+        "@grpc//:grpc++",
+    ],
+)
+
+cf_cc_binary(
+    name = "context_server",
+    srcs = [
+        "main.cpp",
+    ],
+    deps = [
+        ":libcontext_server",
+        "@gflags",
+        "@grpc",
+        "@grpc//:grpc++",
+        "@grpc//:grpc++_reflection",
+    ],
+)

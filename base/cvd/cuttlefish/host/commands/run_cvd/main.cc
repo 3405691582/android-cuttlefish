@@ -37,6 +37,7 @@
 #include "cuttlefish/host/commands/run_cvd/launch/casimir.h"
 #include "cuttlefish/host/commands/run_cvd/launch/casimir_control_server.h"
 #include "cuttlefish/host/commands/run_cvd/launch/console_forwarder.h"
+#include "cuttlefish/host/commands/run_cvd/launch/context_server.h"
 #include "cuttlefish/host/commands/run_cvd/launch/control_env_proxy_server.h"
 #include "cuttlefish/host/commands/run_cvd/launch/cvdalloc.h"
 #include "cuttlefish/host/commands/run_cvd/launch/echo_server.h"
@@ -192,6 +193,7 @@ fruit::Component<> runCvdComponent(
       .install(AutoDiagnostic<ConsoleInfo>::Component)
       .install(ControlEnvProxyServerComponent)
       .install(AutoCmd<EchoServer>::Component)
+      .install(AutoCmd<ContextServer>::Component)
       .install(AutoCmd<GnssGrpcProxyServer>::Component)
       .install(AutoCmd<LogcatReceiver>::Component)
       .install(AutoDiagnostic<LogcatInfo>::Component)

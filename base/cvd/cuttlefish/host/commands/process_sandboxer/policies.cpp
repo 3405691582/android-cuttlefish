@@ -115,6 +115,7 @@ std::unique_ptr<sandbox2::Policy> PolicyForExecutable(
       CasimirControlServerPolicy;
   builders[host.HostToolExe("control_env_proxy_server")] =
       ControlEnvProxyServerPolicy;
+  builders[host.HostToolExe("context_server")] = ContextServerPolicy;
   builders[host.HostToolExe("cvd_internal_start")] = CvdInternalStartPolicy;
   builders[host.HostToolExe("echo_server")] = EchoServerPolicy;
   builders[host.HostToolExe("gnss_grpc_proxy")] = GnssGrpcProxyPolicy;

@@ -50,6 +50,7 @@ sandbox2::PolicyBuilder RunCvdPolicy(const HostInfo& host) {
       .AddFileAt(sandboxer_proxy, host.HostToolExe("casimir_control_server"))
       .AddFileAt(sandboxer_proxy, host.HostToolExe("cf_vhost_user_input"))
       .AddFileAt(sandboxer_proxy, host.HostToolExe("control_env_proxy_server"))
+      .AddFileAt(sandboxer_proxy, host.HostToolExe("context_server"))
       .AddFileAt(sandboxer_proxy, host.HostToolExe("crosvm"))
       .AddFileAt(sandboxer_proxy, host.HostToolExe("echo_server"))
       .AddFileAt(sandboxer_proxy, host.HostToolExe("gnss_grpc_proxy"))

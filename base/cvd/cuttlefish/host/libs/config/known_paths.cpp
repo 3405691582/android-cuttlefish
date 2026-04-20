@@ -48,6 +48,8 @@ std::string ConsoleForwarderBinary() {
   return HostBinaryPath("console_forwarder");
 }
 
+std::string ContextServerBinary() { return HostBinaryPath("context_server"); }
+
 std::string ControlEnvProxyServerBinary() {
   return HostBinaryPath("control_env_proxy_server");
 }

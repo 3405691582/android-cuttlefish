@@ -111,6 +111,17 @@ cf_cc_library(
 )
 
 cf_cc_library(
+    name = "context_server",
+    srcs = ["context_server.cpp"],
+    hdrs = ["context_server.h"],
+    deps = [
+        "//cuttlefish/host/commands/run_cvd/launch:grpc_socket_creator",
+        "//cuttlefish/host/libs/config:known_paths",
+        "//cuttlefish/host/libs/feature",
+    ],
+)
+
+cf_cc_library(
     name = "cvdalloc",
     srcs = ["cvdalloc.cpp"],
     hdrs = ["cvdalloc.h"],

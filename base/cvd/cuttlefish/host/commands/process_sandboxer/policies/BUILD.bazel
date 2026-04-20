@@ -99,6 +99,18 @@ cf_cc_library(
 )
 
 cf_cc_library(
+    name = "context_server",
+    srcs = ["context_server.cpp"],
+    copts = COPTS + ALLOW_C,
+    deps = [
+        "//cuttlefish/host/commands/process_sandboxer:policies_header",
+        "@sandboxed_api//sandboxed_api/sandbox2",
+        "@sandboxed_api//sandboxed_api/sandbox2/util:bpf_helper",
+    ],
+    alwayslink = True,
+)
+
+cf_cc_library(
     name = "control_env_proxy_server",
     srcs = ["control_env_proxy_server.cpp"],
     copts = COPTS + ALLOW_C,

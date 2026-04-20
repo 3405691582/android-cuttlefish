@@ -25,6 +25,7 @@ std::string AvbToolBinary();
 std::string CasimirBinary();
 std::string CasimirControlServerBinary();
 std::string ConsoleForwarderBinary();
+std::string ContextServerBinary();
 std::string ControlEnvProxyServerBinary();
 std::string CpioBinary();
 std::string CvdallocBinary();
