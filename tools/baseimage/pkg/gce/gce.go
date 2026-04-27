@@ -279,6 +279,12 @@ func (h *GceHelper) BuildImage(project, zone string, opts BuildImageOpts) error 
 
 	log.Println("attaching disk...")
 	if err := h.AttachDisk(insName, attachedDiskName); err != nil {
+		// TODO: It would be better to return the error and let the caller handle it,
+		// so that defers can run automatically. For now, we preserve behavior and
+		// call cleanup manually before Fatalf.
+		log.Printf("AttachDisk failed, cleaning up resources...")
+		h.cleanupDeleteInstance(insName)
+		h.cleanupDeleteDisk(attachedDiskName)
 		log.Fatalf("failed to attach disk %q to instance %q: %v", attachedDiskName, insName, err)
 	}
 	defer h.cleanupDetachDisk(insName, attachedDiskName)
