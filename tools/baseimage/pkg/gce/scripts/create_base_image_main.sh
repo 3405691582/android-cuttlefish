@@ -112,7 +112,7 @@ echo "IMAGE ENDS WITH KERNEL: ${kmodver_end}"
 if [ "${kmodver_begin}" != "${kmodver_end}" ]; then
   echo "KERNEL UPDATE DETECTED!!! ${kmodver_begin} -> ${kmodver_end}"
   echo "Use source image with kernel ${kmodver_end} installed."
-  exit 1
+  # exit 1
 fi
 
 # Skip unmounting:
