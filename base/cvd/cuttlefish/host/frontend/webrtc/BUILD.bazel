@@ -314,6 +314,7 @@ cf_cc_binary(
     srcs = [
         "main.cpp",
     ],
+    linkstatic = False,
     deps = [
         ":libcuttlefish_webrtc_adb_handler",
         ":libcuttlefish_webrtc_audio_handler",
