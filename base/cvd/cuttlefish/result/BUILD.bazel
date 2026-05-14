@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_import.bzl", "cc_import")
+load("@rules_cc//cc:cc_shared_library.bzl", "cc_shared_library")
 load("//cuttlefish/bazel:rules.bzl", "cf_cc_library", "cf_cc_test")
 
 package(
@@ -64,5 +66,21 @@ cf_cc_library(
         "//cuttlefish/result",
         "//libbase",
         "@googletest//:gtest",
+    ],
+)
+
+cc_shared_library(
+    name = "result_shared",
+    deps = [":result"],
+)
+
+cc_import(
+    name = "result_shared_import",
+    shared_library = ":result_shared",
+    hdrs = [
+        "error_type.h",
+        "expect.h",
+        "result.h",
+        "result_type.h",
     ],
 )
