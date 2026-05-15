@@ -115,6 +115,13 @@ cf_cc_binary(
         "@fruit",
         "@gflags",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ]
 )
 
 cf_cc_library(

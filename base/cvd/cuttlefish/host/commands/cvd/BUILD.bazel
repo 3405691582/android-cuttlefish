@@ -49,4 +49,10 @@ cf_cc_binary(
         "@fmt",
         "@protobuf",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
 )

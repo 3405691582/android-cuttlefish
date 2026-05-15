@@ -34,4 +34,11 @@ cf_cc_binary(
         "@gflags",
         "@protobuf",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
 )

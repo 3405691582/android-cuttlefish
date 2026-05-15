@@ -20,4 +20,8 @@ cf_cc_binary(
         "@grpc",
         "@grpc//:grpc++",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//libbase:libbase_shared",
+    ],
 )

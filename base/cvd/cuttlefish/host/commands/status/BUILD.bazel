@@ -22,4 +22,10 @@ cf_cc_binary(
         "@gflags",
         "@jsoncpp",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
 )

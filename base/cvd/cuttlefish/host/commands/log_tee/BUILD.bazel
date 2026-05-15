@@ -20,4 +20,9 @@ cf_cc_binary(
         "@abseil-cpp//absl/strings",
         "@gflags",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
 )

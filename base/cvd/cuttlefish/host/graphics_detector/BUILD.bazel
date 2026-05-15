@@ -69,4 +69,7 @@ cf_cc_binary(
         "@vulkan_headers",
         "@vulkan_headers//:vulkan_hpp",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+    ],
 )

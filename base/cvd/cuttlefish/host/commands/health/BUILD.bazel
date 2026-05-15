@@ -18,4 +18,8 @@ cf_cc_binary(
         "@abseil-cpp//absl/log",
         "@gflags",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//libbase:libbase_shared",
+    ],
 )

@@ -44,6 +44,11 @@ cf_cc_binary(
         "@jsoncpp",
         "@libxml2",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
 )
 
 cf_cc_library(

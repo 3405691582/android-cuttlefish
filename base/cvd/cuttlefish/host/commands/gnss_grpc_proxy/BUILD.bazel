@@ -25,6 +25,11 @@ cf_cc_binary(
         "@grpc//:grpc++",
         "@grpc//:grpc++_reflection",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
 )
 
 proto_library(

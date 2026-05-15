@@ -56,4 +56,8 @@ cf_cc_binary(
         "@gflags",
         "@libeigen",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//libbase:libbase_shared",
+    ],
 )

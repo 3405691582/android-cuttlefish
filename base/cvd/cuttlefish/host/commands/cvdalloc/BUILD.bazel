@@ -63,4 +63,9 @@ cf_cc_binary(
         "@abseil-cpp//absl/log",
         "@abseil-cpp//absl/strings:str_format",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
 )

@@ -136,6 +136,9 @@ cf_cc_binary(
         "@sandboxed_api//sandboxed_api/util:file_base",
         "@sandboxed_api//sandboxed_api/util:fileops",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+    ],
 )
 
 cf_cc_library(
@@ -186,6 +189,9 @@ cf_cc_binary(
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@abseil-cpp//absl/strings",
+    ],
+    dynamic_deps = [
+        "//:absl_shared",
     ],
 )
 

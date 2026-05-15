@@ -43,4 +43,7 @@ cf_cc_binary(
         "@grpc//:grpc++_reflection",
         "@jsoncpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/common/libs/utils:files_shared",
+    ],
 )
