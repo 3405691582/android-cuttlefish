@@ -45,6 +45,11 @@ cf_cc_binary(
     srcs = [
         "main.cpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libsensors_hal_proxy",
         ":libsensors_simulator",
@@ -55,9 +60,5 @@ cf_cc_binary(
         "@abseil-cpp//absl/log",
         "@gflags",
         "@libeigen",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//libbase:libbase_shared",
     ],
 )

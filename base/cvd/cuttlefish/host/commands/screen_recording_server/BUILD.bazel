@@ -33,6 +33,12 @@ cf_cc_binary(
     srcs = [
         "main.cpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libscreen_recording_server",
         "//cuttlefish/common/libs/fs",
@@ -49,10 +55,5 @@ cf_cc_binary(
         "@grpc//:grpc++",
         "@grpc//:grpc++_reflection",
         "@protobuf//:empty_cc_proto",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
     ],
 )

@@ -9,17 +9,17 @@ cf_cc_binary(
     srcs = [
         "main.cc",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libcvd_send_sms",
         "//cuttlefish/common/libs/fs",
         "//libbase",
         "@abseil-cpp//absl/log",
         "@gflags",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//libbase:libbase_shared",
     ],
 )
 

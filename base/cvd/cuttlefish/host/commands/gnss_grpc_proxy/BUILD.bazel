@@ -12,6 +12,12 @@ cf_cc_binary(
     srcs = [
         "gnss_grpc_proxy.cpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libcvd_gnss_grpc_proxy",
         "//cuttlefish/common/libs/fs",
@@ -24,11 +30,6 @@ cf_cc_binary(
         "@grpc",
         "@grpc//:grpc++",
         "@grpc//:grpc++_reflection",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//libbase:libbase_shared",
     ],
 )
 

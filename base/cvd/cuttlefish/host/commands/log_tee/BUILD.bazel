@@ -9,6 +9,12 @@ cf_cc_binary(
     srcs = [
         "log_tee.cpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/common/libs/utils:tee_logging",
@@ -19,10 +25,5 @@ cf_cc_binary(
         "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/strings",
         "@gflags",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//libbase:libbase_shared",
     ],
 )

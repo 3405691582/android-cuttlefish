@@ -13,6 +13,14 @@ cf_cc_binary(
         "snapshot_taker.cc",
         "snapshot_taker.h",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/common/libs/utils:contains",
@@ -33,12 +41,5 @@ cf_cc_binary(
         "@fmt",
         "@gflags",
         "@protobuf",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/utils:files_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
     ],
 )

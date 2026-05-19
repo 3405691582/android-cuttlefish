@@ -1,3 +1,4 @@
+load("@rules_cc//cc:cc_shared_library.bzl", "cc_shared_library")
 load("//cuttlefish/bazel:rules.bzl", "cf_cc_library")
 
 package(
@@ -472,5 +473,32 @@ cf_cc_library(
         "//cuttlefish/result",
         "//libbase",
         "@abseil-cpp//absl/strings",
+    ],
+)
+
+cc_shared_library(
+    name = "cuttlefish_config_shared",
+    dynamic_deps = [
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+        "//:absl_shared",
+        "//:fmt_shared",
+    ],
+    exports_filter = [
+        "//cuttlefish/host/libs/config:__subpackages__",
+        "//cuttlefish/common/libs/utils:__subpackages__",
+        "//cuttlefish/host/commands/assemble_cvd:__subpackages__",
+        "@protobuf//:__subpackages__",
+        "@zlib//:__subpackages__",
+        "@jsoncpp//:__subpackages__",
+        "@abseil-cpp//absl/log:__subpackages__",
+    ],
+    shared_lib_name = "libcuttlefish_cuttlefish_config.so",
+    deps = [
+        ":cuttlefish_config",
+        "@protobuf",
+        "@zlib",
     ],
 )

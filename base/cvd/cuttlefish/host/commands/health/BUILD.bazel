@@ -9,6 +9,11 @@ cf_cc_binary(
     srcs = [
         "health.cpp",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/utils:subprocess",
         "//cuttlefish/common/libs/utils:subprocess_managed_stdio",
@@ -17,9 +22,5 @@ cf_cc_binary(
         "//libbase",
         "@abseil-cpp//absl/log",
         "@gflags",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//libbase:libbase_shared",
     ],
 )

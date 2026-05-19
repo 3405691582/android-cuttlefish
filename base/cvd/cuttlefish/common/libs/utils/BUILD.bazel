@@ -67,6 +67,7 @@ cf_cc_library(
     deps = [
         "@abseil-cpp//absl/strings",
     ],
+    alwayslink = 1,
 )
 
 cf_cc_library(

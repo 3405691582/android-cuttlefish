@@ -51,6 +51,14 @@ cf_cc_binary(
         "host_receiver.h",
         "metrics.cc",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/common/libs/utils:files",
@@ -72,13 +80,6 @@ cf_cc_binary(
         "@gflags",
         "@jsoncpp",
         "@protobuf",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/utils:files_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
     ],
 )
 
@@ -137,6 +138,10 @@ cf_cc_binary(
     srcs = [
         "metrics_transmitter.cc",
     ],
+    dynamic_deps = [
+        "//:absl_shared",
+        "//cuttlefish/result:result_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/utils:tee_logging",
         "//cuttlefish/host/commands/metrics:debug_reader",
@@ -146,10 +151,6 @@ cf_cc_binary(
         "//cuttlefish/result",
         "//external_proto:clientanalytics_cc_proto",
         "@abseil-cpp//absl/log",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/result:result_shared",
     ],
 )
 

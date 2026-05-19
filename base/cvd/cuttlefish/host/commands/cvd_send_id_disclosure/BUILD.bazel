@@ -9,6 +9,12 @@ cf_cc_binary(
     srcs = [
         "main.cc",
     ],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libcvd_id_disclosure_builder",
         "//cuttlefish/common/libs/fs",
@@ -17,11 +23,6 @@ cf_cc_binary(
         "//libbase",
         "@abseil-cpp//absl/log",
         "@gflags",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//libbase:libbase_shared",
     ],
 )
 

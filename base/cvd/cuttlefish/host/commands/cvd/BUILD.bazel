@@ -29,6 +29,13 @@ cf_cc_library(
 cf_cc_binary(
     name = "cvd",
     srcs = ["main.cc"],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         ":libcvd",
         "//cuttlefish/common/libs/utils:environment",
@@ -48,11 +55,5 @@ cf_cc_binary(
         "@android_system_core//:libsparse",
         "@fmt",
         "@protobuf",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/utils:files_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
     ],
 )

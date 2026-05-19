@@ -53,6 +53,14 @@ cf_cc_library(
 cf_cc_binary(
     name = "run_cvd",
     srcs = ["main.cc"],
+    dynamic_deps = [
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
+        "//:absl_shared",
+        "//cuttlefish/common/libs/utils:files_shared",
+        "//cuttlefish/common/libs/fs:fs_shared",
+        "//cuttlefish/result:result_shared",
+        "//libbase:libbase_shared",
+    ],
     deps = [
         "//cuttlefish/common/libs/utils:files",
         "//cuttlefish/common/libs/utils:tee_logging",
@@ -115,13 +123,6 @@ cf_cc_binary(
         "@fruit",
         "@gflags",
     ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//cuttlefish/common/libs/utils:files_shared",
-        "//cuttlefish/common/libs/fs:fs_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
-    ]
 )
 
 cf_cc_library(

@@ -15,6 +15,7 @@ cf_cc_binary(
     dynamic_deps = [
         "//:absl_shared",
         "//:fmt_shared",
+        "//cuttlefish/host/libs/config:cuttlefish_config_shared",
         "//cuttlefish/result:result_shared",
         "//libbase:libbase_shared",
     ],
@@ -32,12 +33,6 @@ cf_cc_binary(
         "@grpc//:grpc++",
         "@grpc//:grpc++_reflection",
         "@protobuf//:empty_cc_proto",
-    ],
-    dynamic_deps = [
-        "//:absl_shared",
-        "//:fmt_shared",
-        "//cuttlefish/result:result_shared",
-        "//libbase:libbase_shared",
     ],
 )
 
