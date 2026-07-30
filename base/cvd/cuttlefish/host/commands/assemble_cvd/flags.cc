@@ -565,6 +565,8 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
       CF_EXPECT(GET_FLAG_STR_VALUE(boot_slot));
   std::vector<std::string> webrtc_assets_dir_vec =
       CF_EXPECT(GET_FLAG_STR_VALUE(webrtc_assets_dir));
+  std::vector<bool> enable_webrtc_vec =
+      CF_EXPECT(GET_FLAG_BOOL_VALUE(enable_webrtc));
   std::vector<std::string> tcp_port_range_vec =
       CF_EXPECT(GET_FLAG_STR_VALUE(tcp_port_range));
   std::vector<std::string> udp_port_range_vec =
@@ -1142,7 +1144,9 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
     }
 
     if (hwcomposer_vec[instance_index] == kHwComposerAuto) {
-      if (gpu_mode == GpuMode::DrmVirgl) {
+      if (!enable_webrtc_vec[instance_index]) {
+        instance.set_hwcomposer(kHwComposerNone);
+      } else if (gpu_mode == GpuMode::DrmVirgl) {
         instance.set_hwcomposer(kHwComposerDrm);
       } else if (gpu_mode == GpuMode::None) {
         instance.set_hwcomposer(kHwComposerNone);
@@ -1240,7 +1244,9 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
     // first two)
     instance.set_wifi_mac_prefix(5554 + (num - 1));
 
-    // streaming, webrtc setup
+    bool webrtc_enabled = enable_webrtc_vec[instance_index];
+    instance.set_enable_webrtc(webrtc_enabled);
+
     instance.set_webrtc_assets_dir(webrtc_assets_dir_vec[instance_index]);
 
     std::pair<uint16_t, uint16_t> tcp_range =

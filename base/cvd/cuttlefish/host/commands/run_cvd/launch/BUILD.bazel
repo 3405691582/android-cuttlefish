@@ -384,6 +384,7 @@ cf_cc_library(
     hdrs = ["screen_recording_server.h"],
     deps = [
         "//cuttlefish/host/commands/run_cvd/launch:grpc_socket_creator",
+        "//cuttlefish/host/libs/config:cuttlefish_config",
         "//cuttlefish/host/libs/config:known_paths",
         "//cuttlefish/host/libs/feature",
         "//cuttlefish/process:command",
@@ -585,6 +586,7 @@ cf_cc_library(
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/host/frontend/webrtc:libcuttlefish_webrtc_command_channel",
         "//cuttlefish/host/frontend/webrtc:libcuttlefish_webrtc_commands_proto",
+        "//cuttlefish/host/libs/config:cuttlefish_config",
         "//cuttlefish/host/libs/feature",
         "//cuttlefish/result",
         "@abseil-cpp//absl/log",

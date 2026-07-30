@@ -68,7 +68,6 @@ CuttlefishConfig::MutableInstanceSpecific::MutableInstanceSpecific(
     : config_(config), id_(id) {
   // Legacy for acloud
   (*Dictionary())[kInstanceDir] = config_->InstancesPath(IdToName(id));
-  (*Dictionary())["enable_webrtc"] = true;
 }
 
 Json::Value* CuttlefishConfig::MutableInstanceSpecific::Dictionary() {
@@ -1793,6 +1792,14 @@ void CuttlefishConfig::MutableInstanceSpecific::set_webrtc_device_id(
 }
 std::string CuttlefishConfig::InstanceSpecific::webrtc_device_id() const {
   return (*Dictionary())[kWebrtcDeviceId].asString();
+}
+
+static constexpr char kEnableWebrtc[] = "enable_webrtc";
+void CuttlefishConfig::MutableInstanceSpecific::set_enable_webrtc(bool enable) {
+  (*Dictionary())[kEnableWebrtc] = enable;
+}
+bool CuttlefishConfig::InstanceSpecific::enable_webrtc() const {
+  return (*Dictionary())[kEnableWebrtc].asBool();
 }
 
 static constexpr char kStartRootcanal[] = "start_rootcanal";

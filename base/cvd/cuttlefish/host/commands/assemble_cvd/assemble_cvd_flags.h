@@ -90,6 +90,8 @@ DECLARE_string(seccomp_policy_dir);
 
 DECLARE_vec(webrtc_assets_dir);
 
+DECLARE_vec(enable_webrtc);
+
 DECLARE_bool(start_webrtc_sig_server);
 
 DECLARE_string(webrtc_sig_server_addr);

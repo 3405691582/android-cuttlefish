@@ -91,7 +91,11 @@ Result<void> WebRtcController::SendScreenshotDisplayCommand(
   return {};
 }
 
-fruit::Component<WebRtcController> WebRtcControllerComponent() {
+bool WebRtcController::Enabled() const { return instance_.enable_webrtc(); }
+
+fruit::Component<fruit::Required<const CuttlefishConfig::InstanceSpecific>,
+                 WebRtcController>
+WebRtcControllerComponent() {
   return fruit::createComponent()
       .addMultibinding<SetupFeature, WebRtcController>();
 }

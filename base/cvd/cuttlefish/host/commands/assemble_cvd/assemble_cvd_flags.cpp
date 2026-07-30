@@ -176,8 +176,8 @@ DEFINE_string(
     seccomp_policy_dir, CF_DEFAULTS_SECCOMP_POLICY_DIR,
     "With sandbox'ed crosvm, overrieds the security comp policy directory");
 
-DEFINE_vec(start_webrtc, fmt::format("{}", CF_DEFAULTS_START_WEBRTC),
-           "(Deprecated, webrtc is enabled depending on the VMM)");
+DEFINE_vec(enable_webrtc, fmt::format("{}", CF_DEFAULTS_START_WEBRTC),
+           "Whether to enable WebRTC streaming.");
 
 DEFINE_vec(webrtc_assets_dir, CF_DEFAULTS_WEBRTC_ASSETS_DIR,
            "Path to WebRTC webpage assets.");
@@ -290,7 +290,7 @@ DEFINE_string(ap_kernel_image, CF_DEFAULTS_AP_KERNEL_IMAGE,
 
 DEFINE_vec(record_screen, fmt::format("{}", CF_DEFAULTS_RECORD_SCREEN),
            "Enable screen recording. "
-           "Requires --start_webrtc");
+           "Requires --enable_webrtc");
 
 DEFINE_vec(smt, fmt::format("{}", CF_DEFAULTS_SMT),
            "Enable simultaneous multithreading (SMT/HT)");

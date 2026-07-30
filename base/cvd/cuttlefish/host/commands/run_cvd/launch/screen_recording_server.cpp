@@ -27,7 +27,11 @@
 namespace cuttlefish {
 
 Result<std::optional<MonitorCommand>> ScreenRecordingServer(
+    const CuttlefishConfig::InstanceSpecific& instance,
     GrpcSocketCreator& grpc_socket) {
+  if (!instance.record_screen()) {
+    return std::nullopt;
+  }
   Command screen_recording_server_cmd(ScreenRecordingServerBinary());
   screen_recording_server_cmd.AddParameter(
       "-grpc_uds_path=", grpc_socket.CreateGrpcSocket("ScreenRecordingServer"));

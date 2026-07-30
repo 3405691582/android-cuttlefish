@@ -19,6 +19,7 @@
 
 #include "cuttlefish/common/libs/fs/shared_fd.h"
 #include "cuttlefish/host/frontend/webrtc/webrtc_command_channel.h"
+#include "cuttlefish/host/libs/config/cuttlefish_config.h"
 #include "cuttlefish/host/libs/feature/feature.h"
 #include "cuttlefish/result/result.h"
 
@@ -26,8 +27,10 @@ namespace cuttlefish {
 
 class WebRtcController : public SetupFeature {
  public:
-  INJECT(WebRtcController()) {};
+  INJECT(WebRtcController(const CuttlefishConfig::InstanceSpecific& instance))
+      : instance_(instance) {};
   std::string Name() const override { return "WebRtcController"; }
+  bool Enabled() const override;
   Result<void> ResultSetup() override;
 
   SharedFD GetClientSocket() const;
@@ -41,9 +44,12 @@ class WebRtcController : public SetupFeature {
   std::optional<WebrtcClientCommandChannel> command_channel_;
 
  private:
+  const CuttlefishConfig::InstanceSpecific& instance_;
   std::unordered_set<SetupFeature*> Dependencies() const override { return {}; }
 };
 
-fruit::Component<WebRtcController> WebRtcControllerComponent();
+fruit::Component<fruit::Required<const CuttlefishConfig::InstanceSpecific>,
+                 WebRtcController>
+WebRtcControllerComponent();
 
 }  // namespace cuttlefish

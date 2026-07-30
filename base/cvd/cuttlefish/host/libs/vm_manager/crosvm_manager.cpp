@@ -950,7 +950,7 @@ Result<std::vector<MonitorCommand>> CrosvmManager::StartCommands(
                           << VmManager::kMaxDisks + VmManager::kDefaultNumHvcs
                           << " devices");
 
-  if (instance.enable_audio()) {
+  if (instance.enable_audio() && instance.enable_webrtc()) {
     crosvm_cmd.Cmd().AddParameter("--sound=", instance.audio_server_path());
   }
 

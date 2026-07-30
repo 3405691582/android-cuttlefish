@@ -367,6 +367,8 @@ class CuttlefishConfig {
     // signaling server
     std::string webrtc_device_id() const;
 
+    bool enable_webrtc() const;
+
     // Whether this instance should start a rootcanal instance
     bool start_rootcanal() const;
 
@@ -631,6 +633,7 @@ class CuttlefishConfig {
     void set_modem_simulator_ports(const std::string& modem_simulator_ports);
     void set_virtual_disk_paths(const std::vector<std::string>& disk_paths);
     void set_webrtc_device_id(const std::string& id);
+    void set_enable_webrtc(bool enable);
     void set_start_rootcanal(bool start);
     void set_start_casimir(bool start);
     void set_start_pica(bool start);
