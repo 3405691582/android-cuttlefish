@@ -1,0 +1,87 @@
+name: env_tests
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build-debs:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Free disk space
+      uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be  # v1.3.1
+      with:
+        docker-images: false
+        swap-storage: false
+        tool-cache: true
+    - name: Checkout repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Mount Bazel cache
+      uses: ./.github/actions/mount-bazel-cache
+      with:
+        action-name: "build-debian-packages"
+    - name: Build CF host debian packages
+      uses: ./.github/actions/build-debian-packages
+    - name: Collect debs
+      run: |
+        mkdir -p debs
+        find . -name 'cuttlefish-*.deb' -exec cp {} debs/ \;
+        ls -l debs
+    - name: Upload debs
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6
+      with:
+        name: debs_amd64_env_test
+        path: debs
+
+  env-test:
+    needs: [build-debs]
+    runs-on: ubuntu-22.04
+    container:
+      image: debian:bookworm
+      options: >-
+        --privileged
+        --device /dev/kvm
+        --device /dev/net/tun
+        --device /dev/vhost-net
+        --device /dev/vhost-vsock
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Base setup
+      run: |
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          ca-certificates curl sudo git adb build-essential python3 unzip zip
+    - name: Install bazelisk
+      run: |
+        curl -fsSL -o /usr/local/bin/bazel \
+          https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
+        chmod +x /usr/local/bin/bazel
+    - name: Download debs
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7
+      with:
+        name: debs_amd64_env_test
+        path: debs
+    - name: Install cuttlefish host packages
+      run: |
+        apt-get install -y ./debs/cuttlefish-base_*_*64.deb \
+                           ./debs/cuttlefish-user_*_*64.deb
+    - name: Run env_tests (locally-built host debs + public AOSP guest)
+      working-directory: e2etests
+      run: |
+        sudo -u testrunner env "PATH=$PATH" HOME=/home/testrunner \
+          bazel test --test_output=all \
+            --test_env=DISABLE_CROSVM_SANDBOX=true \
+            //cvd/env_tests:env_tests_with_substitution
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6
+      with:
+        name: env-test-logs
+        path: e2etests/bazel-testlogs
