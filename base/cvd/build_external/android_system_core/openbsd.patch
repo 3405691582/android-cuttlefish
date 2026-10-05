@@ -22,3 +22,22 @@ diff -ruN a/libsparse/sparse_read.cpp b/libsparse/sparse_read.cpp
  #define lseek64 lseek
  #define off64_t off_t
  #endif
+diff -ruN a/libcutils/include/private/fs_config.h b/libcutils/include/private/fs_config.h
+--- a/libcutils/include/private/fs_config.h
++++ b/libcutils/include/private/fs_config.h
+@@ -27,7 +27,15 @@
+ #include <sys/cdefs.h>
+ #include <unistd.h>
+ 
++#if defined(__linux__)
+ #include <linux/capability.h>
++#else
++/* The Linux capability numbers referenced by the fs_config tables; they
++ * describe the target (Android) filesystem, not the host. */
++#define CAP_SETGID 6
++#define CAP_SETUID 7
++#define CAP_BLOCK_SUSPEND 36
++#endif
+ 
+ /* Rules for directories and files has moved to system/code/libcutils/fs_config.c */
+ 
