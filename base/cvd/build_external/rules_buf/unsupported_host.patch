@@ -1,0 +1,18 @@
+--- a/buf/internal/toolchain.bzl
++++ b/buf/internal/toolchain.bzl
+@@ -120,7 +120,14 @@
+     minor_version = int(version_number[1])
+     os, cpu = _detect_host_platform(ctx)
+     if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64", "ppc64le", "s390x"]:
+-        fail("Unsupported operating system or cpu architecture ")
++        # There is no buf release for this host. Create an empty repository
++        # instead of failing: toolchain resolution loads every registered
++        # toolchain, so failing here would break all builds on such hosts even
++        # when nothing uses buf.
++        ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
++        ctx.file("toolchain.bzl", _TOOLCHAIN_FILE)
++        ctx.file("BUILD", "# No buf release available for {}/{}.\n".format(os, cpu))
++        return None
+     if os == "linux" and cpu == "arm64":
+         cpu = "aarch64"
+     if cpu == "amd64":
