@@ -1,0 +1,50 @@
+diff -ruN a/libarchive_bazel_generic_config.h b/libarchive_bazel_generic_config.h
+--- a/libarchive_bazel_generic_config.h
++++ b/libarchive_bazel_generic_config.h
+@@ -186,3 +186,46 @@
+ #define HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC 1
+ #define HAVE_SYS_XATTR_H 1
+ #endif
++
++#ifdef __OpenBSD__
++/* No extended attributes, no lutimes(), no <sys/vfs.h>. */
++#undef HAVE_FGETXATTR
++#undef HAVE_FLISTXATTR
++#undef HAVE_FSETXATTR
++#undef HAVE_GETXATTR
++#undef HAVE_LGETXATTR
++#undef HAVE_LISTXATTR
++#undef HAVE_LLISTXATTR
++#undef HAVE_LSETXATTR
++#undef HAVE_LUTIMES
++#undef HAVE_SYS_VFS_H
++/* From ./configure on OpenBSD 7.9. */
++#define HAVE_ARC4RANDOM_BUF 1
++#define HAVE_CHFLAGS 1
++#define HAVE_DECL_STRERROR_R 1
++#define HAVE_EFTYPE 1
++#define HAVE_FCHFLAGS 1
++#define HAVE_FNMATCH 1
++#define HAVE_FNMATCH_H 1
++#define HAVE_GETLINE 1
++#define HAVE_LINKAT 1
++#define HAVE_PATHS_H 1
++#define HAVE_READPASSPHRASE 1
++#define HAVE_READPASSPHRASE_H 1
++#define HAVE_SETENV 1
++#define HAVE_STATVFS 1
++#define HAVE_STRNLEN 1
++#define HAVE_STRUCT_STATFS 1
++#define HAVE_STRUCT_STATFS_F_IOSIZE 1
++#define HAVE_STRUCT_STATFS_F_NAMEMAX 1
++#define HAVE_STRUCT_STAT_ST_FLAGS 1
++#define HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC 1
++#define HAVE_STRUCT_VFSCONF 1
++#define HAVE_SYSCONF 1
++#define HAVE_SYS_CDEFS_H 1
++#define HAVE_SYS_STATVFS_H 1
++#define HAVE_TCGETATTR 1
++#define HAVE_TCSETATTR 1
++#define HAVE_UNLINKAT 1
++#define HAVE_WMEMMOVE 1
++#endif

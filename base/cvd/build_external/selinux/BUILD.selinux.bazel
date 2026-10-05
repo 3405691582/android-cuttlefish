@@ -68,6 +68,7 @@ cc_library(
         "libselinux/src/selinux_internal.c",
         "libselinux/src/selinux_internal.h",
         "libselinux/src/selinux_netlink.h",
+        "libselinux/src/selinux_xattr.h",
         "libselinux/src/sestatus.c",
         "libselinux/src/setenforce.c",
         "libselinux/src/setfilecon.c",
@@ -280,6 +281,7 @@ cc_binary(
     name = "sefcontext_compile",
     srcs = [
         "libselinux/src/label_file.h",
+        "libselinux/src/selinux_xattr.h",
         "libselinux/utils/sefcontext_compile.c",
     ],
     local_defines = [
