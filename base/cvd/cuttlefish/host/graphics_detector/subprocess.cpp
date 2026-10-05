@@ -17,10 +17,15 @@
 #include "cuttlefish/host/graphics_detector/subprocess.h"
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <poll.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#if defined(__linux__)
+#include <sys/syscall.h>
+#endif
 
 #include <condition_variable>
 #include <functional>
@@ -48,12 +53,29 @@ class ScopedCloser {
   bool mEnabled = false;
 };
 
+#ifndef TEMP_FAILURE_RETRY
+#define TEMP_FAILURE_RETRY(exp)            \
+  ({                                       \
+    decltype(exp) _rc;                     \
+    do {                                   \
+      _rc = (exp);                         \
+    } while (_rc == -1 && errno == EINTR); \
+    _rc;                                   \
+  })
+#endif
+
 int PidfdOpen(pid_t pid) {
+#if defined(__linux__)
   // There is no glibc wrapper for pidfd_open.
 #ifndef SYS_pidfd_open
   constexpr int SYS_pidfd_open = 434;
 #endif
   return syscall(SYS_pidfd_open, pid, /*flags=*/0);
+#else
+  (void)pid;
+  errno = ENOSYS;
+  return -1;
+#endif
 }
 
 gfxstream::expected<Ok, std::string> WaitForChild(pid_t pid) {

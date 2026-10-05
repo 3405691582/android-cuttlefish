@@ -37,7 +37,6 @@
 #include <variant>
 #include <vector>
 
-#include <android-base/chrono_utils.h>
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/stringprintf.h>

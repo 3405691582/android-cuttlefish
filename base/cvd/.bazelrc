@@ -110,3 +110,6 @@ common --enable_platform_specific_config
 # -z origin (DF_ORIGIN); Bazel's dynamic mode (e.g. cc_test by default) uses
 # $ORIGIN-relative rpaths to locate _solib_openbsd/ shared libraries.
 build:openbsd --linkopt=-Wl,-z,origin
+# Reused sandbox directories occasionally fail with "Could not copy inputs into
+# sandbox: ... (File exists)" on OpenBSD; set up a fresh one for every action.
+build:openbsd --noreuse_sandbox_directories
