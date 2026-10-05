@@ -307,9 +307,12 @@ cf_cc_library(
     name = "socket2socket_proxy",
     srcs = ["socket2socket_proxy.cpp"],
     hdrs = ["socket2socket_proxy.h"],
-    target_compatible_with = [
-        "@platforms//os:linux",
-    ],
+    # Needs eventfd: Linux natively, OpenBSD through epoll-shim.
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:openbsd": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
     deps = [
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/common/libs/fs:fd",
