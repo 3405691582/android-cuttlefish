@@ -14,4 +14,59 @@
  * limitations under the License.
  */
 
-/* Stub */
+#pragma once
+
+#include <errno.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+// Subset of AOSP's libutils Compat.h: the 64-bit file API aliases that glibc
+// and bionic provide but macOS and the BSDs (whose off_t is always 64-bit)
+// do not.
+#if defined(__APPLE__) || defined(__OpenBSD__)
+
+static_assert(sizeof(off_t) >= 8, "This code requires a 64-bit off_t.");
+typedef off_t off64_t;
+
+static inline void* mmap64(void* addr, size_t length, int prot, int flags,
+                           int fd, off64_t offset) {
+  return mmap(addr, length, prot, flags, fd, offset);
+}
+
+static inline off64_t lseek64(int fd, off64_t offset, int whence) {
+  return lseek(fd, offset, whence);
+}
+
+static inline ssize_t pread64(int fd, void* buf, size_t nbytes,
+                              off64_t offset) {
+  return pread(fd, buf, nbytes, offset);
+}
+
+static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes,
+                               off64_t offset) {
+  return pwrite(fd, buf, nbytes, offset);
+}
+
+static inline int ftruncate64(int fd, off64_t length) {
+  return ftruncate(fd, length);
+}
+
+#endif /* __APPLE__ || __OpenBSD__ */
+
+/*
+ * TEMP_FAILURE_RETRY is defined by some, but not all, versions of
+ * <unistd.h>. (Alas, it is not as standard as we'd hoped!) So, if it's
+ * not already defined, then define it here.
+ */
+#ifndef TEMP_FAILURE_RETRY
+/* Used to retry syscalls that can return EINTR. */
+#define TEMP_FAILURE_RETRY(exp)            \
+  ({                                       \
+    __typeof__(exp) _rc;                   \
+    do {                                   \
+      _rc = (exp);                         \
+    } while (_rc == -1 && errno == EINTR); \
+    _rc;                                   \
+  })
+#endif

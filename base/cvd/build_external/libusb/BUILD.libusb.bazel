@@ -16,26 +16,44 @@ cc_library(
         "libusb/sync.c",
         "libusb/strerror.c",
         "libusb/os/events_posix.c",
-        "libusb/os/linux_usbfs.c",
         "libusb/os/threads_posix.c",
-        "libusb/os/linux_netlink.c",
-    ],
+    ] + select({
+        "@platforms//os:openbsd": [
+            "libusb/os/openbsd_usb.c",
+        ],
+        "//conditions:default": [
+            "libusb/os/linux_usbfs.c",
+            "libusb/os/linux_netlink.c",
+        ],
+    }),
     includes = [
         ".",
         "libusb",
         "libusb/os",
-        "linux",
-    ],
+    ] + select({
+        "@platforms//os:openbsd": [],
+        "//conditions:default": ["linux"],
+    }),
     hdrs = [
         "libusb/libusb.h",
         "libusb/libusbi.h",
         "libusb/os/events_posix.h",
-        "libusb/os/linux_usbfs.h",
         "libusb/os/threads_posix.h",
         "libusb/version.h",
         "libusb/version_nano.h",
-        "linux/config.h",
-    ],
+    ] + select({
+        "@platforms//os:openbsd": [],
+        "//conditions:default": [
+            "libusb/os/linux_usbfs.h",
+            "linux/config.h",
+        ],
+    }),
+    deps = select({
+        "@platforms//os:openbsd": [
+            "@//build_external/libusb:libusb_config_openbsd",
+        ],
+        "//conditions:default": [],
+    }),
     copts = [
         "-Wno-sign-compare",
         "-Wno-switch",
