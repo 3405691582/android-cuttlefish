@@ -324,7 +324,7 @@ SharedFD SetLogger(std::string runtime_dir_parent) {
 #else
     Result<std::pair<SharedFD, std::string>> temp_log =
         SharedFD::Mkostemp(runtime_dir_parent + "/assemble_cvd.log.");
-    if (temp_log.ok()) {
+    if (temp_log.has_value()) {
       log_file = std::move(temp_log->first);
       initial_log_path = std::move(temp_log->second);
     } else {
