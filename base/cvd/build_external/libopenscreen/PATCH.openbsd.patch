@@ -1,0 +1,27 @@
+diff -Nur a/platform/impl/network_interface_mac.cc b/platform/impl/network_interface_mac.cc
+--- a/platform/impl/network_interface_mac.cc	2026-10-05 21:19:13.426465691 +0000
++++ b/platform/impl/network_interface_mac.cc	2026-10-05 21:19:25.198646911 +0000
+@@ -6,7 +6,14 @@
+ #include <net/if_dl.h>
+ #include <net/if_media.h>
+ #include <netinet/in.h>
++#if defined(__OpenBSD__)
++#include <netinet6/in6_var.h>
++// OpenBSD reports the IPv6 address flags in a dedicated union member.
++#define OSP_IN6_IFR_FLAGS(ifr) ((ifr).ifr_ifru.ifru_flags6)
++#else
+ #include <netinet/in_var.h>
++#define OSP_IN6_IFR_FLAGS(ifr) ((ifr).ifr_ifru.ifru_flags)
++#endif
+ #include <sys/ioctl.h>
+ #include <sys/socket.h>
+ #include <sys/types.h>
+@@ -139,7 +146,7 @@
+       strncpy(ifr.ifr_name, cur->ifa_name, sizeof(ifr.ifr_name) - 1);
+       memcpy(&ifr.ifr_ifru.ifru_addr, cur->ifa_addr, cur->ifa_addr->sa_len);
+       if (ioctl(ioctl_socket.get(), SIOCGIFAFLAG_IN6, &ifr) != 0 ||
+-          ifr.ifr_ifru.ifru_flags & IN6_IFF_DEPRECATED) {
++          OSP_IN6_IFR_FLAGS(ifr) & IN6_IFF_DEPRECATED) {
+         continue;
+       }
+ 
