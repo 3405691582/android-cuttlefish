@@ -1,0 +1,19 @@
+diff -ruN a/icu4c/source/common/uposixdefs.h b/icu4c/source/common/uposixdefs.h
+--- a/icu4c/source/common/uposixdefs.h
++++ b/icu4c/source/common/uposixdefs.h
+@@ -44,7 +44,15 @@
+      * and define _XOPEN_SOURCE to different values depending on __STDC_VERSION__.
+      * In C++ source code (e.g., putil.cpp), __STDC_VERSION__ is not defined at all.
+      */
++#   if defined(__OpenBSD__)
++    /*
++     * OpenBSD hides the POSIX.1-2008 locale_t API (needed by its libc++
++     * headers) unless _XOPEN_SOURCE >= 700.
++     */
++#   define _XOPEN_SOURCE 700
++#   else
+ #   define _XOPEN_SOURCE 600
++#   endif
+ #endif
+ 
+ /*
