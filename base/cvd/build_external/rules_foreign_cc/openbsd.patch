@@ -1,3 +1,15 @@
+diff -ruN a/foreign_cc/cmake.bzl b/foreign_cc/cmake.bzl
+--- a/foreign_cc/cmake.bzl	2026-10-05 18:29:05.490763768 +0000
++++ b/foreign_cc/cmake.bzl	2026-10-05 18:29:05.506764010 +0000
+@@ -346,6 +346,8 @@
+             generator = "Unix Makefiles"
+         elif "linux" in execution_os_name:
+             generator = "Unix Makefiles"
++        elif execution_os_name in ["freebsd", "openbsd"]:
++            generator = "Unix Makefiles"
+         else:
+             fail("No generator set and no default is known. Please set the cmake `generator` attribute")
+ 
 diff -ruN a/foreign_cc/private/framework/toolchains/BUILD.bazel b/foreign_cc/private/framework/toolchains/BUILD.bazel
 --- a/foreign_cc/private/framework/toolchains/BUILD.bazel	2026-10-05 18:25:41.499679149 +0000
 +++ b/foreign_cc/private/framework/toolchains/BUILD.bazel	2026-10-05 18:25:41.524686496 +0000
