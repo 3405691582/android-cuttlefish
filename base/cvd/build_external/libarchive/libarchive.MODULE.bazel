@@ -1,0 +1,9 @@
+single_version_override(
+    module_name = "libarchive",
+    version = "3.7.9",
+    patch_strip = 1,
+    patches = [
+        # The generic config.h assumes xattrs, lutimes() and <sys/vfs.h>.
+        "@//build_external/libarchive:openbsd.patch",
+    ],
+)

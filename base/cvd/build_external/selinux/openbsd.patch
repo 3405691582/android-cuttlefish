@@ -1,0 +1,342 @@
+diff -ruN a/libselinux/src/android/android_seapp.c b/libselinux/src/android/android_seapp.c
+--- a/libselinux/src/android/android_seapp.c
++++ b/libselinux/src/android/android_seapp.c
+@@ -1,6 +1,8 @@
+ #include <ctype.h>
+ #include <limits.h>
++#if defined(__linux__)
+ #include <linux/magic.h>
++#endif
+ #include <pwd.h>
+ #include <stdbool.h>
+ #include <stdio.h>
+diff -ruN a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -18,8 +18,10 @@
+ #include <poll.h>
+ #include <sys/types.h>
+ #include <sys/socket.h>
++#if defined(__linux__)
+ #include <linux/types.h>
+ #include <linux/netlink.h>
++#endif
+ #include "callbacks.h"
+ #include "selinux_netlink.h"
+ #include "avc_internal.h"
+@@ -98,6 +100,37 @@
+ /* netlink socket code */
+ static int fd = -1;
+ 
++#if !defined(__linux__)
++/* No netlink: policy change notifications are not available. */
++int avc_netlink_open(int blocking __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++void avc_netlink_close(void)
++{
++}
++
++int avc_netlink_acquire_fd(void)
++{
++	return -1;
++}
++
++void avc_netlink_release_fd(void)
++{
++}
++
++int avc_netlink_check_nb(void)
++{
++	return 0;
++}
++
++void avc_netlink_loop(void)
++{
++}
++#else
++
+ int avc_netlink_open(int blocking)
+ {
+ 	int len, rc = 0;
+@@ -321,3 +354,4 @@
+ {
+     avc_app_main_loop = 0;
+ }
++#endif /* __linux__ */
+diff -ruN a/libselinux/src/fgetfilecon.c b/libselinux/src/fgetfilecon.c
+--- a/libselinux/src/fgetfilecon.c
++++ b/libselinux/src/fgetfilecon.c
+@@ -4,7 +4,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <stdio.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "selinux_internal.h"
+ #include "policy.h"
+ 
+diff -ruN a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.c
+--- a/libselinux/src/fsetfilecon.c
++++ b/libselinux/src/fsetfilecon.c
+@@ -4,7 +4,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <stdio.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "selinux_internal.h"
+ #include "policy.h"
+ 
+diff -ruN a/libselinux/src/getfilecon.c b/libselinux/src/getfilecon.c
+--- a/libselinux/src/getfilecon.c
++++ b/libselinux/src/getfilecon.c
+@@ -4,7 +4,7 @@
+ #include "selinux_internal.h"
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "policy.h"
+ 
+ int getfilecon_raw(const char *path, char ** context)
+diff -ruN a/libselinux/src/init.c b/libselinux/src/init.c
+--- a/libselinux/src/init.c
++++ b/libselinux/src/init.c
+@@ -8,7 +8,12 @@
+ #include <stdio_ext.h>
+ #include <dlfcn.h>
+ #include <sys/statvfs.h>
++#if defined(__linux__)
+ #include <sys/vfs.h>
++#else
++#include <sys/param.h>
++#include <sys/mount.h>
++#endif
+ #include <stdint.h>
+ #include <limits.h>
+ 
+@@ -30,6 +35,11 @@
+ */
+ static int verify_selinuxmnt(const char *mnt)
+ {
++#if !defined(__linux__)
++	/* No selinuxfs on this host. */
++	(void)mnt;
++	return -1;
++#else
+ 	struct statfs sfbuf;
+ 	int rc;
+ 
+@@ -50,6 +60,7 @@
+ 	}
+ 
+ 	return -1;
++#endif
+ }
+ 
+ int selinuxfs_exists(void)
+diff -ruN a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -6,7 +6,7 @@
+ #include <string.h>
+ 
+ #include <sys/stat.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ 
+ /*
+  * regex.h/c were introduced to hold all dependencies on the regular
+diff -ruN a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -15,8 +15,8 @@
+ #include <selinux/label.h>
+ #include "sha1.h"
+ 
+-#if defined(ANDROID) || defined(__APPLE__)
+-// Android and Mac do not have fgets_unlocked()
++#if defined(ANDROID) || defined(__APPLE__) || defined(__OpenBSD__)
++// Android, Mac and OpenBSD do not have fgets_unlocked()
+ #define fgets_unlocked(buf, size, fp) fgets(buf, size, fp)
+ #endif
+ 
+diff -ruN a/libselinux/src/lgetfilecon.c b/libselinux/src/lgetfilecon.c
+--- a/libselinux/src/lgetfilecon.c
++++ b/libselinux/src/lgetfilecon.c
+@@ -3,7 +3,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "selinux_internal.h"
+ #include "policy.h"
+ 
+diff -ruN a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -223,6 +223,11 @@
+  */
+ int selinux_init_load_policy(int *enforce)
+ {
++#if !defined(__linux__)
++	/* No SELinux kernel support to load a policy into. */
++	*enforce = 0;
++	return -1;
++#else
+ 	int rc = 0, orig_enforce = 0, seconfig = -2, secmdline = -1;
+ 	FILE *cfg;
+ 	char *buf;
+@@ -378,5 +383,6 @@
+ 	 * normally (otherwise).
+ 	 */
+ 	return -1;
++#endif
+ }
+ #endif
+diff -ruN a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
+--- a/libselinux/src/lsetfilecon.c
++++ b/libselinux/src/lsetfilecon.c
+@@ -3,7 +3,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "selinux_internal.h"
+ #include "policy.h"
+ 
+diff -ruN a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+--- a/libselinux/src/procattr.c
++++ b/libselinux/src/procattr.c
+@@ -41,6 +41,8 @@
+ {
+ #if HAVE_GETTID
+ 	return gettid();
++#elif defined(__OpenBSD__)
++	return getthrid();
+ #else
+ 	return syscall(__NR_gettid);
+ #endif
+diff -ruN a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -18,6 +18,14 @@
+ #pragma weak pthread_getspecific
+ 
+ /* Call handler iff the first call.  */
++#if defined(__OpenBSD__)
++/*
++ * pthreads are part of libc, so the weak-symbol fallback below is not needed
++ * (and would not compile: PTHREAD_ONCE_INIT is a struct initializer).
++ */
++#define __selinux_once(ONCE_CONTROL, INIT_FUNCTION)	\
++	pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION))
++#else
+ #define __selinux_once(ONCE_CONTROL, INIT_FUNCTION)	\
+ 	do {						\
+ 		if (pthread_once != NULL)		\
+@@ -27,6 +35,7 @@
+ 			(ONCE_CONTROL) = 2;		\
+ 		}					\
+ 	} while (0)
++#endif
+ 
+ /* Pthread key macros */
+ #define __selinux_key_create(KEY, DESTRUCTOR)			\
+diff -ruN a/libselinux/src/selinux_xattr.h b/libselinux/src/selinux_xattr.h
+--- a/libselinux/src/selinux_xattr.h
++++ b/libselinux/src/selinux_xattr.h
+@@ -0,0 +1,75 @@
++/*
++ * Extended attribute helpers. Linux provides them in <sys/xattr.h>; on hosts
++ * without extended attributes (e.g. OpenBSD) the calls fail with ENOTSUP, so
++ * the file labelling API degrades gracefully while the label file parsing used
++ * by host tools (sefcontext_compile, e2fsdroid) keeps working.
++ */
++#ifndef _SELINUX_XATTR_H_
++#define _SELINUX_XATTR_H_
++
++#if defined(__linux__) || defined(__APPLE__)
++#include <sys/xattr.h>
++#else
++#include <errno.h>
++#include <stddef.h>
++#include <sys/types.h>
++
++static inline ssize_t getxattr(const char *path __attribute__((unused)),
++			       const char *name __attribute__((unused)),
++			       void *value __attribute__((unused)),
++			       size_t size __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++static inline ssize_t lgetxattr(const char *path __attribute__((unused)),
++				const char *name __attribute__((unused)),
++				void *value __attribute__((unused)),
++				size_t size __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++static inline ssize_t fgetxattr(int fd __attribute__((unused)),
++				const char *name __attribute__((unused)),
++				void *value __attribute__((unused)),
++				size_t size __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++static inline int setxattr(const char *path __attribute__((unused)),
++			   const char *name __attribute__((unused)),
++			   const void *value __attribute__((unused)),
++			   size_t size __attribute__((unused)),
++			   int flags __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++static inline int lsetxattr(const char *path __attribute__((unused)),
++			    const char *name __attribute__((unused)),
++			    const void *value __attribute__((unused)),
++			    size_t size __attribute__((unused)),
++			    int flags __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++
++static inline int fsetxattr(int fd __attribute__((unused)),
++			    const char *name __attribute__((unused)),
++			    const void *value __attribute__((unused)),
++			    size_t size __attribute__((unused)),
++			    int flags __attribute__((unused)))
++{
++	errno = ENOTSUP;
++	return -1;
++}
++#endif
++
++#endif /* _SELINUX_XATTR_H_ */
+diff -ruN a/libselinux/src/setfilecon.c b/libselinux/src/setfilecon.c
+--- a/libselinux/src/setfilecon.c
++++ b/libselinux/src/setfilecon.c
+@@ -3,7 +3,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <sys/xattr.h>
++#include "selinux_xattr.h"
+ #include "selinux_internal.h"
+ #include "policy.h"
+ 
