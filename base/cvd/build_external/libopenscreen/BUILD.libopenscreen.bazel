@@ -69,7 +69,6 @@ cc_library(
         "platform/impl/time.cc",
         "platform/impl/network_interface.cc",
         "platform/impl/network_interface.h",
-        "platform/impl/network_interface_linux.cc",
         "third_party/abseil/src/absl/algorithm/algorithm.h",
         "third_party/abseil/src/absl/base/attributes.h",
         "third_party/abseil/src/absl/base/casts.h",
@@ -153,7 +152,11 @@ cc_library(
         "third_party/abseil/src/absl/utility/utility.h",
         "util/alarm.cc",
         "util/big_endian.cc",
-      ],
+    ] + select({
+        "@platforms//os:linux": ["platform/impl/network_interface_linux.cc"],
+        # getifaddrs()/AF_LINK based implementation, works on macOS and the BSDs.
+        "//conditions:default": ["platform/impl/network_interface_mac.cc"],
+    }),
     includes = [
         ".",
         "third_party/abseil/src",
