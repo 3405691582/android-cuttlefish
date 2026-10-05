@@ -2,5 +2,9 @@ single_version_override(
     module_name = "c-ares",
     version = "1.19.1",
     patch_strip = 1,
-    patches = ["@//build_external/c-ares:bazel9.patch"],
+    patches = [
+        "@//build_external/c-ares:bazel9.patch",
+        # ":freebsd" config_setting wrongly matches @platforms//os:openbsd.
+        "@//build_external/c-ares:openbsd.patch",
+    ],
 )
