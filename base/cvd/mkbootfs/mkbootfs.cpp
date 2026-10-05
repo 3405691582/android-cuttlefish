@@ -25,11 +25,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#if defined(__linux__)
+#include <sys/sysmacros.h>
+
 #include <linux/kdev_t.h>
+#else
+#define MKDEV(ma, mi) makedev((ma), (mi))
+#endif
 
 #include <private/android_filesystem_config.h>
 #include <private/fs_config.h>

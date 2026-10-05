@@ -26,16 +26,25 @@ cc_binary(
         "src",
         "src/blkdev",
     ],
+    # What ./configure would detect on each platform.
     local_defines = [
-        "HAVE_DECL_GETMNTENT",
         "HAVE_ENDIAN_H",
-        "HAVE_LINUX_FD_H",
-        "HAVE_LINUX_HDREG_H",
-        "HAVE_LINUX_LOOP_H",
-        "HAVE_LINUX_VERSION_H",
         "HAVE_SYS_QUEUE_H",
-        "HAVE_SYS_SYSMACROS_H",
-    ],
+    ] + select({
+        "@platforms//os:linux": [
+            "HAVE_DECL_GETMNTENT",
+            "HAVE_LINUX_FD_H",
+            "HAVE_LINUX_HDREG_H",
+            "HAVE_LINUX_LOOP_H",
+            "HAVE_LINUX_VERSION_H",
+            "HAVE_SYS_SYSMACROS_H",
+        ],
+        "//conditions:default": [
+            "HAVE_DECL_GETMNTINFO",
+            "HAVE_SYS_DISK_H",
+            "HAVE_SYS_DISKLABEL_H",
+        ],
+    }),
     deps = [
         "@//build_external/dosfstools:dosfstools_version",
     ],

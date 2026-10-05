@@ -1,0 +1,58 @@
+diff -ruN a/fsck/xattr.c b/fsck/xattr.c
+--- a/fsck/xattr.c	2026-10-05 21:04:33.017017981 +0000
++++ b/fsck/xattr.c	2026-10-05 21:04:58.713886522 +0000
+@@ -17,6 +17,10 @@
+ #include "node.h"
+ #include "xattr.h"
+ 
++#ifndef ENODATA
++#define ENODATA ENOATTR
++#endif
++
+ void *read_all_xattrs(struct f2fs_sb_info *sbi, struct f2fs_node *inode,
+ 			bool sanity_check)
+ {
+diff -ruN a/lib/libf2fs.c b/lib/libf2fs.c
+--- a/lib/libf2fs.c	2026-10-05 21:04:32.001002483 +0000
++++ b/lib/libf2fs.c	2026-10-05 21:06:05.283407897 +0000
+@@ -939,6 +939,11 @@
+ #define BLKSSZGET	DKIOCGETBLOCKCOUNT
+ #endif /* APPLE_DARWIN */
+ 
++#if defined(__OpenBSD__)
++#include <sys/dkio.h>
++#include <sys/disklabel.h>
++#endif
++
+ #ifndef _WIN32
+ static int open_check_fs(char *path, int flag)
+ {
+@@ -960,7 +965,7 @@
+ {
+ 	int32_t fd = 0;
+ 	uint32_t sector_size;
+-#ifndef BLKGETSIZE64
++#if !defined(BLKGETSIZE64) && !defined(__OpenBSD__)
+ 	uint32_t total_sectors;
+ #endif
+ 	struct stat *stat_buf;
+@@ -1062,6 +1067,19 @@
+ 			free(stat_buf);
+ 			return -1;
+ 		}
++#elif defined(__OpenBSD__)
++		{
++			struct disklabel lab;
++			int part = minor(stat_buf->st_rdev) % MAXPARTITIONS;
++
++			if (ioctl(fd, DIOCGDINFO, &lab) < 0) {
++				MSG(0, "\tError: Cannot get the device size\n");
++				free(stat_buf);
++				return -1;
++			}
++			dev->total_sectors = DL_GETPSIZE(&lab.d_partitions[part]) *
++							lab.d_secsize;
++		}
+ #else
+ 		if (ioctl(fd, BLKGETSIZE, &total_sectors) < 0) {
+ 			MSG(0, "\tError: Cannot get the device size\n");

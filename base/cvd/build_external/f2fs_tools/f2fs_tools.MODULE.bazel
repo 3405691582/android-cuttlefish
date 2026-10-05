@@ -4,5 +4,8 @@ git_repository(
     name = "f2fs_tools",
     build_file = "@//build_external/f2fs_tools:BUILD.f2fs_tools.bazel",
     commit = "d8eac1f8699541416afdf93333772ef2e0509773",
+    patch_args = ["-p1"],
+    # OpenBSD: no ENODATA, block device size through DIOCGDINFO.
+    patches = ["@//build_external/f2fs_tools:openbsd.patch"],
     remote = "https://git.kernel.org/pub/scm/linux/kernel/git/jaegeuk/f2fs-tools",
 )
