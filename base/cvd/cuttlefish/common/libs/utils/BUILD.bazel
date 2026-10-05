@@ -106,9 +106,6 @@ cf_cc_library(
     name = "files",
     srcs = ["files.cpp"],
     hdrs = ["files.h"],
-    target_compatible_with = [
-        "@platforms//os:linux",  # SEEK_DATA
-    ],
     deps = [
         ":environment",
         "//cuttlefish/common/libs/fs",
@@ -203,12 +200,17 @@ cf_cc_library(
     name = "inotify",
     srcs = ["inotify.cpp"],
     hdrs = ["inotify.h"],
-    target_compatible_with = [
-        "@platforms//os:linux",
-    ],
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:openbsd": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
     deps = [
         "@abseil-cpp//absl/log",
-    ],
+    ] + select({
+        "@platforms//os:openbsd": ["@libinotify"],
+        "//conditions:default": [],
+    }),
 )
 
 cf_cc_library(

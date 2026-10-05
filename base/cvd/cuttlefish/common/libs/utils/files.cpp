@@ -227,12 +227,10 @@ bool MakeFileExecutable(const std::string& path) {
 Result<std::chrono::system_clock::time_point> FileModificationTime(
     const std::string& path) {
   struct stat st = CF_EXPECT(Stat(path));
-#ifdef __linux__
-  std::chrono::seconds seconds(st.st_mtim.tv_sec);
-#elif defined(__APPLE__)
+#ifdef __APPLE__
   std::chrono::seconds seconds(st.st_mtimespec.tv_sec);
 #else
-#error "Unsupported operating system"
+  std::chrono::seconds seconds(st.st_mtim.tv_sec);
 #endif
   return std::chrono::system_clock::time_point(seconds);
 }
@@ -308,6 +306,17 @@ FileSizes SparseFileSizes(const std::string& path) {
     LOG(ERROR) << "Could not lseek in \"" << path << "\": " << fd->StrError();
     return {};
   }
+#if !defined(SEEK_HOLE) || !defined(SEEK_DATA)
+  // No hole detection through lseek(2) on this platform (e.g. OpenBSD); rely
+  // on the block count reported by the file system instead.
+  struct stat st{};
+  if (stat(path.c_str(), &st) != 0) {
+    LOG(ERROR) << "Could not stat \"" << path << "\": " << strerror(errno);
+    return {};
+  }
+  return (FileSizes){.sparse_size = farthest_seek,
+                     .disk_size = static_cast<off_t>(st.st_blocks) * 512};
+#else
   off_t data_bytes = 0;
   off_t offset = 0;
   while (offset < farthest_seek) {
@@ -343,6 +352,7 @@ FileSizes SparseFileSizes(const std::string& path) {
     }
   }
   return (FileSizes){.sparse_size = farthest_seek, .disk_size = data_bytes};
+#endif
 }
 
 Result<std::string> FindFile(const std::string& path,

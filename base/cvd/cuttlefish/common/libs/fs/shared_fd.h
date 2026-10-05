@@ -21,7 +21,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <sys/inotify.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/select.h>
@@ -37,8 +36,12 @@
 // Must be below sys/socket.h to support older libc
 #ifdef __linux__
 #include <linux/vm_sockets.h>
+#endif
+#if defined(__linux__) || defined(__OpenBSD__)
+// On OpenBSD these are provided by the epoll-shim and libinotify packages.
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/inotify.h>
 #endif
 
 #include <chrono>
@@ -138,7 +141,7 @@ class SharedFD {
   // All SharedFDs have the O_CLOEXEC flag after creation. To remove use the
   // Fcntl or Dup functions.
   static bool Pipe(SharedFD* fd0, SharedFD* fd1);
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   static SharedFD ShmOpen(const std::string& name, int oflag, int mode);
 #endif
   static SharedFD MemfdCreateWithData(const std::string& name,

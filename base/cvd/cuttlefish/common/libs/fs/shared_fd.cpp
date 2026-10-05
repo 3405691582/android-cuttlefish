@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <sys/mman.h>
-#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -148,7 +147,7 @@ SharedFD SharedFD::Dup(int unmanaged_fd) {
 
 bool SharedFD::Pipe(SharedFD* fd0, SharedFD* fd1) {
   int fds[2];
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   int rval = pipe2(fds, O_CLOEXEC);
 #else
   int rval = pipe(fds);
@@ -161,7 +160,7 @@ bool SharedFD::Pipe(SharedFD* fd0, SharedFD* fd1) {
   return false;
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 SharedFD SharedFD::ShmOpen(const std::string& name, int oflag, int mode) {
   return Fd::ShmOpen(name, oflag, mode).value_or(Fd());
 }

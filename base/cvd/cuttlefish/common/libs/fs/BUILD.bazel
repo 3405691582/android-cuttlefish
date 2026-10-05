@@ -11,13 +11,18 @@ cf_cc_library(
     srcs = ["epoll.cpp"],
     hdrs = ["epoll.h"],
     include_cleaner_enabled = False,
-    target_compatible_with = [
-        "@platforms//os:linux",
-    ],
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:openbsd": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
     deps = [
         "//cuttlefish/common/libs/fs",
         "//cuttlefish/result",
-    ],
+    ] + select({
+        "@platforms//os:openbsd": ["@epoll_shim"],
+        "//conditions:default": [],
+    }),
 )
 
 cf_cc_library(
@@ -36,7 +41,14 @@ cf_cc_library(
         "@abseil-cpp//absl/log:check",
         "@android_system_libbase//:cmsg",
         "@fmt",
-    ],
+    ] + select({
+        # kqueue-based epoll/eventfd/inotify implementations.
+        "@platforms//os:openbsd": [
+            "@epoll_shim",
+            "@libinotify",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 cf_cc_library(
@@ -62,7 +74,14 @@ cf_cc_library(
         "@abseil-cpp//absl/log",
         "@abseil-cpp//absl/log:check",
         "@fmt",
-    ],
+    ] + select({
+        # kqueue-based epoll/eventfd/inotify implementations.
+        "@platforms//os:openbsd": [
+            "@epoll_shim",
+            "@libinotify",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 cf_cc_test(

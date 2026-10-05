@@ -21,7 +21,7 @@
 
 namespace cuttlefish {
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 Result<void> WaitForFile(const std::string& path, int timeoutSec);
 #endif
 

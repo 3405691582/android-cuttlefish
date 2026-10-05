@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <sys/inotify.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/select.h>
@@ -38,8 +37,12 @@
 // Must be below sys/socket.h to support older libc
 #ifdef __linux__
 #include <linux/vm_sockets.h>
+#endif
+#if defined(__linux__) || defined(__OpenBSD__)
+// On OpenBSD these are provided by the epoll-shim and libinotify packages.
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/inotify.h>
 #endif
 
 #include <chrono>
@@ -129,10 +132,12 @@ class Fd : public ReaderWriterSeeker {
                                       int in_type, mode_t mode);
   static Result<Fd> SocketLocalServer(int port, int type);
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   static Result<Fd> Event(int initval = 0, int flags = 0);
   static Result<Fd> InotifyFd();
   static Result<Fd> ShmOpen(std::string_view name, int oflag, int mode);
+#endif
+#ifdef __linux__
   // For binding in vsock, svm_cid from `cid` param would be either
   // VMADDR_CID_ANY, VMADDR_CID_LOCAL, VMADDR_CID_HOST or their own CID, and it
   // is used for indicating connections which it accepts from.
@@ -219,7 +224,7 @@ class Fd : public ReaderWriterSeeker {
   Result<uint64_t> Read(void* buf, uint64_t count) override;
   Result<uint64_t> PRead(void* buf, uint64_t count,
                          uint64_t offset) const override;
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   int EventfdRead(eventfd_t* value);
 #endif
   ssize_t Send(const void* buf, size_t len, int flags);
@@ -258,7 +263,7 @@ class Fd : public ReaderWriterSeeker {
   Result<uint64_t> Write(const void* buf, uint64_t count) override;
   Result<uint64_t> PWrite(const void* buf, uint64_t count,
                           uint64_t offset) override;
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   int EventfdWrite(eventfd_t value);
 #endif
   bool IsATTY();

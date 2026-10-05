@@ -18,7 +18,7 @@
 
 #include <errno.h>
 #include <string.h>
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 #include <sys/inotify.h>
 #endif
 #include <sys/select.h>
@@ -36,7 +36,7 @@
 #include "cuttlefish/files/file_exists.h"
 #include "cuttlefish/result/result.h"
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 
 namespace cuttlefish {
 namespace {

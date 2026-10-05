@@ -25,7 +25,9 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <sys/mman.h>
+#ifdef __linux__
 #include <sys/sendfile.h>
+#endif
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -73,6 +75,14 @@ Result<int> MemfdCreateWrapper(const std::string& name, unsigned int flags) {
   int fd = TEMP_FAILURE_RETRY(memfd_create(name.c_str(), flags));
   CF_EXPECTF(fd >= 0, "memfd_create('{}', {}) failed: {}", name, flags,
              StrError(errno));
+#elif defined(__OpenBSD__)
+  // Emulate an anonymous memory-backed file with a uniquely named shared
+  // memory object that is immediately unlinked.
+  (void)flags;
+  std::string path = fmt::format("/tmp/{}.XXXXXXXXXX", name);
+  int fd = TEMP_FAILURE_RETRY(shm_mkstemp(path.data()));
+  CF_EXPECTF(fd >= 0, "shm_mkstemp('{}') failed: {}", path, StrError(errno));
+  shm_unlink(path.c_str());
 #else
   (void)flags;
   int fd = TEMP_FAILURE_RETRY(shm_open(name.c_str(), O_RDWR));
@@ -152,7 +162,7 @@ Result<Fd> Fd::Dup(int unmanaged_fd) {
 
 Result<std::pair<Fd, Fd>> Fd::Pipe() {
   int fds[2];
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   const int rval = TEMP_FAILURE_RETRY(pipe2(fds, O_CLOEXEC));
   CF_EXPECTF(rval != -1, "pipe2(..., O_CLOEXEC) failed: {}",
              ::cuttlefish::StrError(errno));
@@ -163,7 +173,7 @@ Result<std::pair<Fd, Fd>> Fd::Pipe() {
   return std::make_pair(Fd(fds[0], 0), Fd(fds[1], 0));
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 Result<Fd> Fd::Event(int initval, int flags) {
   int fd = TEMP_FAILURE_RETRY(eventfd(initval, flags));
   CF_EXPECTF(fd >= 0, "eventfd({}, {}) failed: {}", initval, flags,
@@ -324,7 +334,11 @@ Result<Fd> Fd::Socket6Client(std::string_view host, std::string_view interface,
                "SetSockOpt(IPPROTO_IP, IP_BOUND_IF, {}, ...) failed: {}", idx,
                rval.StrError());
 #else
-#error "Unsupported operating system"
+    // No per-socket interface binding on this platform; scope the (link-local)
+    // destination address to the interface instead.
+    addr.sin6_scope_id = if_nametoindex(std::string(interface).c_str());
+    CF_EXPECTF(addr.sin6_scope_id != 0, "if_nametoindex('{}') failed: {}",
+               interface, ::cuttlefish::StrError(errno));
 #endif
   }
 
@@ -525,6 +539,30 @@ bool Fd::SendFile(Fd& in, off_t* offset, size_t count) {
     *offset += bytes_written;
     if (success < 0 || bytes_written == 0) {
       return false;
+    }
+#else
+    // Generic fallback for platforms without sendfile(2), with Linux
+    // semantics: a non-null `offset` is used and advanced instead of the file
+    // offset of `in`.
+    char buf[kPreferredBufferSize];
+    const size_t chunk = std::min(count, sizeof(buf));
+    const ssize_t bytes_read =
+        offset ? TEMP_FAILURE_RETRY(pread(in.fd_, buf, chunk, *offset))
+               : TEMP_FAILURE_RETRY(read(in.fd_, buf, chunk));
+    if (bytes_read <= 0) {
+      return false;
+    }
+    ssize_t bytes_written = 0;
+    while (bytes_written < bytes_read) {
+      const ssize_t res = TEMP_FAILURE_RETRY(
+          write(fd_, buf + bytes_written, bytes_read - bytes_written));
+      if (res <= 0) {
+        return false;
+      }
+      bytes_written += res;
+    }
+    if (offset) {
+      *offset += bytes_written;
     }
 #endif
     count -= bytes_written;
@@ -781,7 +819,7 @@ Result<uint64_t> Fd::PRead(void* buf, uint64_t count, uint64_t offset) const {
   return static_cast<uint64_t>(res);
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 int Fd::EventfdRead(eventfd_t* value) {
   LocalErrno record_errno(errno_);
 
@@ -910,7 +948,7 @@ Result<uint64_t> Fd::PWrite(const void* buf, uint64_t count, uint64_t offset) {
   return static_cast<uint64_t>(res);
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 int Fd::EventfdWrite(eventfd_t value) {
   LocalErrno record_errno(errno_);
 

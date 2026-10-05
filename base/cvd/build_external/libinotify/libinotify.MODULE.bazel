@@ -1,0 +1,13 @@
+system_library = use_repo_rule("@//build_external/system_library:system_library.bzl", "system_library")
+
+# kqueue-based implementation of inotify(7) for the BSDs.
+# On OpenBSD: `pkg_add libinotify`.
+system_library(
+    name = "libinotify",
+    include_dir = "/usr/local/include/inotify",
+    linkopts = [
+        "-L/usr/local/lib/inotify",
+        "-Wl,-rpath,/usr/local/lib/inotify",
+        "-linotify",
+    ],
+)

@@ -22,7 +22,7 @@
 
 namespace cuttlefish {
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 Result<void> WaitForUnixSocket(const std::string& path, int timeoutSec);
 Result<void> WaitForUnixSocketListeningWithoutConnect(const std::string& path,
                                                       int timeoutSec);
