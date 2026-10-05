@@ -39,14 +39,16 @@ cc_binary(
         "udp.cpp",
         "udp.h",
         "usb.h",
-        "usb_linux.cpp",
         "util.cpp",
         "util.h",
         "vendor_boot_img_utils.cpp",
         "vendor_boot_img_utils.h",
         "version/build/version.h",
         "version/platform_tools_version.h",
-    ],
+    ] + select({
+        "@platforms//os:linux": ["usb_linux.cpp"],
+        "//conditions:default": ["usb_unsupported.cpp"],
+    }),
     copts = COPTS + [
         "-Wno-inconsistent-missing-override",
         "-Wno-module-import-in-extern-c",
