@@ -1,0 +1,34 @@
+load("@rules_foreign_cc//toolchains/native_tools:native_tools_toolchain.bzl", "native_tool_toolchain")
+
+# rules_foreign_cc ships prebuilt cmake/ninja binaries only for Linux, macOS
+# and Windows and would otherwise build CMake from source on OpenBSD. Use the
+# packaged tools instead (`pkg_add cmake ninja gmake`). These toolchains are
+# restricted to OpenBSD execution platforms, so other hosts are unaffected.
+
+toolchain(
+    name = "openbsd_preinstalled_cmake_toolchain",
+    exec_compatible_with = ["@platforms//os:openbsd"],
+    toolchain = "@rules_foreign_cc//toolchains/private:preinstalled_cmake",
+    toolchain_type = "@rules_foreign_cc//toolchains:cmake_toolchain",
+)
+
+toolchain(
+    name = "openbsd_preinstalled_ninja_toolchain",
+    exec_compatible_with = ["@platforms//os:openbsd"],
+    toolchain = "@rules_foreign_cc//toolchains/private:preinstalled_ninja",
+    toolchain_type = "@rules_foreign_cc//toolchains:ninja_toolchain",
+)
+
+# OpenBSD's make(1) is BSD make; CMake's "Unix Makefiles" need GNU make.
+native_tool_toolchain(
+    name = "preinstalled_gmake",
+    env = {"MAKE": "gmake"},
+    path = "gmake",
+)
+
+toolchain(
+    name = "openbsd_preinstalled_gmake_toolchain",
+    exec_compatible_with = ["@platforms//os:openbsd"],
+    toolchain = ":preinstalled_gmake",
+    toolchain_type = "@rules_foreign_cc//toolchains:make_toolchain",
+)
