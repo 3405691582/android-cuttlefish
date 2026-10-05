@@ -52,6 +52,18 @@ using IPv4NetworkInterfaceIndex = decltype(ip_mreqn().imr_ifindex);
 #endif
 using IPv6NetworkInterfaceIndex = decltype(ipv6_mreq().ipv6mr_interface);
 
+#if defined(__OpenBSD__)
+// OpenBSD does not implement IP_PKTINFO. IP_RECVDSTADDR delivers the
+// destination address of a datagram as a bare in_addr control message instead.
+struct IPv4PacketInfo {
+    in_addr ipi_addr;
+};
+constexpr int kIPv4PacketInfoOption = IP_RECVDSTADDR;
+#else
+using IPv4PacketInfo = in_pktinfo;
+constexpr int kIPv4PacketInfoOption = IP_PKTINFO;
+#endif
+
 // Examine |posix_errno| to determine whether the specific cause of a failure
 // was transient or hard, and return the appropriate error response.
 Error ChooseError(decltype(errno) posix_errno, Error::Code hard_error_code) {
@@ -67,7 +79,7 @@ IPAddress GetIPAddressFromSockAddr(const sockaddr_in& sa) {
                      reinterpret_cast<const uint8_t*>(&sa.sin_addr.s_addr));
 }
 
-IPAddress GetIPAddressFromPktInfo(const in_pktinfo& pktinfo) {
+IPAddress GetIPAddressFromPktInfo(const IPv4PacketInfo& pktinfo) {
     static_assert(IPAddress::kV4Size == sizeof(pktinfo.ipi_addr), "IPv4 address size mismatch.");
     return IPAddress(IPAddress::Version::kV4, reinterpret_cast<const uint8_t*>(&pktinfo.ipi_addr));
 }
@@ -92,8 +104,8 @@ template <class PktInfoType>
 bool IsPacketInfo(adb_cmsghdr* cmh);
 
 template <>
-bool IsPacketInfo<in_pktinfo>(adb_cmsghdr* cmh) {
-    return cmh->cmsg_level == IPPROTO_IP && cmh->cmsg_type == IP_PKTINFO;
+bool IsPacketInfo<IPv4PacketInfo>(adb_cmsghdr* cmh) {
+    return cmh->cmsg_level == IPPROTO_IP && cmh->cmsg_type == kIPv4PacketInfoOption;
 }
 
 template <>
@@ -337,7 +349,7 @@ class AdbUdpSocket : public UdpSocket {
                 // Passed as data to setsockopt().  1 means return IP_PKTINFO control data
                 // in recvmsg() calls.
                 const int enable_pktinfo = 1;
-                if (adb_setsockopt(fd_, IPPROTO_IP, IP_PKTINFO, &enable_pktinfo,
+                if (adb_setsockopt(fd_, IPPROTO_IP, kIPv4PacketInfoOption, &enable_pktinfo,
                                    sizeof(enable_pktinfo)) == -1) {
                     OnError(Error::Code::kSocketOptionSettingFailure);
                     LOG(ERROR) << "adb_setsockopt failed";
@@ -584,7 +596,7 @@ class AdbUdpSocket : public UdpSocket {
         Error result = Error::Code::kUnknownError;
         switch (local_endpoint_.address.version()) {
             case UdpSocket::Version::kV4: {
-                result = ReceiveMessageInternal<sockaddr_in, in_pktinfo>(fd_, &packet);
+                result = ReceiveMessageInternal<sockaddr_in, IPv4PacketInfo>(fd_, &packet);
                 break;
             }
             case UdpSocket::Version::kV6: {
