@@ -101,6 +101,9 @@
 #include "cuttlefish/host/libs/log_names/log_names.h"
 #include "cuttlefish/io/write_exact.h"
 #include "cuttlefish/posix/remove.h"
+#ifndef __linux__
+#include "cuttlefish/posix/strerror.h"
+#endif
 #include "cuttlefish/posix/symlink.h"
 #include "cuttlefish/pretty/vector.h"
 #include "cuttlefish/result/result.h"
@@ -131,8 +134,15 @@ Result<void> SaveConfig(const CuttlefishConfig& tmp_config_obj) {
   return {};
 }
 
+#ifdef __linux__
 #ifndef O_TMPFILE
 #define O_TMPFILE (020000000 | O_DIRECTORY)
+#endif
+#else
+// Without O_TMPFILE (and without /proc/self/fd for Fd::LinkAtCwd)
+// the initial log is a named temporary file that PersistInitialLog() renames
+// into place.
+std::string initial_log_path;
 #endif
 
 Result<void> CreateLegacySymlinks(
@@ -308,8 +318,19 @@ SharedFD SetLogger(std::string runtime_dir_parent) {
     }
     runtime_dir_parent =
         runtime_dir_parent.substr(0, FLAGS_instance_dir.rfind('/'));
+#ifdef __linux__
     log_file = Fd::Open(runtime_dir_parent, O_WRONLY | O_TMPFILE,
                         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+#else
+    Result<std::pair<SharedFD, std::string>> temp_log =
+        SharedFD::Mkostemp(runtime_dir_parent + "/assemble_cvd.log.");
+    if (temp_log.ok()) {
+      log_file = std::move(temp_log->first);
+      initial_log_path = std::move(temp_log->second);
+    } else {
+      log_file = CF_ERR(temp_log.error().FormatForEnv());
+    }
+#endif
   }
   if (!log_file.has_value()) {
     LOG(ERROR) << "Could not open initial log file: " << log_file.error();
@@ -324,6 +345,25 @@ SharedFD SetLogger(std::string runtime_dir_parent) {
     SetLoggers(std::move(log_destinations), "");
   }
   return log_file.value_or(Fd());
+}
+
+// Gives the initial log file created by SetLogger() its final name.
+void PersistInitialLog(const SharedFD& log, const std::string& path) {
+#ifdef __linux__
+  if (log->LinkAtCwd(path)) {
+    LOG(ERROR) << "Unable to persist assemble_cvd log at " << path << ": "
+               << log->StrError();
+  }
+#else
+  if (!log->IsOpen() || initial_log_path.empty()) {
+    return;
+  }
+  if (rename(initial_log_path.c_str(), path.c_str()) != 0) {
+    LOG(ERROR) << "Unable to persist assemble_cvd log at " << path << ": "
+               << StrError(errno);
+  }
+  initial_log_path.clear();
+#endif
 }
 
 Result<const CuttlefishConfig*> InitFilesystemAndCreateConfig(
@@ -469,11 +509,7 @@ Result<const CuttlefishConfig*> InitFilesystemAndCreateConfig(
       CF_EXPECT(CreateLegacySymlinks(instance, environment));
     }
 
-    if (log->LinkAtCwd(config.AssemblyPath(kLogNameAssembleCvd))) {
-      LOG(ERROR) << "Unable to persist assemble_cvd log at "
-                 << config.AssemblyPath(kLogNameAssembleCvd) << ": "
-                 << log->StrError();
-    }
+    PersistInitialLog(log, config.AssemblyPath(kLogNameAssembleCvd));
 
     CF_EXPECT(SaveConfig(config), "Failed to initialize configuration");
   }
