@@ -87,6 +87,7 @@ cf_cc_binary(
         "//cuttlefish/host/libs/log_names",
         "//cuttlefish/io:write_exact",
         "//cuttlefish/posix:remove",
+        "//cuttlefish/posix:strerror",
         "//cuttlefish/posix:symlink",
         "//cuttlefish/pretty:vector",
         "//cuttlefish/result",
