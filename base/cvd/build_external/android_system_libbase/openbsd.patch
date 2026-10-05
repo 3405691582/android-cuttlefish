@@ -1,0 +1,113 @@
+diff -ruN a/file.cpp b1/file.cpp
+--- a/file.cpp	2026-10-10 06:56:18.368071187 +0000
++++ b1/file.cpp	2026-10-10 06:56:31.905994619 +0000
+@@ -36,6 +36,10 @@
+ #if defined(__APPLE__)
+ #include <mach-o/dyld.h>
+ #endif
++#if defined(__OpenBSD__)
++#include <paths.h>
++#include <sys/sysctl.h>
++#endif
+ #if defined(_WIN32)
+ #include <direct.h>
+ #include <windows.h>
+@@ -47,6 +51,7 @@
+ 
+ #include "android-base/logging.h"  // and must be after windows.h for ERROR
+ #include "android-base/macros.h"   // For TEMP_FAILURE_RETRY on Darwin.
++#include "android-base/strings.h"
+ #include "android-base/unique_fd.h"
+ #include "android-base/utf8.h"
+ 
+@@ -506,6 +511,29 @@
+   if (result == 0 || result == sizeof(path) - 1) return "";
+   path[PATH_MAX - 1] = 0;
+   return path;
++#elif defined(__OpenBSD__)
++  // OpenBSD has neither /proc nor KERN_PROC_PATHNAME, so the best we can do is
++  // to resolve argv[0] like the shell did.
++  int mib[] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV};
++  size_t size = 0;
++  if (sysctl(mib, arraysize(mib), nullptr, &size, nullptr, 0) == -1) return "";
++  std::vector<char> buf(size);
++  if (sysctl(mib, arraysize(mib), buf.data(), &size, nullptr, 0) == -1) return "";
++  const char* argv0 = reinterpret_cast<char**>(buf.data())[0];
++  if (argv0 == nullptr) return "";
++  std::string candidate = argv0;
++  if (candidate.find('/') == std::string::npos) {
++    const char* path_env = getenv("PATH");
++    for (const std::string& dir : Split(path_env ? path_env : _PATH_DEFPATH, ":")) {
++      std::string attempt = (dir.empty() ? "." : dir) + "/" + candidate;
++      if (access(attempt.c_str(), X_OK) == 0) {
++        candidate = attempt;
++        break;
++      }
++    }
++  }
++  std::string path;
++  return Realpath(candidate, &path) ? path : candidate;
+ #elif defined(__EMSCRIPTEN__)
+   abort();
+ #else
+diff -ruN a/include/android-base/endian.h b1/include/android-base/endian.h
+--- a/include/android-base/endian.h	2026-10-10 06:56:18.383473851 +0000
++++ b1/include/android-base/endian.h	2026-10-10 06:56:31.920426205 +0000
+@@ -25,6 +25,18 @@
+ 
+ #include <sys/endian.h>
+ 
++#elif defined(__OpenBSD__)
++
++/* bionic's <sys/endian.h> originally came from OpenBSD. */
++#include <sys/endian.h>
++
++/* OpenBSD keeps htons and htonl in <netinet/in.h>. */
++#include <netinet/in.h>
++
++/* OpenBSD doesn't have the 64-bit variants. */
++#define htonq(x) htobe64(x)
++#define ntohq(x) be64toh(x)
++
+ #elif defined(__GLIBC__) || defined(ANDROID_HOST_MUSL)
+ 
+ /* glibc and musl's <endian.h> are like bionic's <sys/endian.h>. */
+diff -ruN a/include/android-base/off64_t.h b1/include/android-base/off64_t.h
+--- a/include/android-base/off64_t.h	2026-10-10 06:56:18.388219024 +0000
++++ b1/include/android-base/off64_t.h	2026-10-10 06:56:31.926091863 +0000
+@@ -16,7 +16,7 @@
+ 
+ #pragma once
+ 
+-#if defined(__APPLE__)
+-/** Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
++#if defined(__APPLE__) || defined(__OpenBSD__)
++/** Mac OS and OpenBSD have always had a 64-bit off_t, so they don't have off64_t. */
+ typedef off_t off64_t;
+ #endif
+diff -ruN a/logging.cpp b1/logging.cpp
+--- a/logging.cpp	2026-10-10 06:56:18.372218779 +0000
++++ b1/logging.cpp	2026-10-10 06:56:31.911292525 +0000
+@@ -61,8 +61,8 @@
+ namespace android {
+ namespace base {
+ 
+-// BSD-based systems like Android/macOS have getprogname(). Others need us to provide one.
+-#if !defined(__APPLE__) && !defined(__BIONIC__)
++// BSD-based systems like Android/macOS/OpenBSD have getprogname(). Others need us to provide one.
++#if !defined(__APPLE__) && !defined(__BIONIC__) && !defined(__OpenBSD__)
+ static const char* getprogname() {
+ #ifdef _WIN32
+   static bool first = true;
+diff -ruN a/threads.cpp b1/threads.cpp
+--- a/threads.cpp	2026-10-10 06:56:18.378162019 +0000
++++ b1/threads.cpp	2026-10-10 06:56:31.916288852 +0000
+@@ -39,6 +39,8 @@
+   return tid;
+ #elif defined(__linux__)
+   return syscall(__NR_gettid);
++#elif defined(__OpenBSD__)
++  return getthrid();
+ #elif defined(_WIN32)
+   return GetCurrentThreadId();
+ #endif
