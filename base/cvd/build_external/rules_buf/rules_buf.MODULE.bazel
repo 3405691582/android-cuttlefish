@@ -1,0 +1,9 @@
+# rules_buf (pulled in via rules_proto_grpc) registers its toolchains globally,
+# and the repository rule backing them fails outright on hosts without a buf
+# release (e.g. OpenBSD), which aborts analysis of every build. Produce an
+# empty repository on such hosts instead.
+single_version_override(
+    module_name = "rules_buf",
+    patch_strip = 1,
+    patches = ["@//build_external/rules_buf:unsupported_host.patch"],
+)
