@@ -1,0 +1,48 @@
+diff -ruN a/file.cpp b1/file.cpp
+--- a/file.cpp	2026-10-10 06:56:18.368071187 +0000
++++ b1/file.cpp	2026-10-10 06:56:31.905994619 +0000
+@@ -506,6 +506,10 @@
+   if (result == 0 || result == sizeof(path) - 1) return "";
+   path[PATH_MAX - 1] = 0;
+   return path;
++#elif defined(__OpenBSD__)
++  char path[PATH_MAX];
++  if (getexecpath(path, sizeof(path)) == -1) return "";
++  return path;
+ #elif defined(__EMSCRIPTEN__)
+   abort();
+ #else
+diff -ruN a/include/android-base/endian.h b1/include/android-base/endian.h
+--- a/include/android-base/endian.h	2026-10-10 06:56:18.383473851 +0000
++++ b1/include/android-base/endian.h	2026-10-10 06:56:31.920426205 +0000
+@@ -47,6 +47,18 @@
+ #define letoh64(x) le64toh(x)
+ #endif
+ 
++#elif defined(__OpenBSD__)
++
++/* bionic's <sys/endian.h> originally came from OpenBSD. */
++#include <sys/endian.h>
++
++/* OpenBSD keeps htons and htonl in <netinet/in.h>. */
++#include <netinet/in.h>
++
++/* OpenBSD doesn't have the 64-bit variants. */
++#define htonq(x) htobe64(x)
++#define ntohq(x) be64toh(x)
++
+ #else
+ 
+ #if defined(__APPLE__)
+diff -ruN a/threads.cpp b1/threads.cpp
+--- a/threads.cpp	2026-10-10 06:56:18.378162019 +0000
++++ b1/threads.cpp	2026-10-10 06:56:31.916288852 +0000
+@@ -39,6 +39,8 @@
+   return tid;
+ #elif defined(__linux__)
+   return syscall(__NR_gettid);
++#elif defined(__OpenBSD__)
++  return getthrid();
+ #elif defined(_WIN32)
+   return GetCurrentThreadId();
+ #endif

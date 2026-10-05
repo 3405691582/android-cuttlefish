@@ -5,6 +5,9 @@ git_repository(
     build_file = "@//build_external/android_system_libbase:BUILD.android_system_libbase.bazel",
     commit = "6d19b5c690fa4220c10e42c2326150bbd4d4b7bb",
     patch_args = ["-p1"],
-    patches = ["@//build_external/android_system_libbase:non_linux.patch"],
+    patches = [
+        "@//build_external/android_system_libbase:non_linux.patch",
+        "@//build_external/android_system_libbase:openbsd.patch",
+    ],
     remote = "https://android.googlesource.com/platform/system/libbase",
 )
