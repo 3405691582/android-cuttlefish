@@ -15,7 +15,6 @@
  */
 
 #include <fcntl.h>
-#include <linux/vm_sockets.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -28,6 +27,7 @@
 #include "gflags/gflags.h"
 
 #include "cuttlefish/common/libs/fs/shared_fd.h"
+#include "cuttlefish/common/libs/fs/vm_sockets.h"
 #include "cuttlefish/common/libs/utils/socket2socket_proxy.h"
 #include "cuttlefish/host/commands/kernel_log_monitor/kernel_log_server.h"
 #include "cuttlefish/host/commands/kernel_log_monitor/utils.h"

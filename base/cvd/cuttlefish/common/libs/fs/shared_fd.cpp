@@ -250,7 +250,6 @@ SharedFD SharedFD::SocketLocalServer(const std::string& name, bool abstract,
   return Fd::SocketLocalServer(name, abstract, in_type, mode).value_or(Fd());
 }
 
-#ifdef __linux__
 SharedFD SharedFD::VsockClient(unsigned int cid, unsigned int port, int type,
                                bool vhost_user) {
   if (vhost_user) {
@@ -275,6 +274,11 @@ SharedFD SharedFD::VsockClient(unsigned int cid, unsigned int port, int type,
     }
     return client;
   }
+#ifndef __linux__
+  LOG(ERROR) << "cannot connect to " << cid << ":" << port
+             << " (vsock is not supported on this platform)";
+  return SharedFD::ErrorFD(EAFNOSUPPORT);
+#else
   auto vsock = SharedFD::Socket(AF_VSOCK, type, 0);
   if (!vsock->IsOpen()) {
     return vsock;
@@ -289,8 +293,8 @@ SharedFD SharedFD::VsockClient(unsigned int cid, unsigned int port, int type,
     return SharedFD::ErrorFD(*connect_res.error());
   }
   return vsock;
-}
 #endif
+}
 
 SharedFD WeakFD::lock() const {
   auto locked_file_instance = value_.lock();
