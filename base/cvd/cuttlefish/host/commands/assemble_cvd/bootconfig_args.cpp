@@ -414,10 +414,17 @@ Result<std::unordered_map<std::string, std::string>> BootconfigArgsFromConfig(
             : "com.google.emulated.camera.provider.hal.v4l2";
   }
 
-  if (instance.device_type() == cuttlefish::DeviceType::Auto) {
-    if (!builtin_bootconfig_args.count(
-            "androidboot.cuttlefish_service_bluetooth_checker")) {
+  if (!builtin_bootconfig_args.count(
+          "androidboot.cuttlefish_service_bluetooth_checker")) {
+    if (instance.device_type() == cuttlefish::DeviceType::Auto) {
       // # TODO (b/405655265) Remove once the BT issue is fixed
+      bootconfig_args["androidboot.cuttlefish_service_bluetooth_checker"] =
+          "false";
+    } else if (!instance.has_bluetooth()) {
+      // Neither rootcanal nor netsim is providing an HCI transport, so the VMM
+      // does not create the Bluetooth channel and the guest adapter can never
+      // come up. Without this the guest's cuttlefish_service waits for the
+      // adapter and reports VIRTUAL_DEVICE_BOOT_FAILED after its 10 checks.
       bootconfig_args["androidboot.cuttlefish_service_bluetooth_checker"] =
           "false";
     }
