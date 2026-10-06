@@ -3,7 +3,8 @@ single_version_override(
     version = "76.1.bcr.1",
     patch_strip = 1,
     patches = [
-        # putil.cpp sets _XOPEN_SOURCE=600, which hides locale_t on OpenBSD.
+        # uposixdefs.h sets _XOPEN_SOURCE=600, which hides locale_t on OpenBSD;
+        # common/BUILD.bazel links -ldl unconditionally (libc has dlopen there).
         "@//build_external/icu:openbsd.patch",
     ],
 )
