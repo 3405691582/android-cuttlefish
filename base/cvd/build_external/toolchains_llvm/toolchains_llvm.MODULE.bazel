@@ -1,0 +1,8 @@
+# toolchains_llvm hard-fails at repository fetch time on hosts it has no LLVM
+# distribution for (e.g. OpenBSD). Register nothing there instead, so the
+# locally configured C++ toolchain is used.
+single_version_override(
+    module_name = "toolchains_llvm",
+    patch_strip = 1,
+    patches = ["@//build_external/toolchains_llvm:openbsd.patch"],
+)
