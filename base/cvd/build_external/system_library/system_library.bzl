@@ -16,8 +16,15 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = {name},
     hdrs = {hdrs},
+    defines = select({{
+        "@platforms//os:openbsd": {defines},
+        "//conditions:default": [],
+    }}),
     includes = {includes},
-    linkopts = {linkopts},
+    linkopts = select({{
+        "@platforms//os:openbsd": {linkopts},
+        "//conditions:default": [],
+    }}),
     target_compatible_with = {target_compatible_with},
 )
 """
@@ -41,6 +48,7 @@ def _system_library_impl(rctx):
     rctx.file("BUILD.bazel", _BUILD_TEMPLATE.format(
         name = repr(name),
         hdrs = hdrs,
+        defines = repr(rctx.attr.defines),
         includes = includes,
         linkopts = repr(rctx.attr.linkopts),
         target_compatible_with = target_compatible_with,
@@ -49,6 +57,9 @@ def _system_library_impl(rctx):
 system_library = repository_rule(
     implementation = _system_library_impl,
     attrs = {
+        "defines": attr.string_list(
+            doc = "Preprocessor defines propagated to every dependent target.",
+        ),
         "include_dir": attr.string(
             doc = "Absolute path of the directory holding the library headers.",
             mandatory = True,

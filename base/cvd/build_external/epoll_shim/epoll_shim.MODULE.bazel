@@ -2,11 +2,20 @@ system_library = use_repo_rule("@//build_external/system_library:system_library.
 
 # kqueue-based implementation of epoll(7), eventfd(2), signalfd(2) and
 # timerfd(2) for the BSDs. On OpenBSD: `pkg_add epoll-shim`.
+#
+# The shimmed descriptors carry user-space state, so read(2)/write(2)/close(2)
+# etc. on them have to go through the library. By default its headers achieve
+# that with function-like macros named `read`, `write`, `close`, ..., which
+# break unrelated C++ code (`std::istream::read`, `fmt::detail::write`, ...).
+# Disable the macros and use the interposition library instead, as suggested
+# by epoll-shim-interpose.pc.
 system_library(
     name = "epoll_shim",
+    defines = ["EPOLL_SHIM_DISABLE_WRAPPER_MACROS"],
     include_dir = "/usr/local/include/libepoll-shim",
     linkopts = [
         "-L/usr/local/lib",
+        "-lepoll-shim-interpose",
         "-lepoll-shim",
     ],
 )
