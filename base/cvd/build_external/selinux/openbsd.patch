@@ -404,6 +404,16 @@ diff -ruN a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
  #include <arpa/inet.h>
  
  #include <sepol/policydb/services.h>
+diff -ruN a/libsepol/src/ibpkey_record.c b/libsepol/src/ibpkey_record.c
+--- a/libsepol/src/ibpkey_record.c
++++ b/libsepol/src/ibpkey_record.c
+@@ -1,5 +1,6 @@
+ #include <stdlib.h>
+ #include <string.h>
++#include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <errno.h>
 diff -ruN a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
 --- a/libsepol/src/kernel_to_cil.c
 +++ b/libsepol/src/kernel_to_cil.c
@@ -426,6 +436,17 @@ diff -ruN a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
  #include <arpa/inet.h>
  #include <netinet/in.h>
  #ifndef IPPROTO_DCCP
+diff -ruN a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -20,6 +20,7 @@
+  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
++#include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <ctype.h>
+ #include <errno.h>
 diff -ruN a/libsepol/src/node_record.c b/libsepol/src/node_record.c
 --- a/libsepol/src/node_record.c
 +++ b/libsepol/src/node_record.c
