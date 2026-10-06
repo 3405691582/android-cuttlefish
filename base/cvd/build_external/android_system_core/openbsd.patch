@@ -1,0 +1,24 @@
+diff -ruN a/libsparse/output_file.cpp b/libsparse/output_file.cpp
+--- a/libsparse/output_file.cpp
++++ b/libsparse/output_file.cpp
+@@ -43,7 +43,7 @@
+ #define ftruncate64 ftruncate
+ #endif
+ 
+-#if defined(__APPLE__) && defined(__MACH__)
++#if (defined(__APPLE__) && defined(__MACH__)) || defined(__OpenBSD__)
+ #define lseek64 lseek
+ #define ftruncate64 ftruncate
+ #define off64_t off_t
+diff -ruN a/libsparse/sparse_read.cpp b/libsparse/sparse_read.cpp
+--- a/libsparse/sparse_read.cpp
++++ b/libsparse/sparse_read.cpp
+@@ -37,7 +37,7 @@
+ #include "sparse_file.h"
+ #include "sparse_format.h"
+ 
+-#if defined(__APPLE__) && defined(__MACH__)
++#if (defined(__APPLE__) && defined(__MACH__)) || defined(__OpenBSD__)
+ #define lseek64 lseek
+ #define off64_t off_t
+ #endif
