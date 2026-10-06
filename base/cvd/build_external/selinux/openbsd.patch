@@ -79,6 +79,28 @@ diff -ruN a/libselinux/src/fgetfilecon.c b/libselinux/src/fgetfilecon.c
  #include "selinux_internal.h"
  #include "policy.h"
  
+@@ -17,6 +17,7 @@
+ 	if (ret != -1 || errno != EBADF)
+ 		return ret;
+ 
++#ifdef O_PATH
+ 	/* Emulate O_PATH support */
+ 	fd_flag = fcntl(fd, F_GETFL);
+ 	if (fd_flag == -1 || (fd_flag & O_PATH) == 0) {
+@@ -30,6 +31,13 @@
+ 	if (ret < 0 && errno == ENOENT)
+ 		errno = EBADF;
+ 	return ret;
++#else
++	(void)buf;
++	(void)fd_flag;
++	(void)saved_errno;
++	errno = EBADF;
++	return -1;
++#endif
+ }
+ 
+ int fgetfilecon_raw(int fd, char ** context)
 diff -ruN a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.c
 --- a/libselinux/src/fsetfilecon.c
 +++ b/libselinux/src/fsetfilecon.c
@@ -91,6 +113,28 @@ diff -ruN a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.c
  #include "selinux_internal.h"
  #include "policy.h"
  
+@@ -16,6 +16,7 @@
+ 	if (rc == 0 || errno != EBADF)
+ 		return rc;
+ 
++#ifdef O_PATH
+ 	/* Emulate O_PATH support */
+ 	fd_flag = fcntl(fd, F_GETFL);
+ 	if (fd_flag == -1 || (fd_flag & O_PATH) == 0) {
+@@ -29,6 +30,13 @@
+ 	if (rc < 0 && errno == ENOENT)
+ 		errno = EBADF;
+ 	return rc;
++#else
++	(void)buf;
++	(void)fd_flag;
++	(void)saved_errno;
++	errno = EBADF;
++	return -1;
++#endif
+ }
+ 
+ int fsetfilecon_raw(int fd, const char * context)
 diff -ruN a/libselinux/src/getfilecon.c b/libselinux/src/getfilecon.c
 --- a/libselinux/src/getfilecon.c
 +++ b/libselinux/src/getfilecon.c
@@ -106,8 +150,16 @@ diff -ruN a/libselinux/src/getfilecon.c b/libselinux/src/getfilecon.c
 diff -ruN a/libselinux/src/init.c b/libselinux/src/init.c
 --- a/libselinux/src/init.c
 +++ b/libselinux/src/init.c
-@@ -8,7 +8,12 @@
+@@ -5,10 +5,20 @@
+ #include <errno.h>
+ #include <ctype.h>
+ #include <stdio.h>
++#if defined(__linux__)
  #include <stdio_ext.h>
++#else
++/* No per-stream locking control; stdio locking just stays enabled. */
++#define __fsetlocking(fp, type) ((void)0)
++#endif
  #include <dlfcn.h>
  #include <sys/statvfs.h>
 +#if defined(__linux__)
@@ -119,7 +171,7 @@ diff -ruN a/libselinux/src/init.c b/libselinux/src/init.c
  #include <stdint.h>
  #include <limits.h>
  
-@@ -30,6 +35,11 @@
+@@ -30,6 +40,11 @@
  */
  static int verify_selinuxmnt(const char *mnt)
  {
@@ -131,7 +183,7 @@ diff -ruN a/libselinux/src/init.c b/libselinux/src/init.c
  	struct statfs sfbuf;
  	int rc;
  
-@@ -50,6 +60,7 @@
+@@ -50,6 +65,7 @@
  	}
  
  	return -1;
@@ -340,3 +392,80 @@ diff -ruN a/libselinux/src/setfilecon.c b/libselinux/src/setfilecon.c
  #include "selinux_internal.h"
  #include "policy.h"
  
+diff -ruN a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+--- a/libsepol/cil/src/cil_internal.h
++++ b/libsepol/cil/src/cil_internal.h
+@@ -33,6 +33,8 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <stdint.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
+ #include <arpa/inet.h>
+ 
+ #include <sepol/policydb/services.h>
+diff -ruN a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -6,6 +6,7 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ 
++#include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <errno.h>
+ #include <netinet/in.h>
+diff -ruN a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -6,6 +6,7 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ 
++#include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <netinet/in.h>
+ #ifndef IPPROTO_DCCP
+diff -ruN a/libsepol/src/node_record.c b/libsepol/src/node_record.c
+--- a/libsepol/src/node_record.c
++++ b/libsepol/src/node_record.c
+@@ -1,6 +1,7 @@
+ #include <stdlib.h>
+ #include <stddef.h>
+ #include <string.h>
++#include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <errno.h>
+diff -ruN a/libsepol/src/private.h b/libsepol/src/private.h
+--- a/libsepol/src/private.h
++++ b/libsepol/src/private.h
+@@ -8,6 +8,9 @@
+ #ifdef __APPLE__
+ #include <sys/types.h>
+ #include <machine/endian.h>
++#elif defined(__OpenBSD__)
++#include <sys/types.h>
++#include <sys/endian.h>
+ #else
+ #include <byteswap.h>
+ #include <endian.h>
+@@ -15,11 +18,17 @@
+ 
+ #include <errno.h>
+ 
+-#ifdef __APPLE__
++#if defined(__APPLE__) || defined(__OpenBSD__)
+ #define __BYTE_ORDER  BYTE_ORDER
+ #define __LITTLE_ENDIAN  LITTLE_ENDIAN
+ #endif
+ 
++#ifdef __OpenBSD__
++#define bswap_16(x) swap16(x)
++#define bswap_32(x) swap32(x)
++#define bswap_64(x) swap64(x)
++#endif
++
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+ #define cpu_to_le16(x) (x)
+ #define le16_to_cpu(x) (x)
