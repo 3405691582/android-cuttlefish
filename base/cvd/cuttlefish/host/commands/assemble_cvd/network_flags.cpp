@@ -167,15 +167,18 @@ Result<void> ConfigureNetworkSettings(
   // newer version of cuttlefish-common, and we can use the tap device
   // directly instead.
   if (!netconfig.ObtainConfig(const_instance.mobile_bridge_name(),
-                              ril_dns_arg)) {
-    if (!netconfig.ObtainConfig(const_instance.mobile_tap_name(),
-                                ril_dns_arg)) {
-      LOG(ERROR) << "Unable to get the network config. Assuming defaults.";
-      instance.set_ril_dns("8.8.8.8");
-      instance.set_ril_gateway("10.0.2.2");
-      instance.set_ril_ipaddr("10.0.2.15");
-      instance.set_ril_prefixlen(24);
-    }
+                              ril_dns_arg) &&
+      !netconfig.ObtainConfig(const_instance.mobile_tap_name(), ril_dns_arg)) {
+    // No host interface to derive the addresses from (e.g. slirp networking
+    // with the system QEMU): use the slirp defaults. These must not be
+    // overwritten by the empty `netconfig` below.
+    LOG(ERROR) << "Unable to get the network config. Assuming defaults.";
+    instance.set_ril_dns("8.8.8.8");
+    instance.set_ril_gateway("10.0.2.2");
+    instance.set_ril_ipaddr("10.0.2.15");
+    instance.set_ril_broadcast("10.0.2.255");
+    instance.set_ril_prefixlen(24);
+    return {};
   }
 
   instance.set_ril_broadcast(netconfig.ril_broadcast);
