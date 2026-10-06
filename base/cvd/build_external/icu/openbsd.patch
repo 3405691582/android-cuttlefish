@@ -1,3 +1,18 @@
+diff -ruN a/icu4c/source/common/BUILD.bazel b/icu4c/source/common/BUILD.bazel
+--- a/icu4c/source/common/BUILD.bazel
++++ b/icu4c/source/common/BUILD.bazel
+@@ -77,7 +77,10 @@
+         "U_COMMON_IMPLEMENTATION",
+         "ICU_DATA_DIR_BAZEL=\\\"$(rlocationpath @icu_dat)\\\"",
+     ],
+-    linkopts = ["-ldl"],
++    linkopts = select({
++        "@platforms//os:linux": ["-ldl"],
++        "//conditions:default": [],  # dlopen() is in libc on the BSDs/macOS
++    }),
+ )
+ 
+ cc_library(
 diff -ruN a/icu4c/source/common/uposixdefs.h b/icu4c/source/common/uposixdefs.h
 --- a/icu4c/source/common/uposixdefs.h
 +++ b/icu4c/source/common/uposixdefs.h
@@ -14,3 +29,14 @@ diff -ruN a/icu4c/source/common/uposixdefs.h b/icu4c/source/common/uposixdefs.h
  #else
      /*
       * Version 6.0:
+diff -ruN a/MODULE.bazel b/MODULE.bazel
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -6,6 +6,7 @@
+ )
+ 
+ bazel_dep(name = "rules_cc", version = "0.1.1")
++bazel_dep(name = "platforms", version = "0.0.10")
+ 
+ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+ 
