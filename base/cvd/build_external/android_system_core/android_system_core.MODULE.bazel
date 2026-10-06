@@ -4,5 +4,8 @@ git_repository(
     name = "android_system_core",
     build_file = "@//build_external/android_system_core:BUILD.android_system_core.bazel",
     commit = "a3b721a32242006b59cb12bd62c9133632af3a2d",
+    patch_args = ["-p1"],
+    # libsparse: OpenBSD has no lseek64/ftruncate64/off64_t (off_t is 64-bit).
+    patches = ["@//build_external/android_system_core:openbsd.patch"],
     remote = "https://android.googlesource.com/platform/system/core",
 )
