@@ -1,0 +1,40 @@
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -23,8 +23,16 @@
+ )
+ 
+ selects.config_setting_group(
++    name = "linux_or_openbsd",
++    match_any = [
++        "@platforms//os:linux",
++        "@platforms//os:openbsd",
++    ],
++)
++
++selects.config_setting_group(
+     name = "use_boringssl",
+-    match_all = [":not_use_mbedtls_setting", "@platforms//os:linux"],
++    match_all = [":not_use_mbedtls_setting", ":linux_or_openbsd"],
+ )
+ 
+ selects.config_setting_group(
+@@ -255,6 +263,9 @@
+             "/DUSE_SCHANNEL",
+         ],
+         "@platforms//os:macos": _BASE_CURL_COPTS,
++        "@platforms//os:openbsd": _BASE_CURL_COPTS + [
++            "-DHAVE_MSG_NOSIGNAL=1",
++        ],
+         "//conditions:default": _BASE_CURL_COPTS + [
+             "-DHAVE_LINUX_TCP_H=1",
+             "-DHAVE_MSG_NOSIGNAL=1",
+@@ -296,6 +307,9 @@
+             'CURL_CA_BUNDLE=\\"/etc/ssl/certs/ca-certificates.crt\\"',
+             'CURL_CA_PATH=\\"/etc/ssl/certs\\"',
+         ],
++        "@platforms//os:openbsd": [
++            'CURL_CA_BUNDLE=\\"/etc/ssl/cert.pem\\"',
++        ],
+         "//conditions:default": [],
+     }) + select({
+         ":use_mbedtls_setting": ["USE_MBEDTLS"],
