@@ -9,7 +9,10 @@ cf_cc_library(
     srcs = ["cuda_loader.cpp"],
     hdrs = ["cuda_loader.h"],
     include_cleaner_enabled = False,
-    linkopts = ["-ldl"],
+    linkopts = select({
+        "@platforms//os:linux": ["-ldl"],  # dlopen() lives in libc elsewhere
+        "//conditions:default": [],
+    }),
     deps = [
         "//cuttlefish/result",
         "@cuda//:cudart_headers",
@@ -21,7 +24,10 @@ cf_cc_library(
     srcs = ["nvenc_loader.cpp"],
     hdrs = ["nvenc_loader.h"],
     include_cleaner_enabled = False,
-    linkopts = ["-ldl"],
+    linkopts = select({
+        "@platforms//os:linux": ["-ldl"],  # dlopen() lives in libc elsewhere
+        "//conditions:default": [],
+    }),
     deps = [
         "//cuttlefish/result",
         "@nv_codec_headers//:nv_headers",
