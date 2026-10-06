@@ -103,3 +103,10 @@ build:dbg --copt=-fsanitize=vla-bound
 build:dbg --linkopt=-fsanitize=vla-bound
 build:fastbuild --copt=-fsanitize=vla-bound
 build:fastbuild --linkopt=-fsanitize=vla-bound
+
+# Host OS specific settings (build:linux, build:openbsd, ...).
+common --enable_platform_specific_config
+# OpenBSD's ld.so(1) only expands $ORIGIN in RUNPATH for objects linked with
+# -z origin (DF_ORIGIN); Bazel's dynamic mode (e.g. cc_test by default) uses
+# $ORIGIN-relative rpaths to locate _solib_openbsd/ shared libraries.
+build:openbsd --linkopt=-Wl,-z,origin
