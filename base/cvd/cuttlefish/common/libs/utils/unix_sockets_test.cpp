@@ -116,6 +116,8 @@ TEST(UnixMessageSocket, SendTwoFileDescriptors) {
   EXPECT_THAT(ReadToString(*fds_out[1]), IsOkAndValue("def"));
 }
 
+#ifdef __linux__
+
 TEST(UnixMessageSocket, SendCredentials) {
   auto [writer, reader] = CF_ASSERT(UnixMessageSocketPair());
   EXPECT_THAT(writer.EnableCredentials(true), IsOk());
@@ -178,5 +180,7 @@ TEST(UnixMessageSocket, AutoCredentials) {
   EXPECT_EQ(getuid(), credentials_out.uid);
   EXPECT_EQ(getgid(), credentials_out.gid);
 }
+
+#endif  // __linux__
 
 }  // namespace cuttlefish
