@@ -16,58 +16,78 @@
 
 #include "cuttlefish/common/libs/utils/disk_usage.h"
 
+#include <errno.h>
 #include <stddef.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
+#include <filesystem>
+#include <set>
 #include <string>
-#include <string_view>
+#include <system_error>
 #include <utility>
-#include <vector>
 
-#include "absl/strings/numbers.h"
-#include "absl/strings/str_split.h"
-
-#include "cuttlefish/process/command.h"
-#include "cuttlefish/process/managed_stdio.h"
+#include "cuttlefish/posix/strerror.h"
 #include "cuttlefish/result/result.h"
 
 namespace cuttlefish {
 namespace {
 
-static constexpr char kWhitespaceCharacters[] = " \n\t\r\v\f";
+// Apparent size (sum of st_size) of `path` and, for a directory, of
+// everything below it. Symlinks are not followed (their own size counts, as
+// with `du --apparent-size`) and hard-linked files are only counted once.
+// Implemented in-process rather than via `du -s --apparent-size
+// --block-size=...`, which only GNU coreutils' du understands.
+Result<size_t> ApparentSize(const std::string& path) {
+  std::set<std::pair<dev_t, ino_t>> seen;
+  size_t total = 0;
 
-// return unit determined by the `--block-size` argument
-Result<size_t> GetDiskUsage(const std::string& path,
-                            const std::string& size_arg) {
-  Command du_cmd("du");
-  du_cmd.AddParameter("-s");  // summarize, only output total
-  du_cmd.AddParameter(
-      "--apparent-size");  // apparent size rather than device usage
-  du_cmd.AddParameter("--block-size=" + size_arg);
-  du_cmd.AddParameter(path);
+  auto add = [&seen, &total](const std::string& p) -> Result<void> {
+    struct stat st;
+    CF_EXPECTF(lstat(p.c_str(), &st) == 0, "lstat(\"{}\") failed: {}", p,
+               StrError(errno));
+    if (st.st_nlink > 1 && !seen.emplace(st.st_dev, st.st_ino).second) {
+      return {};
+    }
+    total += static_cast<size_t>(st.st_size);
+    return {};
+  };
 
-  std::string out = CF_EXPECT(RunAndCaptureStdout(std::move(du_cmd)));
-  std::vector<std::string_view> split_out = absl::StrSplit(
-      out, absl::ByAnyChar(kWhitespaceCharacters), absl::SkipEmpty());
-  CF_EXPECTF(!split_out.empty(),
-             "No valid output read from `du` command in \"{}\"", out);
-  std::string_view total = split_out.front();
+  CF_EXPECT(add(path));
 
-  size_t result;
-  CF_EXPECTF(absl::SimpleAtoi(total, &result),
-             "Failure parsing \"{}\" to integer.", total);
-  return result;
+  std::error_code ec;
+  if (!std::filesystem::is_directory(
+          std::filesystem::symlink_status(path, ec))) {
+    return total;
+  }
+  CF_EXPECTF(!ec, "symlink_status(\"{}\") failed: {}", path, ec.message());
+
+  std::filesystem::recursive_directory_iterator it(
+      path, std::filesystem::directory_options::skip_permission_denied, ec);
+  CF_EXPECTF(!ec, "Unable to iterate \"{}\": {}", path, ec.message());
+  const std::filesystem::recursive_directory_iterator end;
+  while (it != end) {
+    CF_EXPECT(add(it->path().native()));
+    it.increment(ec);
+    CF_EXPECTF(!ec, "Unable to iterate \"{}\": {}", path, ec.message());
+  }
+  return total;
 }
 
 }  // namespace
 
 Result<size_t> GetDiskUsageBytes(const std::string& path) {
-  return CF_EXPECTF(GetDiskUsage(path, "1"),
+  return CF_EXPECTF(ApparentSize(path),
                     "Unable to determine disk usage of file \"{}\"", path);
 }
 
 Result<size_t> GetDiskUsageGigabytes(const std::string& path) {
-  return CF_EXPECTF(GetDiskUsage(path, "1G"),
-                    "Unable to determine disk usage of file \"{}\"", path);
+  size_t bytes =
+      CF_EXPECTF(ApparentSize(path),
+                 "Unable to determine disk usage of file \"{}\"", path);
+  // Round up like `du --block-size=1G` does.
+  static constexpr size_t kGigabyte = size_t{1} << 30;
+  return (bytes + kGigabyte - 1) / kGigabyte;
 }
 
 }  // namespace cuttlefish
