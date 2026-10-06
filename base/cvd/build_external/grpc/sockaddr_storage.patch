@@ -1,0 +1,51 @@
+Event engine: do not size a ResolvedAddress by sizeof(sockaddr_storage)
+
+ResolvedAddress holds at most MAX_SIZE_BYTES (128) bytes, which happens to
+equal sizeof(struct sockaddr_storage) on Linux, macOS and FreeBSD, but not
+everywhere: OpenBSD (and Solaris) define a 256-byte sockaddr_storage. On
+those hosts every listener bind aborted in the constructor's
+CHECK(size <= sizeof(address_)) when the port of the freshly bound socket
+was read back.
+
+Have BindListenerSocket() return the address with the length getsockname(2)
+actually reported, and have the caller use that instead of rebuilding the
+address with a hard-coded sockaddr_storage length.
+
+Upstream: https://github.com/grpc/grpc (to be sent)
+
+diff --git a/src/core/lib/event_engine/posix_engine/posix_interface_posix.cc b/src/core/lib/event_engine/posix_engine/posix_interface_posix.cc
+index 0000000..0000000 100644
+--- a/src/core/lib/event_engine/posix_engine/posix_interface_posix.cc
++++ b/src/core/lib/event_engine/posix_engine/posix_interface_posix.cc
+@@ -863,14 +863,14 @@ EventEnginePosixInterface::BindListenerSocket(
+     return absl::FailedPreconditionError(
+         absl::StrCat("Error in listen: ", std::strerror(errno)));
+   }
+-  socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
++  socklen_t len = EventEngine::ResolvedAddress::MAX_SIZE_BYTES;
+   EventEngine::ResolvedAddress sockname_temp;
+   if (getsockname(f, const_cast<sockaddr*>(sockname_temp.address()), &len) <
+       0) {
+     return absl::FailedPreconditionError(
+         absl::StrCat("Error in getsockname: ", std::strerror(errno)));
+   }
+-  return sockname_temp;
++  return EventEngine::ResolvedAddress(sockname_temp.address(), len);
+ }
+ 
+ absl::StatusOr<EventEngine::ResolvedAddress>
+diff --git a/src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc b/src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+index 0000000..0000000 100644
+--- a/src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
++++ b/src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+@@ -227,9 +227,7 @@
+   if (!listen_address.ok()) {
+     return std::move(listen_address).status();
+   }
+-  socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
+-  socket.port =
+-      ResolvedAddressGetPort(ResolvedAddress(listen_address->address(), len));
++  socket.port = ResolvedAddressGetPort(*listen_address);
+   close_fd = false;
+   GRPC_CHECK_GT(socket.port, 0);
+   return absl::OkStatus();
