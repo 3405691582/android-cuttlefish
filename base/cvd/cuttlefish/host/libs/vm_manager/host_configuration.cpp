@@ -31,6 +31,7 @@ namespace cuttlefish {
 namespace vm_manager {
 namespace {
 
+#ifdef __linux__
 template <typename T>
 void PushOptional(std::vector<T>& vec, std::optional<T> opt) {
   if (opt) {
@@ -78,12 +79,14 @@ Result<std::optional<HostConfigurationAction>> EnforceLinuxVersionAtLeast(
                      std::to_string(major) + "." + std::to_string(minor),
   };
 }
+#endif
 
 }  // namespace
 
 Result<std::vector<HostConfigurationAction>> ValidateHostConfiguration() {
   std::vector<HostConfigurationAction> actions;
-#ifndef __APPLE__
+  // Kernel version and kvm / cvdnetwork group checks only apply to Linux hosts.
+#ifdef __linux__
   // if we can't detect the kernel version, just fail
   std::pair<int, int> version = CF_EXPECT(GetLinuxVersion());
 
