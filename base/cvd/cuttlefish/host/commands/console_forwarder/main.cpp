@@ -20,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>  // IWYU pragma: keep: struct timeval
 #include <unistd.h>
 
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <memory>
@@ -85,8 +87,14 @@ class ConsoleForwarder {
     CHECK(!(ret < 0 && errno != ENOENT))
         << "Failed to unlink " << console_path_ << ": " << StrError(errno);
 
-    auto pty = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
+    // posix_openpt(3) only portably accepts O_RDWR and O_NOCTTY (OpenBSD
+    // rejects anything else with EINVAL), so make the fd non-blocking with
+    // fcntl(2) afterwards.
+    auto pty = posix_openpt(O_RDWR | O_NOCTTY);
     CHECK(pty >= 0) << "Failed to open a PTY: " << StrError(errno);
+    int pty_flags = fcntl(pty, F_GETFL);
+    CHECK(pty_flags >= 0 && fcntl(pty, F_SETFL, pty_flags | O_NONBLOCK) == 0)
+        << "Failed to make the PTY non-blocking: " << StrError(errno);
 
     CHECK_EQ(grantpt(pty), 0) << StrError(errno);
     CHECK_EQ(unlockpt(pty), 0) << StrError(errno);
@@ -163,19 +171,48 @@ class ConsoleForwarder {
 
   [[noreturn]] void ReadLoop() {
     SharedFD client_fd;
+    // On BSD-derived systems (including macOS) the controller side of a PTY is
+    // readable and returns EOF for as long as no process has the terminal side
+    // open; selecting on it in that state would turn this loop into a busy loop
+    // re-creating the PTY. Linux never reports EOF there (reads fail with
+    // EAGAIN before the first open of the terminal side and with EIO after a
+    // hangup), so this only changes behavior on those systems. While no peer is
+    // connected the client fd is left out of the select set and probed again
+    // every kClientProbeInterval.
+    constexpr auto kClientProbeInterval = std::chrono::milliseconds(500);
+    bool client_connected = true;
+    std::chrono::steady_clock::time_point next_client_probe;
     while (true) {
       if (!client_fd->IsOpen()) {
         client_fd = OpenPTY();
+        client_connected = true;
       }
+
+      auto now = std::chrono::steady_clock::now();
+      bool poll_client = client_connected || now >= next_client_probe;
 
       SharedFDSet read_set;
       read_set.Set(console_out_);
-      read_set.Set(client_fd);
-
       SharedFDSet error_set;
-      error_set.Set(client_fd);
+      // NOLINTNEXTLINE(misc-include-cleaner): <sys/time.h>
+      struct timeval probe_timeout = {};
+      if (poll_client) {
+        read_set.Set(client_fd);
+        error_set.Set(client_fd);
+      } else {
+        auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(
+            next_client_probe - now);
+        probe_timeout.tv_sec = remaining.count() / 1000000;
+        probe_timeout.tv_usec = remaining.count() % 1000000;
+      }
 
-      Select(&read_set, nullptr, &error_set, nullptr);
+      Select(&read_set, nullptr, &error_set,
+             poll_client ? nullptr : &probe_timeout);
+      if (poll_client && !read_set.IsSet(client_fd) &&
+          !error_set.IsSet(client_fd)) {
+        // Not readable means not at EOF, so a peer has the terminal side open.
+        client_connected = true;
+      }
       if (read_set.IsSet(console_out_)) {
         std::shared_ptr<std::vector<char>> buf_ptr =
             std::make_shared<std::vector<char>>(4096);
@@ -186,17 +223,25 @@ class ConsoleForwarder {
                               << console_out_->StrError();
         buf_ptr->resize(bytes_read);
         EnqueueWrite(buf_ptr, console_log_);
-        if (client_fd->IsOpen()) {
+        if (client_fd->IsOpen() && client_connected) {
           EnqueueWrite(buf_ptr, client_fd);
         }
         EnqueueWrite(buf_ptr, kernel_log_);
       }
-      if (read_set.IsSet(client_fd) || error_set.IsSet(client_fd)) {
+      if (poll_client &&
+          (read_set.IsSet(client_fd) || error_set.IsSet(client_fd))) {
         std::shared_ptr<std::vector<char>> buf_ptr =
             std::make_shared<std::vector<char>>(4096);
         uint64_t bytes_read =
             client_fd->Read(buf_ptr->data(), buf_ptr->size()).value_or(0);
-        if (bytes_read <= 0) {
+        if (bytes_read == 0 && client_fd->GetErrno() == 0) {
+          // EOF: nothing has the terminal side open (BSD semantics, see above).
+          // Keep the PTY so the published path stays valid and check again
+          // later.
+          client_connected = false;
+          next_client_probe =
+              std::chrono::steady_clock::now() + kClientProbeInterval;
+        } else if (bytes_read <= 0) {
           // If this happens, it's usually because the PTY controller went away
           // e.g. the user closed minicom, or killed screen, or closed kgdb. In
           // such a case, we will just re-create the PTY
@@ -204,8 +249,10 @@ class ConsoleForwarder {
                      << client_fd->StrError();
           client_fd->Close();
         } else if (bytes_read == 1) {  // Control message
+          client_connected = true;
           VLOG(0) << "pty control message: " << (int)(*buf_ptr)[0];
         } else {
+          client_connected = true;
           buf_ptr->resize(bytes_read);
           buf_ptr->erase(buf_ptr->begin());
           EnqueueWrite(buf_ptr, console_in_);
