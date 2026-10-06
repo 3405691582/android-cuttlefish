@@ -1,0 +1,11 @@
+# Pure-data input device specifications.
+#
+# These live in their own package so that consumers (e.g. //cuttlefish/package)
+# can depend on them without loading //cuttlefish/host/commands/vhost_user_input,
+# whose BUILD file load()s crate_universe repositories that are only available
+# on hosts with a rules_rust toolchain.
+package(
+    default_visibility = ["//:android_cuttlefish"],
+)
+
+exports_files(glob(["*.json"]))
