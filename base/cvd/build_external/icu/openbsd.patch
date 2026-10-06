@@ -13,6 +13,19 @@ diff -ruN a/icu4c/source/common/BUILD.bazel b/icu4c/source/common/BUILD.bazel
  )
  
  cc_library(
+diff -ruN a/icu4c/source/common/unicode/platform.h b/icu4c/source/common/unicode/platform.h
+--- a/icu4c/source/common/unicode/platform.h
++++ b/icu4c/source/common/unicode/platform.h
+@@ -609,7 +609,8 @@
+ #ifdef U_CHARSET_IS_UTF8
+     /* Use the predefined value. */
+ #elif U_PLATFORM_IS_LINUX_BASED || U_PLATFORM_IS_DARWIN_BASED || \
+-        U_PLATFORM == U_PF_EMSCRIPTEN
++        U_PLATFORM == U_PF_EMSCRIPTEN || defined(__OpenBSD__)
++    /* OpenBSD's libc only supports the C/POSIX and UTF-8 locales. */
+ #   define U_CHARSET_IS_UTF8 1
+ #else
+ #   define U_CHARSET_IS_UTF8 0
 diff -ruN a/icu4c/source/common/uposixdefs.h b/icu4c/source/common/uposixdefs.h
 --- a/icu4c/source/common/uposixdefs.h
 +++ b/icu4c/source/common/uposixdefs.h
