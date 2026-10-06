@@ -3,5 +3,10 @@ git_override(
     remote = "https://github.com/grpc/grpc.git",
     commit = "f7931aae144a330cd38912315eae2417de1fb614",
     patch_strip = 1,
-    patches = ["@//build_external/grpc:bazel9.patch"],
+    patches = [
+        "@//build_external/grpc:bazel9.patch",
+        # sizeof(sockaddr_storage) is 256 on OpenBSD; the event engine assumed
+        # it never exceeds ResolvedAddress::MAX_SIZE_BYTES (128).
+        "@//build_external/grpc:sockaddr_storage.patch",
+    ],
 )
