@@ -133,6 +133,8 @@ TEST(UnixMessageSocket, SendTwoFileDescriptors) {
   ASSERT_EQ("def", ReadAllFDData((*fds_out)[1]));
 }
 
+#ifdef __linux__
+
 TEST(UnixMessageSocket, SendCredentials) {
   auto [writer, reader] = UnixMessageSocketPair();
   auto writer_creds_status = writer.EnableCredentials(true);
@@ -204,5 +206,7 @@ TEST(UnixMessageSocket, AutoCredentials) {
   ASSERT_EQ(getuid(), credentials_out->uid);
   ASSERT_EQ(getgid(), credentials_out->gid);
 }
+
+#endif  // __linux__
 
 }  // namespace cuttlefish
