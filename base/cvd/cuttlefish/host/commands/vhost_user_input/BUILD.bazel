@@ -5,8 +5,6 @@ package(
     default_visibility = ["//:android_cuttlefish"],
 )
 
-exports_files(glob(["device_specs/**"]))
-
 rust_binary(
     name = "cf_vhost_user_input",
     srcs = [
