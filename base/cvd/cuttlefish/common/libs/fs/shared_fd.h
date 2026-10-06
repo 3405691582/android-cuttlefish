@@ -34,9 +34,8 @@
 #include <termios.h>
 #include <unistd.h>
 
-// Must be below sys/socket.h to support older libc
+#include "cuttlefish/common/libs/fs/vm_sockets.h"
 #ifdef __linux__
-#include <linux/vm_sockets.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #endif
@@ -168,7 +167,8 @@ class SharedFD {
                                     int in_type, mode_t mode);
   static SharedFD SocketLocalServer(int port, int type);
 
-#ifdef __linux__
+  // Only functional on Linux (see vm_sockets.h); the AF_VSOCK variants fail
+  // with EAFNOSUPPORT elsewhere.
   // For binding in vsock, svm_cid from `cid` param would be either
   // VMADDR_CID_ANY, VMADDR_CID_LOCAL, VMADDR_CID_HOST or their own CID, and it
   // is used for indicating connections which it accepts from.
@@ -185,7 +185,6 @@ class SharedFD {
   // VMADDR_CID_HOST
   static SharedFD VsockClient(unsigned int cid, unsigned int port, int type,
                               bool vhost_user);
-#endif
 
   auto operator<=>(const SharedFD&) const = default;
 
