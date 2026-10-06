@@ -377,10 +377,20 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
   if (instance.mte()) {
     machine += ",mte=on";
   }
+  machine += ",usb=off";
+#ifdef __linux__
+  // Implemented with madvise(MADV_DONTDUMP), which only Linux has; on other
+  // hosts QEMU fails to start with "Dumping guest memory cannot be disabled on
+  // this host".
+  machine += ",dump-guest-core=off";
+#endif
+  machine += ",memory-backend=vm_ram";
   qemu_cmd.AddParameter("-machine");
-  qemu_cmd.AddParameter(machine,
-                        ",usb=off,dump-guest-core=off,memory-backend=vm_ram");
+  qemu_cmd.AddParameter(machine);
 
+  // The "host" CPU model only exists under a hardware accelerator (KVM/HVF);
+  // TCG has to use "max" instead.
+  bool host_cpu_model = false;
   if (IsHostCompatible(arch_)) {
     qemu_cmd.AddParameter("-accel");
     std::string accel = "tcg";
@@ -389,8 +399,10 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
     if (!config.kvm_path().empty()) {
       accel += ",device=" + config.kvm_path();
     }
+    host_cpu_model = true;
 #elif defined(__APPLE__)
     accel = "hvf";
+    host_cpu_model = true;
 #endif
     qemu_cmd.AddParameter(accel);
   }
@@ -768,7 +780,10 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
   qemu_cmd.AddParameter("-device");
   qemu_cmd.AddParameter("virtio-keyboard-pci,disable-legacy=on");
 
-  // device padding for unsupported "switches" input
+#ifdef __linux__
+  // device padding for unsupported "switches" input. The vhost-user backends
+  // (cf_vhost_user_input) are only launched on Linux, and QEMU only builds
+  // vhost-user support there.
   qemu_cmd.AddParameter("-chardev");
   qemu_cmd.AddParameter("socket,path=", SwitchesSocketPath(instance),
                         ",id=switches0");
@@ -780,6 +795,7 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
                         ",id=rotary0");
   qemu_cmd.AddParameter("-device");
   qemu_cmd.AddParameter("vhost-user-input-pci,chardev=rotary0");
+#endif
 
   auto vhost_net = instance.vhost_net() ? ",vhost=on" : "";
 
@@ -856,7 +872,7 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
 
   if (is_x86 || is_arm) {
     qemu_cmd.AddParameter("-cpu");
-    qemu_cmd.AddParameter(IsHostCompatible(arch_) ? "host" : "max");
+    qemu_cmd.AddParameter(host_cpu_model ? "host" : "max");
   }
 
   // Explicitly enable the optional extensions of interest, in case the default
