@@ -1,3 +1,46 @@
+diff -ruN a/libcutils/include/cutils/fs.h b/libcutils/include/cutils/fs.h
+--- a/libcutils/include/cutils/fs.h
++++ b/libcutils/include/cutils/fs.h
+@@ -28,7 +28,7 @@
+ #ifndef TEMP_FAILURE_RETRY
+ /* Used to retry syscalls that can return EINTR. */
+ #define TEMP_FAILURE_RETRY(exp) ({         \
+-    typeof (exp) _rc;                      \
++    __typeof__(exp) _rc;                   \
+     do {                                   \
+         _rc = (exp);                       \
+     } while (_rc == -1 && errno == EINTR); \
+diff -ruN a/libcutils/include/private/fs_config.h b/libcutils/include/private/fs_config.h
+--- a/libcutils/include/private/fs_config.h
++++ b/libcutils/include/private/fs_config.h
+@@ -27,7 +27,27 @@
+ #include <sys/cdefs.h>
+ #include <unistd.h>
+ 
++#if defined(__linux__)
+ #include <linux/capability.h>
++#else
++/* The Linux capability numbers and the security.capability xattr layout
++ * referenced by the fs_config tables and the image tools; they describe the
++ * target (Android) filesystem, not the host. */
++#include <stdint.h>
++#define CAP_SETGID 6
++#define CAP_SETUID 7
++#define CAP_BLOCK_SUSPEND 36
++#define VFS_CAP_REVISION_2 0x02000000
++#define VFS_CAP_FLAGS_EFFECTIVE 0x000001
++#define VFS_CAP_U32_2 2
++struct vfs_cap_data {
++    uint32_t magic_etc;
++    struct {
++        uint32_t permitted;
++        uint32_t inheritable;
++    } data[VFS_CAP_U32_2];
++};
++#endif
+ 
+ /* Rules for directories and files has moved to system/code/libcutils/fs_config.c */
+ 
 diff -ruN a/libsparse/output_file.cpp b/libsparse/output_file.cpp
 --- a/libsparse/output_file.cpp
 +++ b/libsparse/output_file.cpp
@@ -22,34 +65,3 @@ diff -ruN a/libsparse/sparse_read.cpp b/libsparse/sparse_read.cpp
  #define lseek64 lseek
  #define off64_t off_t
  #endif
-diff -ruN a/libcutils/include/private/fs_config.h b/libcutils/include/private/fs_config.h
---- a/libcutils/include/private/fs_config.h
-+++ b/libcutils/include/private/fs_config.h
-@@ -27,7 +27,15 @@
- #include <sys/cdefs.h>
- #include <unistd.h>
- 
-+#if defined(__linux__)
- #include <linux/capability.h>
-+#else
-+/* The Linux capability numbers referenced by the fs_config tables; they
-+ * describe the target (Android) filesystem, not the host. */
-+#define CAP_SETGID 6
-+#define CAP_SETUID 7
-+#define CAP_BLOCK_SUSPEND 36
-+#endif
- 
- /* Rules for directories and files has moved to system/code/libcutils/fs_config.c */
- 
-diff -ruN a/libcutils/include/cutils/fs.h b/libcutils/include/cutils/fs.h
---- a/libcutils/include/cutils/fs.h
-+++ b/libcutils/include/cutils/fs.h
-@@ -28,7 +28,7 @@
- #ifndef TEMP_FAILURE_RETRY
- /* Used to retry syscalls that can return EINTR. */
- #define TEMP_FAILURE_RETRY(exp) ({         \
--    typeof (exp) _rc;                      \
-+    __typeof__(exp) _rc;                   \
-     do {                                   \
-         _rc = (exp);                       \
-     } while (_rc == -1 && errno == EINTR); \
