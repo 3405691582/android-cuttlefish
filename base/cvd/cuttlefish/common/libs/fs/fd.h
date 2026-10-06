@@ -34,10 +34,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-// Must be below sys/socket.h to support older libc
-#ifdef __linux__
-#include <linux/vm_sockets.h>
-#endif
+#include "cuttlefish/common/libs/fs/vm_sockets.h"
 #if defined(__linux__) || defined(__OpenBSD__)
 // On OpenBSD these are provided by the epoll-shim and libinotify packages.
 #include <sys/epoll.h>
@@ -137,7 +134,8 @@ class Fd : public ReaderWriterSeeker {
   static Result<Fd> InotifyFd();
   static Result<Fd> ShmOpen(std::string_view name, int oflag, int mode);
 #endif
-#ifdef __linux__
+  // Only functional on Linux (see vm_sockets.h); the AF_VSOCK variants fail
+  // with EAFNOSUPPORT elsewhere.
   // For binding in vsock, svm_cid from `cid` param would be either
   // VMADDR_CID_ANY, VMADDR_CID_LOCAL, VMADDR_CID_HOST or their own CID, and it
   // is used for indicating connections which it accepts from.
@@ -161,7 +159,6 @@ class Fd : public ReaderWriterSeeker {
       unsigned int cid = VMADDR_CID_ANY);
   static Result<Fd> VsockServer(
       int type, std::optional<int> vhost_user_vsock_listening_cid);
-#endif
 
   int Bind(const struct sockaddr* addr, socklen_t addrlen);
   int Connect(const struct sockaddr* addr, socklen_t addrlen);
