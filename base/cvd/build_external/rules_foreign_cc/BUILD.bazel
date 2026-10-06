@@ -19,6 +19,15 @@ toolchain(
     toolchain_type = "@rules_foreign_cc//toolchains:ninja_toolchain",
 )
 
+# pkg-config is part of the OpenBSD base system; rules_foreign_cc would
+# otherwise build it (and glib) from source, which fails for lack of iconv.
+toolchain(
+    name = "openbsd_preinstalled_pkgconfig_toolchain",
+    exec_compatible_with = ["@platforms//os:openbsd"],
+    toolchain = "@rules_foreign_cc//toolchains/private:preinstalled_pkgconfig",
+    toolchain_type = "@rules_foreign_cc//toolchains:pkgconfig_toolchain",
+)
+
 # OpenBSD's make(1) is BSD make; CMake's "Unix Makefiles" need GNU make.
 native_tool_toolchain(
     name = "preinstalled_gmake",

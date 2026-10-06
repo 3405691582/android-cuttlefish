@@ -306,7 +306,10 @@ Subprocess Command::Start(SubprocessOptions options) const {
     rval = execve(executable, const_cast<char* const*>(cmd.data()),
                   const_cast<char* const*>(envp.data()));
 #else
-#error "Unsupported architecture"
+    // execvpe(3) is a GNU extension; in the forked child we can replace
+    // environ directly before calling the POSIX execvp(3).
+    environ = const_cast<char**>(envp.data());
+    rval = execvp(executable, const_cast<char* const*>(cmd.data()));
 #endif
     // No need to check for error, execvpe/execve don't return on success.
     exit(rval);
