@@ -16,13 +16,18 @@
 
 #include "cuttlefish/host/libs/config/config_utils.h"
 
+#include <unistd.h>
+
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 #include "absl/log/log.h"
 #include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_split.h"
 
 #include "cuttlefish/common/libs/utils/contains.h"
 #include "cuttlefish/common/libs/utils/environment.h"
@@ -109,19 +114,42 @@ std::string DefaultHostArtifactsPath(const std::string& file_name) {
 
 std::string HostBinaryDir() { return DefaultHostArtifactsPath("bin"); }
 
+namespace {
+
+// The bin directory of the system QEMU: the first directory in PATH, then in
+// the usual package prefixes, that holds qemu-img (which ships with every QEMU
+// and does not depend on the architecture); /usr/bin as before otherwise.
+std::string SystemQemuBinaryDir() {
+  std::string search = StringFromEnv("PATH", "");
+  absl::StrAppend(&search, ":/usr/local/bin:/usr/pkg/bin:/opt/homebrew/bin");
+  for (std::string_view dir : absl::StrSplit(search, ':', absl::SkipEmpty())) {
+    if (access(absl::StrCat(dir, "/qemu-img").c_str(), X_OK) == 0) {
+      return std::string(dir);
+    }
+  }
+  return "/usr/bin";
+}
+
+}  // namespace
+
 bool UseQemuPrebuilt() {
+#if !defined(__linux__) && !defined(__APPLE__)
+  // The host package only carries QEMU prebuilts for Linux hosts.
+  return false;
+#else
   const std::string target_prod_str = StringFromEnv("TARGET_PRODUCT", "");
   if (!Contains(target_prod_str, "arm")) {
     return true;
   }
   return false;
+#endif
 }
 
 std::string DefaultQemuBinaryDir() {
   if (UseQemuPrebuilt()) {
     return HostBinaryDir() + "/" + HostArchStr() + "-linux-gnu/qemu";
   }
-  return "/usr/bin";
+  return SystemQemuBinaryDir();
 }
 
 std::string HostBinaryPath(const std::string& binary_name) {
@@ -140,6 +168,12 @@ std::string HostQemuBiosPath() {
   if (UseQemuPrebuilt()) {
     return DefaultHostArtifactsPath("usr/share/qemu/" + HostArchStr() +
                                     "-linux-gnu");
+  }
+  // QEMU installs its firmware next to its binaries: <prefix>/bin and
+  // <prefix>/share/qemu.
+  const std::string bin_dir = SystemQemuBinaryDir();
+  if (absl::EndsWith(bin_dir, "/bin")) {
+    return bin_dir.substr(0, bin_dir.size() - 4) + "/share/qemu";
   }
   return "/usr/share/qemu";
 }
