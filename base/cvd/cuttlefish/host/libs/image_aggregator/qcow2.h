@@ -39,7 +39,8 @@ class Qcow2Image : public DiskImage {
    *
    * The crosvm binary at `crosvm_path` is used to generate an overlay file at
    * `output_overlay_path` that functions as an overlay on the file at
-   * `backing_file`.
+   * `backing_file`. On non-Linux hosts, where crosvm does not exist,
+   * `crosvm_path` is ignored and `qemu-img` from the PATH is used instead.
    */
   static Result<Qcow2Image> Create(const std::string& crosvm_path,
                                    const std::string& backing_file,

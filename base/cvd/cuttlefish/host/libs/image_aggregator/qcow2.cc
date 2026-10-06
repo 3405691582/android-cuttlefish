@@ -18,10 +18,22 @@
 
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdlib.h>
+#ifndef __linux__
+#include <unistd.h>
+#endif
 
 #include <memory>
 #include <string>
+#ifndef __linux__
+#include <string_view>
+#endif
 #include <utility>
+
+#ifndef __linux__
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_split.h"
+#endif
 
 #include "cuttlefish/common/libs/fs/fd.h"
 #include "cuttlefish/common/libs/utils/cf_endian.h"
@@ -33,6 +45,24 @@
 namespace cuttlefish {
 
 namespace {
+
+#ifndef __linux__
+// `qemu-img` from $PATH, falling back to the usual package locations. Used to
+// create overlays on hosts where crosvm is not available (e.g. the BSDs,
+// where only the QEMU VM manager is supported).
+Result<std::string> QemuImgPath() {
+  const char* path_env = getenv("PATH");
+  std::string search = path_env ? path_env : "";
+  absl::StrAppend(&search, ":/usr/local/bin:/usr/bin:/opt/homebrew/bin");
+  for (std::string_view dir : absl::StrSplit(search, ':', absl::SkipEmpty())) {
+    std::string candidate = absl::StrCat(dir, "/qemu-img");
+    if (access(candidate.c_str(), X_OK) == 0) {
+      return candidate;
+    }
+  }
+  return CF_ERR("qemu-img not found in PATH");
+}
+#endif
 
 struct __attribute__((packed)) QcowHeader {
   Be32 magic;
@@ -61,11 +91,29 @@ struct Qcow2Image::Impl {
 Result<Qcow2Image> Qcow2Image::Create(const std::string& crosvm_path,
                                       const std::string& backing_file,
                                       std::string output_overlay_path) {
+#ifdef __linux__
   Command create_cmd = Command(crosvm_path)
                            .AddParameter("create_qcow2")
                            .AddParameter("--backing-file")
                            .AddParameter(backing_file)
                            .AddParameter(output_overlay_path);
+#else
+  // crosvm is Linux-only (a Linux prebuilt may still be present in a fetched
+  // host package, but cannot run here); qemu-img produces an equivalent
+  // overlay. The backing format must be given explicitly (qemu-img >= 6.1
+  // refuses to probe it) and the composite disk is a raw image.
+  (void)crosvm_path;
+  Command create_cmd = Command(CF_EXPECT(QemuImgPath()))
+                           .AddParameter("create")
+                           .AddParameter("-q")
+                           .AddParameter("-f")
+                           .AddParameter("qcow2")
+                           .AddParameter("-F")
+                           .AddParameter("raw")
+                           .AddParameter("-b")
+                           .AddParameter(backing_file)
+                           .AddParameter(output_overlay_path);
+#endif
 
   CF_EXPECT(RunAndCaptureStdout(std::move(create_cmd)));
 
