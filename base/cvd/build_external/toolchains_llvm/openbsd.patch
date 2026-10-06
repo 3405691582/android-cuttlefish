@@ -1,0 +1,27 @@
+diff -ruN a/toolchain/internal/common.bzl b/toolchain/internal/common.bzl
+--- a/toolchain/internal/common.bzl
++++ b/toolchain/internal/common.bzl
+@@ -148,6 +148,11 @@
+         return "darwin"
+     elif name.startswith("windows"):
+         return "windows"
++    elif name in ("freebsd", "openbsd", "netbsd"):
++        # No LLVM distributions are published for the BSDs. Callers treat
++        # these like windows: the toolchain repository is left empty so that
++        # the locally configured C++ toolchain is used instead.
++        return name
+     fail("Unsupported OS: " + name)
+ 
+ def os_bzl(os):
+diff -ruN a/toolchain/internal/configure.bzl b/toolchain/internal/configure.bzl
+--- a/toolchain/internal/configure.bzl
++++ b/toolchain/internal/configure.bzl
+@@ -72,7 +72,7 @@
+     _check_os_arch_keys(rctx.attr.extra_target_compatible_with)
+ 
+     os = _os(rctx)
+-    if os == "windows":
++    if os in ("windows", "freebsd", "openbsd", "netbsd"):
+         _empty_repository(rctx)
+         return None
+     arch = _arch(rctx)
