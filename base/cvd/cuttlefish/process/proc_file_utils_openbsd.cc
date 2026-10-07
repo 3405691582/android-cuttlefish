@@ -148,8 +148,18 @@ Result<std::vector<std::string>> GetCmdArgs(const pid_t pid) {
 }
 
 Result<std::string> GetExecutablePath(const pid_t pid) {
-  // There is no equivalent of /proc/<pid>/exe; the best approximation is the
-  // argv[0] the process was started with.
+#if defined(OpenBSD) && OpenBSD > 202605  // newer than 7.9, i.e. 8.0+
+  if (pid == getpid()) {
+    // OpenBSD 8.0 added getexecpath(3), which returns the realpath(3) of the
+    // calling process' executable straight from the kernel.
+    char exec_path[PATH_MAX];
+    if (getexecpath(exec_path, sizeof(exec_path)) == 0) {
+      return std::string(exec_path);
+    }
+  }
+#endif
+  // There is no equivalent of /proc/<pid>/exe for arbitrary processes; the
+  // best approximation is the argv[0] the process was started with.
   std::vector<std::string> argv = CF_EXPECT(ProcStrings(pid, KERN_PROC_ARGV));
   CF_EXPECTF(!argv.empty(), "Process {} has no arguments", pid);
   return CF_EXPECT(ResolveArgv0(pid, argv.front()));
