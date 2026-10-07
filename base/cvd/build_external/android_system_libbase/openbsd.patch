@@ -1,6 +1,6 @@
-diff -ruN a/file.cpp b1/file.cpp
+diff -ruN a/file.cpp b/file.cpp
 --- a/file.cpp	2026-10-10 06:56:18.368071187 +0000
-+++ b1/file.cpp	2026-10-10 06:56:31.905994619 +0000
++++ b/file.cpp	2026-10-10 06:56:18.487172880 +0000
 @@ -36,6 +36,10 @@
  #if defined(__APPLE__)
  #include <mach-o/dyld.h>
@@ -20,13 +20,19 @@ diff -ruN a/file.cpp b1/file.cpp
  #include "android-base/unique_fd.h"
  #include "android-base/utf8.h"
  
-@@ -506,6 +511,29 @@
+@@ -506,6 +511,35 @@
    if (result == 0 || result == sizeof(path) - 1) return "";
    path[PATH_MAX - 1] = 0;
    return path;
 +#elif defined(__OpenBSD__)
-+  // OpenBSD has neither /proc nor KERN_PROC_PATHNAME, so the best we can do is
-+  // to resolve argv[0] like the shell did.
++#if defined(OpenBSD) && OpenBSD > 202605  // newer than 7.9, i.e. 8.0+
++  // OpenBSD 8.0 added getexecpath(3), which returns the realpath(3) of the
++  // running executable straight from the kernel.
++  char exec_path[PATH_MAX];
++  if (getexecpath(exec_path, sizeof(exec_path)) == 0) return exec_path;
++#endif
++  // Older releases have neither /proc nor KERN_PROC_PATHNAME, so the best we
++  // can do is to resolve argv[0] like the shell did.
 +  int mib[] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV};
 +  size_t size = 0;
 +  if (sysctl(mib, arraysize(mib), nullptr, &size, nullptr, 0) == -1) return "";
@@ -50,9 +56,9 @@ diff -ruN a/file.cpp b1/file.cpp
  #elif defined(__EMSCRIPTEN__)
    abort();
  #else
-diff -ruN a/include/android-base/endian.h b1/include/android-base/endian.h
+diff -ruN a/include/android-base/endian.h b/include/android-base/endian.h
 --- a/include/android-base/endian.h	2026-10-10 06:56:18.383473851 +0000
-+++ b1/include/android-base/endian.h	2026-10-10 06:56:31.920426205 +0000
++++ b/include/android-base/endian.h	2026-10-10 06:56:18.494748481 +0000
 @@ -25,6 +25,18 @@
  
  #include <sys/endian.h>
@@ -72,9 +78,9 @@ diff -ruN a/include/android-base/endian.h b1/include/android-base/endian.h
  #elif defined(__GLIBC__) || defined(ANDROID_HOST_MUSL)
  
  /* glibc and musl's <endian.h> are like bionic's <sys/endian.h>. */
-diff -ruN a/include/android-base/off64_t.h b1/include/android-base/off64_t.h
+diff -ruN a/include/android-base/off64_t.h b/include/android-base/off64_t.h
 --- a/include/android-base/off64_t.h	2026-10-10 06:56:18.388219024 +0000
-+++ b1/include/android-base/off64_t.h	2026-10-10 06:56:31.926091863 +0000
++++ b/include/android-base/off64_t.h	2026-10-10 06:56:18.496220677 +0000
 @@ -16,7 +16,7 @@
  
  #pragma once
@@ -85,9 +91,9 @@ diff -ruN a/include/android-base/off64_t.h b1/include/android-base/off64_t.h
 +/** Mac OS and OpenBSD have always had a 64-bit off_t, so they don't have off64_t. */
  typedef off_t off64_t;
  #endif
-diff -ruN a/logging.cpp b1/logging.cpp
+diff -ruN a/logging.cpp b/logging.cpp
 --- a/logging.cpp	2026-10-10 06:56:18.372218779 +0000
-+++ b1/logging.cpp	2026-10-10 06:56:31.911292525 +0000
++++ b/logging.cpp	2026-10-10 06:56:18.489866269 +0000
 @@ -61,8 +61,8 @@
  namespace android {
  namespace base {
@@ -99,9 +105,9 @@ diff -ruN a/logging.cpp b1/logging.cpp
  static const char* getprogname() {
  #ifdef _WIN32
    static bool first = true;
-diff -ruN a/threads.cpp b1/threads.cpp
+diff -ruN a/threads.cpp b/threads.cpp
 --- a/threads.cpp	2026-10-10 06:56:18.378162019 +0000
-+++ b1/threads.cpp	2026-10-10 06:56:31.916288852 +0000
++++ b/threads.cpp	2026-10-10 06:56:18.492185832 +0000
 @@ -39,6 +39,8 @@
    return tid;
  #elif defined(__linux__)
