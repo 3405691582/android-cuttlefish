@@ -842,7 +842,22 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
 
       if (!config.virtio_mac80211_hwsim()) {
         qemu_cmd.AddParameter("-netdev");
+#ifdef __linux__
         qemu_cmd.AddParameter("user,id=hostnet2,net=10.0.2.1/24,dns=1.1.1.1");
+#else
+        // Without vsock this is the guest's only usable network, so it has to
+        // work on its own.  The nameserver must lie inside the slirp network:
+        // slirp relays queries to the host's resolver either way, but it only
+        // rewrites the source of the replies back to the address the guest
+        // asked when that address is one of its own, and the guest's resolver
+        // drops replies from an unexpected server.  slirp's IPv6 is a
+        // site-local prefix without DNS, which Android cannot provision from,
+        // and every router advertisement makes the guest regenerate its APF
+        // program, which under TCG pushes DHCPv4 past IpClient's 18 s
+        // provisioning timeout.
+        qemu_cmd.AddParameter(
+            "user,id=hostnet2,net=10.0.2.1/24,dns=10.0.2.3,ipv6=off");
+#endif
       }
       break;
     }
