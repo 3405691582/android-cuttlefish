@@ -23,5 +23,11 @@ git_repository(
     name = "casimir",
     build_file = "@//build_external/casimir:BUILD.casimir.bazel",
     commit = "f785e9275ee5ed85f98e7b850783ca0559ee1799",
+    patch_args = ["-p1"],
+    patches = [
+        # inherited_fd::init_once() reads /proc/self/fd, which only exists on
+        # Linux; probe the descriptors with fcntl(F_GETFD) elsewhere.
+        "@//build_external/casimir:0001-Enumerate-open-fds-without-procfs.patch",
+    ],
     remote = "https://github.com/google/casimir",
 )
