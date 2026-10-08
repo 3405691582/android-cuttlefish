@@ -854,9 +854,11 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
         // site-local prefix without DNS, which Android cannot provision from,
         // and every router advertisement makes the guest regenerate its APF
         // program, which under TCG pushes DHCPv4 past IpClient's 18 s
-        // provisioning timeout.
+        // provisioning timeout.  There is no tunnel for adb either, so forward
+        // the adb host port to the guest adbd (TCP 5555) through this network.
         qemu_cmd.AddParameter(
-            "user,id=hostnet2,net=10.0.2.1/24,dns=10.0.2.3,ipv6=off");
+            "user,id=hostnet2,net=10.0.2.1/24,dns=10.0.2.3,ipv6=off",
+            ",hostfwd=tcp:127.0.0.1:", instance.adb_host_port(), "-:5555");
 #endif
       }
       break;
