@@ -1,0 +1,92 @@
+--- a/src/inherited_fd.rs
++++ b/src/inherited_fd.rs
+@@ -20,8 +20,6 @@
+ use nix::fcntl::{fcntl, FdFlag, F_SETFD};
+ use nix::libc;
+ use std::collections::HashMap;
+-use std::fs::canonicalize;
+-use std::fs::read_dir;
+ use std::os::fd::FromRawFd;
+ use std::os::fd::OwnedFd;
+ use std::os::fd::RawFd;
+@@ -60,20 +58,40 @@
+ pub unsafe fn init_once() -> Result<(), std::io::Error> {
+     let mut fds = HashMap::new();
+ 
++    for raw_fd in open_fds()? {
++        // We don't take ownership of the stdio FDs as the Rust runtime owns them.
++        if [libc::STDIN_FILENO, libc::STDOUT_FILENO, libc::STDERR_FILENO].contains(&raw_fd) {
++            continue;
++        }
++
++        // SAFETY: `open_fds()` only returns file descriptors that are open. If `init_once()` was
++        // called at the very beginning of the program execution (as requested by the safety
++        // requirement of this function), this is the first time to claim the ownership of these
++        // file descriptors.
++        let owned_fd = unsafe { OwnedFd::from_raw_fd(raw_fd) };
++        fds.insert(raw_fd, Some(owned_fd));
++    }
++
++    INHERITED_FDS
++        .set(Mutex::new(fds))
++        .or(Err(std::io::Error::other("Inherited fds were already initialized")))
++}
++
++/// Returns the file descriptors currently open in this process, from /proc/self/fd.
++#[cfg(any(target_os = "linux", target_os = "android"))]
++fn open_fds() -> Result<Vec<RawFd>, std::io::Error> {
++    use std::fs::{canonicalize, read_dir};
++
+     let fd_path = canonicalize("/proc/self/fd")?;
++    let mut fds = Vec::new();
+ 
+     for entry in read_dir(&fd_path)? {
+         let entry = entry?;
+ 
+-        // Files in /prod/self/fd are guaranteed to be numbers. So parsing is always successful.
++        // Files in /proc/self/fd are guaranteed to be numbers. So parsing is always successful.
+         let file_name = entry.file_name();
+         let raw_fd = file_name.to_str().unwrap().parse::<RawFd>().unwrap();
+ 
+-        // We don't take ownership of the stdio FDs as the Rust runtime owns them.
+-        if [libc::STDIN_FILENO, libc::STDOUT_FILENO, libc::STDERR_FILENO].contains(&raw_fd) {
+-            continue;
+-        }
+-
+         // Exceptional case: /proc/self/fd/* may be a dir fd created by read_dir just above. Since
+         // the file descriptor is owned by read_dir (and thus closed by it), we shouldn't take
+         // ownership to it.
+@@ -81,17 +99,24 @@
+             continue;
+         }
+ 
+-        // SAFETY: /proc/self/fd/* are file descriptors that are open. If `init_once()` was called
+-        // at the very beginning of the program execution (as requested by the safety requirement
+-        // of this function), this is the first time to claim the ownership of these file
+-        // descriptors.
+-        let owned_fd = unsafe { OwnedFd::from_raw_fd(raw_fd) };
+-        fds.insert(raw_fd, Some(owned_fd));
++        fds.push(raw_fd);
+     }
+ 
+-    INHERITED_FDS
+-        .set(Mutex::new(fds))
+-        .or(Err(std::io::Error::other("Inherited fds were already initialized")))
++    Ok(fds)
++}
++
++/// Returns the file descriptors currently open in this process. Without procfs (the BSDs, macOS)
++/// every possible descriptor is probed with `fcntl(F_GETFD)`, which fails with EBADF when it is
++/// not open.
++#[cfg(not(any(target_os = "linux", target_os = "android")))]
++fn open_fds() -> Result<Vec<RawFd>, std::io::Error> {
++    use nix::fcntl::F_GETFD;
++
++    // SAFETY: sysconf has no preconditions.
++    let open_max = unsafe { libc::sysconf(libc::_SC_OPEN_MAX) };
++    let open_max = RawFd::try_from(open_max).unwrap_or(RawFd::MAX);
++
++    Ok((0..open_max).filter(|raw_fd| fcntl(*raw_fd, F_GETFD).is_ok()).collect())
+ }
+ 
+ /// Take the ownership of the given `RawFd` and returns `OwnedFd` for it. The returned FD is set
