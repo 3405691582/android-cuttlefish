@@ -1,0 +1,11 @@
+# OpenBSD support for rules_rust (rust-lang.org publishes no OpenBSD binaries):
+#  - know the x86_64/aarch64-unknown-openbsd triples and detect them as host;
+#  - build the OpenBSD toolchain repositories from the sysroot of the rustc
+#    found on the host (the ports/packages rust) instead of downloading;
+#  - crate_universe builds cargo-bazel from source where there is no prebuilt
+#    and generates the OpenBSD select() branches for the crate BUILD files.
+single_version_override(
+    module_name = "rules_rust",
+    patch_strip = 1,
+    patches = ["@//build_external/rules_rust:openbsd.patch"],
+)
