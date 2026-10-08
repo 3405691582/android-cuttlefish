@@ -1,0 +1,52 @@
+diff --git a/BUILD b/BUILD
+index fc2103f..1eb8259 100644
+--- a/BUILD
++++ b/BUILD
+@@ -10,6 +10,14 @@ licenses(["notice"])
+ 
+ exports_files(["LICENSE"])
+ 
++# The BCR openssl module only knows Linux and macOS; OpenBSD builds against
++# BoringSSL, which cuttlefish builds there anyway and which provides the same
++# AES and EC APIs (Android links rootcanal against BoringSSL too).
++LIBCRYPTO = select({
++    "@bazel_tools//src/conditions:openbsd": ["@boringssl//:crypto"],
++    "//conditions:default": ["@openssl//:crypto"],
++})
++
+ cc_library(
+     name = "rootcanal_log",
+     srcs = ["lib/log.cc"],
+@@ -101,8 +109,7 @@ cc_library(
+         "//packets:generated",
+         "@pdl//:packet_runtime",
+         "@fmtlib",
+-        "@openssl//:crypto",
+-    ],
++    ] + LIBCRYPTO,
+ )
+ 
+ cc_library(
+@@ -216,9 +223,8 @@ cc_library(
+         "//packets:generated",
+         "@gflags",
+         "@fmtlib",
+-        "@openssl//:crypto",
+         "@pdl//:packet_runtime",
+-    ],
++    ] + LIBCRYPTO,
+     # TODO enable thin_lto
+     # breaks the device registration
+     # features = ["-thin_lto"],
+diff --git a/MODULE.bazel b/MODULE.bazel
+index b3fd9d1..bcf31f1 100644
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -12,6 +12,7 @@ bazel_dep(name = "rules_python", version = "1.7.0")
+ bazel_dep(name = "bazel_skylib", version = "1.8.2")
+ 
+ bazel_dep(name = "openssl", version = "3.3.1.bcr.1")
++bazel_dep(name = "boringssl", version = "0.20260813.0")
+ bazel_dep(name = "protobuf", version = "33.4")
+ bazel_dep(name = "gflags", version = "2.2.2.bcr.1")
+ 

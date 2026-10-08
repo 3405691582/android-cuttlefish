@@ -11,6 +11,7 @@ git_override(
         "@//build_external/rootcanal:0002-Make-rootcanal_proto-public.patch",
         "@//build_external/rootcanal:0003-Export-link_layer_packets.pdl.patch",
         "@//build_external/rootcanal:0004-Define-librootcanal_ffi.so-and-librootcanal-librarie.patch",
+        "@//build_external/rootcanal:openbsd.patch",
     ],
     remote = "https://github.com/google/rootcanal.git",
 )
