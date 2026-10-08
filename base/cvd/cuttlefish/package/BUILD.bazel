@@ -203,20 +203,39 @@ package_files(
     visibility = ["//:android_cuttlefish"],
 )
 
+_DEFAULTS_PACKAGE_FILES = {
+    "bin/cf_defaults": "//cuttlefish/host/commands/defaults:cf_defaults",
+}
+
+_METRICS_PACKAGE_FILES = {
+    "bin/metrics_transmitter": "//cuttlefish/metrics/metrics_transmitter:metrics_transmitter",
+}
+
 package_files(
     name = "defaults",
     base_dir = "cuttlefish-integration",
-    package_file_to_src = {
-        "bin/cf_defaults": "//cuttlefish/host/commands/defaults:cf_defaults",
-    },
+    package_file_to_src = _DEFAULTS_PACKAGE_FILES,
     visibility = ["//:android_cuttlefish"],
 )
 
 package_files(
     name = "metrics",
     base_dir = "cuttlefish-metrics",
-    package_file_to_src = {
-        "bin/metrics_transmitter": "//cuttlefish/metrics/metrics_transmitter:metrics_transmitter",
-    },
+    package_file_to_src = _METRICS_PACKAGE_FILES,
+    visibility = ["//:android_cuttlefish"],
+)
+
+# Everything above that builds on every supported host OS, as one package: the
+# common files without the Linux-only ones, plus cf_defaults and
+# metrics_transmitter. On the BSDs this is the complete host package; on Linux
+# it is the subset that runs a device under QEMU with guest-side rendering, so
+# it also serves as a quick portability build that needs none of the graphics,
+# webRTC, crosvm or Rust dependencies. Run devices from :common, which is the
+# cuttlefish-common/ tree that cvd expects to live in.
+package_files(
+    name = "minimal",
+    base_dir = "cuttlefish-minimal",
+    package_file_symlink_to_package_file = _COMMON_PACKAGE_SYMLINKS,
+    package_file_to_src = _COMMON_PACKAGE_FILES | _DEFAULTS_PACKAGE_FILES | _METRICS_PACKAGE_FILES,
     visibility = ["//:android_cuttlefish"],
 )
