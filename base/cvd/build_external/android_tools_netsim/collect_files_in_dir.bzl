@@ -3,7 +3,7 @@
 def _collect_source_files_impl(ctx):
     out = ctx.actions.declare_directory(ctx.attr.out)
     ctx.actions.run_shell(
-        command = "cp  -t {out} -r {srcs}".format(
+        command = "cp -R {srcs} {out}".format(
             srcs = " ".join([f.path for f in ctx.files.srcs]),
             out = out.path,
         ),
