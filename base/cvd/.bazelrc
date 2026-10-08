@@ -116,3 +116,9 @@ build:openbsd --noreuse_sandbox_directories
 # Packages (e.g. liblzma, needed by @libzip) live under /usr/local, which the
 # OpenBSD toolchain does not search by default.
 build:openbsd --linkopt=-L/usr/local/lib
+# The only rust on OpenBSD is the stable toolchain from the packages, which
+# rules_rust uses in place of the pinned and the nightly toolchains. Resolving
+# the crate sets needs cargo's unstable -Zbindeps (crosvm's manifests reach
+# every set through crosvm.config.toml); RUSTC_BOOTSTRAP=1 makes a stable cargo
+# accept -Z flags during repository fetching.
+build:openbsd --repo_env=RUSTC_BOOTSTRAP=1

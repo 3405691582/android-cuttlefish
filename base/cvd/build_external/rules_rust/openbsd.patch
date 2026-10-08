@@ -1,0 +1,1480 @@
+diff -ruN a/cargo/3rdparty/crates/BUILD.autocfg-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.autocfg-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.autocfg-1.5.0.bazel	2026-10-08 17:43:45.567653168 +0000
++++ b/cargo/3rdparty/crates/BUILD.autocfg-1.5.0.bazel	2026-10-08 17:44:06.449233655 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.cargo_toml-0.20.5.bazel b/cargo/3rdparty/crates/BUILD.cargo_toml-0.20.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.cargo_toml-0.20.5.bazel	2026-10-08 17:43:45.568148237 +0000
++++ b/cargo/3rdparty/crates/BUILD.cargo_toml-0.20.5.bazel	2026-10-08 17:44:06.449379058 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.cargo-util-schemas-0.3.1.bazel b/cargo/3rdparty/crates/BUILD.cargo-util-schemas-0.3.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.cargo-util-schemas-0.3.1.bazel	2026-10-08 17:43:45.570229356 +0000
++++ b/cargo/3rdparty/crates/BUILD.cargo-util-schemas-0.3.1.bazel	2026-10-08 17:44:06.449307939 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.displaydoc-0.2.5.bazel b/cargo/3rdparty/crates/BUILD.displaydoc-0.2.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.displaydoc-0.2.5.bazel	2026-10-08 17:43:45.571511453 +0000
++++ b/cargo/3rdparty/crates/BUILD.displaydoc-0.2.5.bazel	2026-10-08 17:44:06.449450232 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.equivalent-1.0.1.bazel b/cargo/3rdparty/crates/BUILD.equivalent-1.0.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.equivalent-1.0.1.bazel	2026-10-08 17:43:45.572148298 +0000
++++ b/cargo/3rdparty/crates/BUILD.equivalent-1.0.1.bazel	2026-10-08 17:44:06.449519524 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.erased-serde-0.4.5.bazel b/cargo/3rdparty/crates/BUILD.erased-serde-0.4.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.erased-serde-0.4.5.bazel	2026-10-08 17:43:45.574076147 +0000
++++ b/cargo/3rdparty/crates/BUILD.erased-serde-0.4.5.bazel	2026-10-08 17:44:06.449592352 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.form_urlencoded-1.2.1.bazel b/cargo/3rdparty/crates/BUILD.form_urlencoded-1.2.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.form_urlencoded-1.2.1.bazel	2026-10-08 17:43:45.575416951 +0000
++++ b/cargo/3rdparty/crates/BUILD.form_urlencoded-1.2.1.bazel	2026-10-08 17:44:06.449663778 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.hashbrown-0.15.2.bazel b/cargo/3rdparty/crates/BUILD.hashbrown-0.15.2.bazel
+--- a/cargo/3rdparty/crates/BUILD.hashbrown-0.15.2.bazel	2026-10-08 17:43:45.576148359 +0000
++++ b/cargo/3rdparty/crates/BUILD.hashbrown-0.15.2.bazel	2026-10-08 17:44:06.449735255 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_collections-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_collections-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_collections-1.5.0.bazel	2026-10-08 17:43:45.577994481 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_collections-1.5.0.bazel	2026-10-08 17:44:06.449805751 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_locid-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_locid-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_locid-1.5.0.bazel	2026-10-08 17:43:45.579251262 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_locid-1.5.0.bazel	2026-10-08 17:44:06.449879365 +0000
+@@ -56,6 +56,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -86,6 +87,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_locid_transform-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_locid_transform-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_locid_transform-1.5.0.bazel	2026-10-08 17:43:45.580513144 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_locid_transform-1.5.0.bazel	2026-10-08 17:44:06.449950287 +0000
+@@ -56,6 +56,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -86,6 +87,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_locid_transform_data-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_locid_transform_data-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_locid_transform_data-1.5.0.bazel	2026-10-08 17:43:45.581804343 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_locid_transform_data-1.5.0.bazel	2026-10-08 17:44:06.450020686 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_normalizer-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_normalizer-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_normalizer-1.5.0.bazel	2026-10-08 17:43:45.583077818 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_normalizer-1.5.0.bazel	2026-10-08 17:44:06.450096045 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_normalizer_data-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_normalizer_data-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_normalizer_data-1.5.0.bazel	2026-10-08 17:43:45.584428697 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_normalizer_data-1.5.0.bazel	2026-10-08 17:44:06.450165030 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_properties-1.5.1.bazel b/cargo/3rdparty/crates/BUILD.icu_properties-1.5.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_properties-1.5.1.bazel	2026-10-08 17:43:45.585780020 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_properties-1.5.1.bazel	2026-10-08 17:44:06.450234300 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_properties_data-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_properties_data-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_properties_data-1.5.0.bazel	2026-10-08 17:43:45.587054833 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_properties_data-1.5.0.bazel	2026-10-08 17:44:06.450300958 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_provider-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_provider-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_provider-1.5.0.bazel	2026-10-08 17:43:45.588323227 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_provider-1.5.0.bazel	2026-10-08 17:44:06.450370264 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.icu_provider_macros-1.5.0.bazel b/cargo/3rdparty/crates/BUILD.icu_provider_macros-1.5.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.icu_provider_macros-1.5.0.bazel	2026-10-08 17:43:45.589615426 +0000
++++ b/cargo/3rdparty/crates/BUILD.icu_provider_macros-1.5.0.bazel	2026-10-08 17:44:06.450437930 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.idna-1.0.3.bazel b/cargo/3rdparty/crates/BUILD.idna-1.0.3.bazel
+--- a/cargo/3rdparty/crates/BUILD.idna-1.0.3.bazel	2026-10-08 17:43:45.590877989 +0000
++++ b/cargo/3rdparty/crates/BUILD.idna-1.0.3.bazel	2026-10-08 17:44:06.450505894 +0000
+@@ -55,6 +55,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.idna_adapter-1.2.0.bazel b/cargo/3rdparty/crates/BUILD.idna_adapter-1.2.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.idna_adapter-1.2.0.bazel	2026-10-08 17:43:45.592190314 +0000
++++ b/cargo/3rdparty/crates/BUILD.idna_adapter-1.2.0.bazel	2026-10-08 17:44:06.450573972 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.indexmap-2.7.1.bazel b/cargo/3rdparty/crates/BUILD.indexmap-2.7.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.indexmap-2.7.1.bazel	2026-10-08 17:43:45.593487000 +0000
++++ b/cargo/3rdparty/crates/BUILD.indexmap-2.7.1.bazel	2026-10-08 17:44:06.450684712 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.litemap-0.7.4.bazel b/cargo/3rdparty/crates/BUILD.litemap-0.7.4.bazel
+--- a/cargo/3rdparty/crates/BUILD.litemap-0.7.4.bazel	2026-10-08 17:43:45.594759473 +0000
++++ b/cargo/3rdparty/crates/BUILD.litemap-0.7.4.bazel	2026-10-08 17:44:06.450801013 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.memchr-2.7.4.bazel b/cargo/3rdparty/crates/BUILD.memchr-2.7.4.bazel
+--- a/cargo/3rdparty/crates/BUILD.memchr-2.7.4.bazel	2026-10-08 17:43:45.596011343 +0000
++++ b/cargo/3rdparty/crates/BUILD.memchr-2.7.4.bazel	2026-10-08 17:44:06.450895469 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.num-traits-0.2.19.bazel b/cargo/3rdparty/crates/BUILD.num-traits-0.2.19.bazel
+--- a/cargo/3rdparty/crates/BUILD.num-traits-0.2.19.bazel	2026-10-08 17:43:45.596148663 +0000
++++ b/cargo/3rdparty/crates/BUILD.num-traits-0.2.19.bazel	2026-10-08 17:44:06.450972264 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.ordered-float-2.10.1.bazel b/cargo/3rdparty/crates/BUILD.ordered-float-2.10.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.ordered-float-2.10.1.bazel	2026-10-08 17:43:45.598584619 +0000
++++ b/cargo/3rdparty/crates/BUILD.ordered-float-2.10.1.bazel	2026-10-08 17:44:06.451042827 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.pathdiff-0.1.0.bazel b/cargo/3rdparty/crates/BUILD.pathdiff-0.1.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.pathdiff-0.1.0.bazel	2026-10-08 17:43:45.599834519 +0000
++++ b/cargo/3rdparty/crates/BUILD.pathdiff-0.1.0.bazel	2026-10-08 17:44:06.451116825 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.percent-encoding-2.3.1.bazel b/cargo/3rdparty/crates/BUILD.percent-encoding-2.3.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.percent-encoding-2.3.1.bazel	2026-10-08 17:43:45.600148724 +0000
++++ b/cargo/3rdparty/crates/BUILD.percent-encoding-2.3.1.bazel	2026-10-08 17:44:06.451183829 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.proc-macro2-1.0.93.bazel b/cargo/3rdparty/crates/BUILD.proc-macro2-1.0.93.bazel
+--- a/cargo/3rdparty/crates/BUILD.proc-macro2-1.0.93.bazel	2026-10-08 17:43:45.602428935 +0000
++++ b/cargo/3rdparty/crates/BUILD.proc-macro2-1.0.93.bazel	2026-10-08 17:44:06.451253260 +0000
+@@ -55,6 +55,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.quote-1.0.38.bazel b/cargo/3rdparty/crates/BUILD.quote-1.0.38.bazel
+--- a/cargo/3rdparty/crates/BUILD.quote-1.0.38.bazel	2026-10-08 17:43:45.603718318 +0000
++++ b/cargo/3rdparty/crates/BUILD.quote-1.0.38.bazel	2026-10-08 17:44:06.451321494 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.semver-1.0.25.bazel b/cargo/3rdparty/crates/BUILD.semver-1.0.25.bazel
+--- a/cargo/3rdparty/crates/BUILD.semver-1.0.25.bazel	2026-10-08 17:43:45.604148785 +0000
++++ b/cargo/3rdparty/crates/BUILD.semver-1.0.25.bazel	2026-10-08 17:44:06.451390527 +0000
+@@ -56,6 +56,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -86,6 +87,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.serde-1.0.217.bazel b/cargo/3rdparty/crates/BUILD.serde-1.0.217.bazel
+--- a/cargo/3rdparty/crates/BUILD.serde-1.0.217.bazel	2026-10-08 17:43:45.606287692 +0000
++++ b/cargo/3rdparty/crates/BUILD.serde-1.0.217.bazel	2026-10-08 17:44:06.451460748 +0000
+@@ -61,6 +61,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -91,6 +92,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.serde_derive-1.0.217.bazel b/cargo/3rdparty/crates/BUILD.serde_derive-1.0.217.bazel
+--- a/cargo/3rdparty/crates/BUILD.serde_derive-1.0.217.bazel	2026-10-08 17:43:45.607553050 +0000
++++ b/cargo/3rdparty/crates/BUILD.serde_derive-1.0.217.bazel	2026-10-08 17:44:06.451675457 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.serde_spanned-0.6.8.bazel b/cargo/3rdparty/crates/BUILD.serde_spanned-0.6.8.bazel
+--- a/cargo/3rdparty/crates/BUILD.serde_spanned-0.6.8.bazel	2026-10-08 17:43:45.608148846 +0000
++++ b/cargo/3rdparty/crates/BUILD.serde_spanned-0.6.8.bazel	2026-10-08 17:44:06.451742964 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.serde-untagged-0.1.6.bazel b/cargo/3rdparty/crates/BUILD.serde-untagged-0.1.6.bazel
+--- a/cargo/3rdparty/crates/BUILD.serde-untagged-0.1.6.bazel	2026-10-08 17:43:45.610061726 +0000
++++ b/cargo/3rdparty/crates/BUILD.serde-untagged-0.1.6.bazel	2026-10-08 17:44:06.451529373 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.serde-value-0.7.0.bazel b/cargo/3rdparty/crates/BUILD.serde-value-0.7.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.serde-value-0.7.0.bazel	2026-10-08 17:43:45.611358766 +0000
++++ b/cargo/3rdparty/crates/BUILD.serde-value-0.7.0.bazel	2026-10-08 17:44:06.451607804 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.smallvec-1.13.2.bazel b/cargo/3rdparty/crates/BUILD.smallvec-1.13.2.bazel
+--- a/cargo/3rdparty/crates/BUILD.smallvec-1.13.2.bazel	2026-10-08 17:43:45.612148907 +0000
++++ b/cargo/3rdparty/crates/BUILD.smallvec-1.13.2.bazel	2026-10-08 17:44:06.451808784 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.stable_deref_trait-1.2.0.bazel b/cargo/3rdparty/crates/BUILD.stable_deref_trait-1.2.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.stable_deref_trait-1.2.0.bazel	2026-10-08 17:43:45.613995237 +0000
++++ b/cargo/3rdparty/crates/BUILD.stable_deref_trait-1.2.0.bazel	2026-10-08 17:44:06.451874809 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.syn-2.0.98.bazel b/cargo/3rdparty/crates/BUILD.syn-2.0.98.bazel
+--- a/cargo/3rdparty/crates/BUILD.syn-2.0.98.bazel	2026-10-08 17:43:45.615276070 +0000
++++ b/cargo/3rdparty/crates/BUILD.syn-2.0.98.bazel	2026-10-08 17:44:06.451943050 +0000
+@@ -61,6 +61,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -91,6 +92,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.synstructure-0.13.1.bazel b/cargo/3rdparty/crates/BUILD.synstructure-0.13.1.bazel
+--- a/cargo/3rdparty/crates/BUILD.synstructure-0.13.1.bazel	2026-10-08 17:43:45.616148968 +0000
++++ b/cargo/3rdparty/crates/BUILD.synstructure-0.13.1.bazel	2026-10-08 17:44:06.452010583 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.thiserror-1.0.69.bazel b/cargo/3rdparty/crates/BUILD.thiserror-1.0.69.bazel
+--- a/cargo/3rdparty/crates/BUILD.thiserror-1.0.69.bazel	2026-10-08 17:43:45.617878780 +0000
++++ b/cargo/3rdparty/crates/BUILD.thiserror-1.0.69.bazel	2026-10-08 17:44:06.452084922 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.thiserror-impl-1.0.69.bazel b/cargo/3rdparty/crates/BUILD.thiserror-impl-1.0.69.bazel
+--- a/cargo/3rdparty/crates/BUILD.thiserror-impl-1.0.69.bazel	2026-10-08 17:43:45.619141442 +0000
++++ b/cargo/3rdparty/crates/BUILD.thiserror-impl-1.0.69.bazel	2026-10-08 17:44:06.452153059 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.tinystr-0.7.6.bazel b/cargo/3rdparty/crates/BUILD.tinystr-0.7.6.bazel
+--- a/cargo/3rdparty/crates/BUILD.tinystr-0.7.6.bazel	2026-10-08 17:43:45.620149028 +0000
++++ b/cargo/3rdparty/crates/BUILD.tinystr-0.7.6.bazel	2026-10-08 17:44:06.452220929 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.toml-0.8.20.bazel b/cargo/3rdparty/crates/BUILD.toml-0.8.20.bazel
+--- a/cargo/3rdparty/crates/BUILD.toml-0.8.20.bazel	2026-10-08 17:43:45.622194051 +0000
++++ b/cargo/3rdparty/crates/BUILD.toml-0.8.20.bazel	2026-10-08 17:44:06.452289142 +0000
+@@ -55,6 +55,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.toml_datetime-0.6.8.bazel b/cargo/3rdparty/crates/BUILD.toml_datetime-0.6.8.bazel
+--- a/cargo/3rdparty/crates/BUILD.toml_datetime-0.6.8.bazel	2026-10-08 17:43:45.623494545 +0000
++++ b/cargo/3rdparty/crates/BUILD.toml_datetime-0.6.8.bazel	2026-10-08 17:44:06.452356462 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.toml_edit-0.22.24.bazel b/cargo/3rdparty/crates/BUILD.toml_edit-0.22.24.bazel
+--- a/cargo/3rdparty/crates/BUILD.toml_edit-0.22.24.bazel	2026-10-08 17:43:45.624149090 +0000
++++ b/cargo/3rdparty/crates/BUILD.toml_edit-0.22.24.bazel	2026-10-08 17:44:06.452459716 +0000
+@@ -55,6 +55,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.typeid-1.0.2.bazel b/cargo/3rdparty/crates/BUILD.typeid-1.0.2.bazel
+--- a/cargo/3rdparty/crates/BUILD.typeid-1.0.2.bazel	2026-10-08 17:43:45.626134115 +0000
++++ b/cargo/3rdparty/crates/BUILD.typeid-1.0.2.bazel	2026-10-08 17:44:06.452591293 +0000
+@@ -51,6 +51,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -81,6 +82,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.unicode-ident-1.0.16.bazel b/cargo/3rdparty/crates/BUILD.unicode-ident-1.0.16.bazel
+--- a/cargo/3rdparty/crates/BUILD.unicode-ident-1.0.16.bazel	2026-10-08 17:43:45.627405883 +0000
++++ b/cargo/3rdparty/crates/BUILD.unicode-ident-1.0.16.bazel	2026-10-08 17:44:06.452682984 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.unicode-xid-0.2.6.bazel b/cargo/3rdparty/crates/BUILD.unicode-xid-0.2.6.bazel
+--- a/cargo/3rdparty/crates/BUILD.unicode-xid-0.2.6.bazel	2026-10-08 17:43:45.628149150 +0000
++++ b/cargo/3rdparty/crates/BUILD.unicode-xid-0.2.6.bazel	2026-10-08 17:44:06.452754284 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.url-2.5.4.bazel b/cargo/3rdparty/crates/BUILD.url-2.5.4.bazel
+--- a/cargo/3rdparty/crates/BUILD.url-2.5.4.bazel	2026-10-08 17:43:45.629994125 +0000
++++ b/cargo/3rdparty/crates/BUILD.url-2.5.4.bazel	2026-10-08 17:44:06.452821739 +0000
+@@ -54,6 +54,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -84,6 +85,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.utf16_iter-1.0.5.bazel b/cargo/3rdparty/crates/BUILD.utf16_iter-1.0.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.utf16_iter-1.0.5.bazel	2026-10-08 17:43:45.631239300 +0000
++++ b/cargo/3rdparty/crates/BUILD.utf16_iter-1.0.5.bazel	2026-10-08 17:44:06.452890496 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.utf8_iter-1.0.4.bazel b/cargo/3rdparty/crates/BUILD.utf8_iter-1.0.4.bazel
+--- a/cargo/3rdparty/crates/BUILD.utf8_iter-1.0.4.bazel	2026-10-08 17:43:45.632149211 +0000
++++ b/cargo/3rdparty/crates/BUILD.utf8_iter-1.0.4.bazel	2026-10-08 17:44:06.452956374 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.winnow-0.7.2.bazel b/cargo/3rdparty/crates/BUILD.winnow-0.7.2.bazel
+--- a/cargo/3rdparty/crates/BUILD.winnow-0.7.2.bazel	2026-10-08 17:43:45.635560719 +0000
++++ b/cargo/3rdparty/crates/BUILD.winnow-0.7.2.bazel	2026-10-08 17:44:06.453022149 +0000
+@@ -55,6 +55,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.write16-1.0.0.bazel b/cargo/3rdparty/crates/BUILD.write16-1.0.0.bazel
+--- a/cargo/3rdparty/crates/BUILD.write16-1.0.0.bazel	2026-10-08 17:43:45.636149272 +0000
++++ b/cargo/3rdparty/crates/BUILD.write16-1.0.0.bazel	2026-10-08 17:44:06.453095039 +0000
+@@ -53,6 +53,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -83,6 +84,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.writeable-0.5.5.bazel b/cargo/3rdparty/crates/BUILD.writeable-0.5.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.writeable-0.5.5.bazel	2026-10-08 17:43:45.639791709 +0000
++++ b/cargo/3rdparty/crates/BUILD.writeable-0.5.5.bazel	2026-10-08 17:44:06.453162001 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.yoke-0.7.5.bazel b/cargo/3rdparty/crates/BUILD.yoke-0.7.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.yoke-0.7.5.bazel	2026-10-08 17:43:45.640149333 +0000
++++ b/cargo/3rdparty/crates/BUILD.yoke-0.7.5.bazel	2026-10-08 17:44:06.453230475 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.yoke-derive-0.7.5.bazel b/cargo/3rdparty/crates/BUILD.yoke-derive-0.7.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.yoke-derive-0.7.5.bazel	2026-10-08 17:43:45.642998178 +0000
++++ b/cargo/3rdparty/crates/BUILD.yoke-derive-0.7.5.bazel	2026-10-08 17:44:06.453297668 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.zerofrom-0.1.5.bazel b/cargo/3rdparty/crates/BUILD.zerofrom-0.1.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.zerofrom-0.1.5.bazel	2026-10-08 17:43:45.644149394 +0000
++++ b/cargo/3rdparty/crates/BUILD.zerofrom-0.1.5.bazel	2026-10-08 17:44:06.453366302 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.zerofrom-derive-0.1.5.bazel b/cargo/3rdparty/crates/BUILD.zerofrom-derive-0.1.5.bazel
+--- a/cargo/3rdparty/crates/BUILD.zerofrom-derive-0.1.5.bazel	2026-10-08 17:43:45.647811468 +0000
++++ b/cargo/3rdparty/crates/BUILD.zerofrom-derive-0.1.5.bazel	2026-10-08 17:44:06.453432046 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.zerovec-0.10.4.bazel b/cargo/3rdparty/crates/BUILD.zerovec-0.10.4.bazel
+--- a/cargo/3rdparty/crates/BUILD.zerovec-0.10.4.bazel	2026-10-08 17:43:45.648149454 +0000
++++ b/cargo/3rdparty/crates/BUILD.zerovec-0.10.4.bazel	2026-10-08 17:44:06.453500089 +0000
+@@ -57,6 +57,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -87,6 +88,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/cargo/3rdparty/crates/BUILD.zerovec-derive-0.10.3.bazel b/cargo/3rdparty/crates/BUILD.zerovec-derive-0.10.3.bazel
+--- a/cargo/3rdparty/crates/BUILD.zerovec-derive-0.10.3.bazel	2026-10-08 17:43:45.651690207 +0000
++++ b/cargo/3rdparty/crates/BUILD.zerovec-derive-0.10.3.bazel	2026-10-08 17:44:06.453567526 +0000
+@@ -50,6 +50,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -80,6 +81,7 @@
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-none": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
+         "//conditions:default": ["@platforms//:incompatible"],
+     }),
+diff -ruN a/crate_universe/extensions.bzl b/crate_universe/extensions.bzl
+--- a/crate_universe/extensions.bzl	2026-10-08 17:03:09.260428519 +0000
++++ b/crate_universe/extensions.bzl	2026-10-08 17:44:06.448935332 +0000
+@@ -818,10 +818,11 @@
+     if use_environ:
+         generator_sha256 = module_ctx.os.environ.get(CARGO_BAZEL_GENERATOR_SHA256)
+         generator_url = module_ctx.os.environ.get(CARGO_BAZEL_GENERATOR_URL)
+-    elif len(CARGO_BAZEL_URLS) == 0:
++    elif len(CARGO_BAZEL_URLS) == 0 or host_triple.str not in CARGO_BAZEL_URLS:
+         # For Bazel 7 and below, `module_ctx.path` will also watch files so to avoid
+         # volatility in lock files caused by referencing host specific files, direct
+-        # references are avoided.
++        # references are avoided.  Hosts without a prebuilt `cargo-bazel` (e.g. the
++        # BSDs) build it from source the same way.
+         return module_ctx.path(Label("@cargo_bazel_bootstrap//:BUILD.bazel")).dirname.get_child("cargo-bazel")
+ 
+     else:
+diff -ruN a/crate_universe/private/crates_repository.bzl b/crate_universe/private/crates_repository.bzl
+--- a/crate_universe/private/crates_repository.bzl	2026-10-08 17:03:09.266917246 +0000
++++ b/crate_universe/private/crates_repository.bzl	2026-10-08 17:44:06.449063342 +0000
+@@ -29,11 +29,13 @@
+ SUPPORTED_PLATFORM_TRIPLES = [
+     "aarch64-apple-darwin",
+     "aarch64-unknown-linux-gnu",
++    "aarch64-unknown-openbsd",
+     "wasm32-unknown-unknown",
+     "wasm32-wasip1",
+     "x86_64-pc-windows-msvc",
+     "x86_64-unknown-linux-gnu",
+     "x86_64-unknown-nixos-gnu",
++    "x86_64-unknown-openbsd",
+ ]
+ 
+ def _crates_repository_impl(repository_ctx):
+diff -ruN a/crate_universe/src/metadata/cargo_bin.rs b/crate_universe/src/metadata/cargo_bin.rs
+--- a/crate_universe/src/metadata/cargo_bin.rs	2026-10-08 17:27:13.186998528 +0000
++++ b/crate_universe/src/metadata/cargo_bin.rs	2026-10-08 17:44:06.449154572 +0000
+@@ -84,7 +84,14 @@
+         Ok(full_version.clone().unwrap())
+     }
+ 
++    /// Whether cargo accepts unstable `-Z` flags: true for a nightly cargo, and
++    /// for any cargo when `RUSTC_BOOTSTRAP=1` is set in the environment, which
++    /// is how hosts without a nightly toolchain (e.g. the BSDs, whose rust comes
++    /// from the system packages) resolve manifests that need `-Zbindeps`.
+     pub(crate) fn is_nightly(&self) -> Result<bool> {
++        if std::env::var("RUSTC_BOOTSTRAP").map_or(false, |value| value == "1") {
++            return Ok(true);
++        }
+         let full_version = self.full_version()?;
+         let version_str = full_version.split(' ').nth(1);
+         if let Some(version_str) = version_str {
+diff -ruN a/rust/platform/platform.bzl b/rust/platform/platform.bzl
+--- a/rust/platform/platform.bzl	2026-10-08 17:03:09.231927448 +0000
++++ b/rust/platform/platform.bzl	2026-10-08 17:44:06.448014654 +0000
+@@ -27,6 +27,7 @@
+     "freebsd",
+     "ios",
+     "linux",
++    "openbsd",
+     "windows",
+     "nto",
+ ]
+diff -ruN a/rust/platform/triple.bzl b/rust/platform/triple.bzl
+--- a/rust/platform/triple.bzl	2026-10-08 17:03:09.210916381 +0000
++++ b/rust/platform/triple.bzl	2026-10-08 17:44:06.447768806 +0000
+@@ -131,6 +131,7 @@
+     supported_architectures = {
+         "linux": ["aarch64", "x86_64", "s390x", "powerpc64le"],
+         "macos": ["aarch64", "x86_64"],
++        "openbsd": ["aarch64", "x86_64"],
+         "windows": ["aarch64", "x86_64"],
+     }
+ 
+@@ -161,4 +162,8 @@
+             abi.get(prefix, "msvc"),
+         ))
+ 
++    if "openbsd" in repository_ctx.os.name:
++        _validate_cpu_architecture(arch, supported_architectures["openbsd"])
++        return triple("{}-unknown-openbsd".format(arch))
++
+     fail("Unhandled host os: {}", repository_ctx.os.name)
+diff -ruN a/rust/platform/triple_mappings.bzl b/rust/platform/triple_mappings.bzl
+--- a/rust/platform/triple_mappings.bzl	2026-10-08 17:03:09.221992771 +0000
++++ b/rust/platform/triple_mappings.bzl	2026-10-08 17:44:06.447929021 +0000
+@@ -75,7 +75,11 @@
+ 
+ _T3_PLATFORM_TRIPLES = {
+     "aarch64-unknown-nto-qnx710": _support(std = True, host_tools = False),
++    # OpenBSD has no rust-lang.org distribution; the toolchain comes from the
++    # host's own rust installation (see `load_local_sysroot`).
++    "aarch64-unknown-openbsd": _support(std = True, host_tools = False),
+     "wasm64-unknown-unknown": _support(std = False, host_tools = False),
++    "x86_64-unknown-openbsd": _support(std = True, host_tools = False),
+ }
+ 
+ # The only T3 triples that are supported are ones with at least a stdlib
+@@ -177,6 +181,7 @@
+     "nixos": "",
+     "none": "",
+     "nto": "",
++    "openbsd": "",
+     "uefi": ".efi",
+     # This is currently a hack allowing us to have the proper
+     # generated extension for the wasm target, similarly to the
+@@ -202,6 +207,7 @@
+     "nixos": ".a",
+     "none": ".a",
+     "nto": ".a",
++    "openbsd": ".a",
+     "uefi": ".lib",
+     "unknown": "",
+     "wasi": "",
+@@ -224,6 +230,7 @@
+     "nixos": ".so",
+     "none": ".so",
+     "nto": ".a",
++    "openbsd": ".so",
+     "uefi": "",  # UEFI doesn't have dynamic linking
+     "unknown": ".wasm",
+     "wasi": ".wasm",
+diff -ruN a/rust/private/repository_utils.bzl b/rust/private/repository_utils.bzl
+--- a/rust/private/repository_utils.bzl	2026-10-08 17:03:09.251371068 +0000
++++ b/rust/private/repository_utils.bzl	2026-10-08 17:44:06.448172178 +0000
+@@ -519,6 +519,122 @@
+ 
+     return BUILD_for_rustfmt(target_triple), sha256
+ 
++def is_local_sysroot_triple(target_triple):
++    """Whether a triple's toolchain has to come from the host's rust installation.
++
++    rust-lang.org publishes no binaries for these systems, so the tools and the
++    standard library are taken from the sysroot of the `rustc` found on the host
++    instead of being downloaded.
++
++    Args:
++        target_triple (struct): A triple struct.
++
++    Returns:
++        bool: True when `load_local_sysroot` should be used for the triple.
++    """
++    return target_triple.system == "openbsd"
++
++_LOCAL_SYSROOT_TOOLS = [
++    "rustc",
++    "rustdoc",
++    "cargo",
++    "clippy-driver",
++    "cargo-clippy",
++    "rustfmt",
++]
++
++def load_local_sysroot(ctx, exec_triple, target_triple):
++    """Mirrors the host's rust sysroot into the repository and yields BUILD content for it.
++
++    The layout matches the rust-lang.org tarballs (`bin/`, `lib/`,
++    `lib/rustlib/<triple>/`), so the regular `BUILD_for_*` templates apply.
++
++    Args:
++        ctx (repository_ctx): A repository_ctx.
++        exec_triple (struct): The Rust-style target the tools run on.
++        target_triple (struct): The Rust-style target the standard library is for.
++
++    Returns:
++        struct: `build_contents` (list of BUILD snippets), `include_linker` and
++            `include_rustfmt` (bool) describing what the sysroot provides.
++    """
++    rustc = ctx.os.environ.get("RULES_RUST_HOST_RUSTC") or ctx.which("rustc")
++    if not rustc:
++        fail("No `rustc` on PATH; rules_rust needs the host's rust installation for `{}`".format(exec_triple.str))
++
++    result = ctx.execute([rustc, "--print", "sysroot"])
++    if result.return_code != 0:
++        fail("`{} --print sysroot` failed: {}".format(rustc, result.stderr))
++    sysroot = ctx.path(result.stdout.strip())
++
++    result = ctx.execute([rustc, "-vV"])
++    if result.return_code != 0:
++        fail("`{} -vV` failed: {}".format(rustc, result.stderr))
++    host = ""
++    for line in result.stdout.splitlines():
++        if line.startswith("host: "):
++            host = line[len("host: "):].strip()
++    if host != exec_triple.str:
++        fail("The host `rustc` targets `{}`, but the toolchain repository `{}` is for `{}`".format(host, ctx.name, exec_triple.str))
++    if not sysroot.get_child("lib", "rustlib", target_triple.str).exists:
++        fail("The host rust sysroot `{}` has no standard library for `{}`".format(sysroot, target_triple.str))
++
++    binary_ext = system_to_binary_ext(exec_triple.system)
++    include_rustfmt = False
++    for tool in _LOCAL_SYSROOT_TOOLS:
++        path = sysroot.get_child("bin", tool + binary_ext)
++        if not path.exists:
++            found = ctx.which(tool)
++            if found:
++                path = found
++        if path.exists:
++            ctx.symlink(path, "bin/" + tool + binary_ext)
++            if tool == "rustfmt":
++                include_rustfmt = True
++        elif tool not in ("rustfmt", "cargo-clippy", "clippy-driver"):
++            fail("`{}` is missing from the host rust installation (`{}`)".format(tool, sysroot))
++
++    # Shared libraries rustc and its tools load at runtime through their
++    # `$ORIGIN/../lib` rpath (librustc_driver-<hash>, libstd-<hash>, libLLVM).
++    # The sysroot may be a shared prefix such as /usr/local, so only rust's
++    # own libraries are mirrored.  `rustlib` is mirrored per triple below.
++    dylib_ext = system_to_dylib_ext(exec_triple.system)
++    for entry in sysroot.get_child("lib").readdir():
++        name = entry.basename
++        if not name.startswith("lib") or dylib_ext not in name:
++            continue
++        stem = name.split(".")[0]
++        hash = stem.rsplit("-", 1)[-1] if "-" in stem else ""
++        is_hashed = len(hash) == 16 and all([c in "0123456789abcdef" for c in hash.elems()])
++        if is_hashed or stem.startswith("libLLVM"):
++            ctx.symlink(entry, "lib/" + name)
++    ctx.symlink(
++        sysroot.get_child("lib", "rustlib", exec_triple.str),
++        "lib/rustlib/" + exec_triple.str,
++    )
++    if target_triple.str != exec_triple.str:
++        ctx.symlink(
++            sysroot.get_child("lib", "rustlib", target_triple.str),
++            "lib/rustlib/" + target_triple.str,
++        )
++
++    include_linker = sysroot.get_child("lib", "rustlib", exec_triple.str, "bin", "rust-lld" + binary_ext).exists
++
++    build_contents = [
++        BUILD_for_compiler(exec_triple, include_linker),
++        BUILD_for_clippy(exec_triple),
++        BUILD_for_cargo(exec_triple),
++        BUILD_for_stdlib(target_triple),
++    ]
++    if include_rustfmt:
++        build_contents.append(BUILD_for_rustfmt(exec_triple))
++
++    return struct(
++        build_contents = build_contents,
++        include_linker = include_linker,
++        include_rustfmt = include_rustfmt,
++    )
++
+ def load_rust_compiler(ctx, iso_date, target_triple, version, include_linker = False):
+     """Loads a rust compiler and yields corresponding BUILD for it
+ 
+diff -ruN a/rust/repositories.bzl b/rust/repositories.bzl
+--- a/rust/repositories.bzl	2026-10-08 17:03:09.241693527 +0000
++++ b/rust/repositories.bzl	2026-10-08 17:44:06.448466020 +0000
+@@ -22,9 +22,11 @@
+     "TINYJSON_KWARGS",
+     "check_version_valid",
+     "includes_rust_analyzer_proc_macro_srv",
++    "is_local_sysroot_triple",
+     "load_cargo",
+     "load_clippy",
+     "load_llvm_tools",
++    "load_local_sysroot",
+     "load_rust_analyzer",
+     "load_rust_compiler",
+     "load_rust_src",
+@@ -45,12 +47,14 @@
+     "aarch64-apple-darwin": "rust_macos_aarch64",
+     "aarch64-pc-windows-msvc": "rust_windows_aarch64",
+     "aarch64-unknown-linux-gnu": "rust_linux_aarch64",
++    "aarch64-unknown-openbsd": "rust_openbsd_aarch64",
+     "powerpc64le-unknown-linux-gnu": "rust_linux_powerpc64le",
+     "s390x-unknown-linux-gnu": "rust_linux_s390x",
+     "x86_64-apple-darwin": "rust_macos_x86_64",
+     "x86_64-pc-windows-msvc": "rust_windows_x86_64",
+     "x86_64-unknown-freebsd": "rust_freebsd_x86_64",
+     "x86_64-unknown-linux-gnu": "rust_linux_x86_64",
++    "x86_64-unknown-openbsd": "rust_openbsd_x86_64",
+ }
+ 
+ _COMPACT_WINDOWS_NAMES = True
+@@ -434,6 +438,50 @@
+ 
+     return False
+ 
++def _rust_toolchain_tools_repository_from_sysroot(ctx, exec_triple):
++    """Populates a toolchain tools repository from the host's rust installation.
++
++    Used for systems rust-lang.org has no distribution for; the requested
++    version is not enforced, the host's rust is what there is.
++
++    Args:
++        ctx (repository_ctx): The repository rule's context object.
++        exec_triple (struct): The triple the tools run on.
++    """
++    target_triple = triple(ctx.attr.target_triple)
++    sysroot = load_local_sysroot(ctx, exec_triple, target_triple)
++
++    stdlib_linkflags = None
++    if "BAZEL_RUST_STDLIB_LINKFLAGS" in ctx.os.environ:
++        stdlib_linkflags = ctx.os.environ["BAZEL_RUST_STDLIB_LINKFLAGS"].split(":")
++
++    build_components = list(sysroot.build_contents)
++    build_components.append(BUILD_for_rust_toolchain(
++        name = "rust_toolchain",
++        exec_triple = exec_triple,
++        allocator_library = ctx.attr.allocator_library,
++        global_allocator_library = ctx.attr.global_allocator_library,
++        target_triple = target_triple,
++        stdlib_linkflags = stdlib_linkflags,
++        default_edition = ctx.attr.edition,
++        include_rustfmt = sysroot.include_rustfmt,
++        include_llvm_tools = False,
++        include_linker = sysroot.include_linker,
++        extra_rustc_flags = ctx.attr.extra_rustc_flags,
++        extra_exec_rustc_flags = ctx.attr.extra_exec_rustc_flags,
++        opt_level = ctx.attr.opt_level if ctx.attr.opt_level else None,
++        strip_level = ctx.attr.strip_level if ctx.attr.strip_level else None,
++        version = ctx.attr.version,
++    ))
++
++    ctx.file("WORKSPACE.bazel", """workspace(name = "{}")""".format(
++        ctx.name,
++    ))
++    ctx.file("BUILD.bazel", "\n".join(build_components))
++
++    # Used to locate `rust_host_tools` repositories.
++    ctx.file(ctx.name, "")
++
+ def _rust_toolchain_tools_repository_impl(ctx):
+     """The implementation of the rust toolchain tools repository rule."""
+     sha256s = dict(ctx.attr.sha256s)
+@@ -448,6 +496,10 @@
+ 
+     exec_triple = triple(ctx.attr.exec_triple)
+ 
++    if is_local_sysroot_triple(exec_triple):
++        _rust_toolchain_tools_repository_from_sysroot(ctx, exec_triple)
++        return
++
+     include_linker = True
+ 
+     rustc_content, rustc_sha256 = load_rust_compiler(
