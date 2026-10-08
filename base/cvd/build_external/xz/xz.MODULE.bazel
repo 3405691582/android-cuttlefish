@@ -4,8 +4,8 @@ single_version_override(
     patch_strip = 1,
     patches = [
         "@//build_external/xz:bazel9.patch",
-        # config.h for OpenBSD/amd64 (the module only ships Linux/macOS/
-        # Windows/Android/wasm configurations).
+        # config.h for OpenBSD on x86_64 and aarch64 (the module only ships
+        # Linux/macOS/Windows/Android/wasm configurations).
         "@//build_external/xz:openbsd.patch",
     ],
 )
