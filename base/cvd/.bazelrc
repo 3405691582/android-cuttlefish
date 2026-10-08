@@ -122,3 +122,7 @@ build:openbsd --linkopt=-L/usr/local/lib
 # every set through crosvm.config.toml); RUSTC_BOOTSTRAP=1 makes a stable cargo
 # accept -Z flags during repository fetching.
 build:openbsd --repo_env=RUSTC_BOOTSTRAP=1
+# rules_python's hermetic interpreters exist for Linux and macOS only; the few
+# py_binary tools (rootcanal's pdl generators) run with the python3 from the
+# packages through rules_python's runtime_env toolchain.
+build:openbsd --extra_toolchains=@rules_python//python/runtime_env_toolchains:all
