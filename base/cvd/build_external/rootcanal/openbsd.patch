@@ -1,0 +1,61 @@
+diff -ruN a/BUILD b/BUILD
+--- a/BUILD	2026-10-08 19:36:54.867841348 +0000
++++ b/BUILD	2026-10-08 19:37:05.807211649 +0000
+@@ -11,6 +11,14 @@
+ 
+ exports_files(["LICENSE"])
+ 
++# The BCR openssl module only knows Linux and macOS; OpenBSD builds against
++# BoringSSL, which cuttlefish builds there anyway and which provides the same
++# AES and EC APIs (Android links rootcanal against BoringSSL too).
++LIBCRYPTO = select({
++    "@bazel_tools//src/conditions:openbsd": ["@boringssl//:crypto"],
++    "//conditions:default": ["@openssl//:crypto"],
++})
++
+ cc_library(
+     name = "rootcanal_log",
+     srcs = ["lib/log.cc"],
+@@ -170,8 +178,7 @@
+         "//packets:generated",
+         "@pdl//:packet_runtime",
+         "@fmtlib",
+-        "@openssl//:crypto",
+-    ],
++    ] + LIBCRYPTO,
+ )
+ 
+ cc_library(
+@@ -281,9 +288,8 @@
+         "//packets:generated",
+         "@gflags",
+         "@fmtlib",
+-        "@openssl//:crypto",
+         "@pdl//:packet_runtime",
+-    ],
++    ] + LIBCRYPTO,
+     # TODO enable thin_lto
+     # breaks the device registration
+     # features = ["-thin_lto"],
+diff -ruN a/model/controller/dual_mode_controller.cc b/model/controller/dual_mode_controller.cc
+--- a/model/controller/dual_mode_controller.cc	2026-10-08 19:44:55.375230650 +0000
++++ b/model/controller/dual_mode_controller.cc	2026-10-08 19:44:55.389515139 +0000
+@@ -16,6 +16,7 @@
+ 
+ #include "model/controller/dual_mode_controller.h"
+ 
++#include <openssl/crypto.h>
+ #include <openssl/ec.h>
+ #include <openssl/obj_mac.h>
+ #include <packet_runtime.h>
+diff -ruN a/MODULE.bazel b/MODULE.bazel
+--- a/MODULE.bazel	2026-10-08 19:36:54.869173880 +0000
++++ b/MODULE.bazel	2026-10-08 19:37:05.807334884 +0000
+@@ -13,6 +13,7 @@
+ bazel_dep(name = "bazel_skylib", version = "1.7.1")
+ 
+ bazel_dep(name = "openssl", version = "3.3.1.bcr.1")
++bazel_dep(name = "boringssl", version = "0.20260813.0")
+ bazel_dep(name = "gflags", version = "2.2.2")
+ 
+ local_repository = use_repo_rule("@@//cuttlefish/bazel:local.bzl", "local_repository")
