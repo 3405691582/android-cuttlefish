@@ -448,7 +448,11 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
   if (guest_config_mac80211_hwsim.has_value()) {
     tmp_config_obj.set_virtio_mac80211_hwsim(*guest_config_mac80211_hwsim);
   } else {
-    tmp_config_obj.set_virtio_mac80211_hwsim(true);
+    // QEMU has no vhost-user mac80211_hwsim device, so a guest told to use
+    // mac80211_hwsim_virtio under QEMU never gets a usable radio. Fall back to
+    // virt_wifi over the wifi virtio-net device, the configuration QEMU has
+    // always used, unless the image states a preference above.
+    tmp_config_obj.set_virtio_mac80211_hwsim(!VmManagerIsQemu(tmp_config_obj));
   }
 
   if ((FLAGS_ap_rootfs_image.empty()) != (FLAGS_ap_kernel_image.empty())) {
