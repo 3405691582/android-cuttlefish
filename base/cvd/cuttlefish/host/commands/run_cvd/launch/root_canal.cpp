@@ -65,6 +65,19 @@ class RootCanal : public CommandSource {
       rootcanal.AddParameter(arg);
     }
 
+    std::vector<MonitorCommand> commands;
+    commands.emplace_back(
+        CF_EXPECT(log_tee_.CreateFullLogTee(rootcanal, "rootcanal")));
+    commands.emplace_back(std::move(rootcanal));
+
+#ifdef __linux__
+    // The proxies publish rootcanal's ports to the guest over vhost-vsock,
+    // which only Linux hosts provide (QemuManager creates the device there
+    // only; elsewhere a vsock server fails with EAFNOSUPPORT and the process
+    // monitor would restart the proxy forever). The HCI data path does not
+    // depend on them: bluetooth_connector bridges the guest's console to the
+    // HCI TCP port.
+
     // Add command for forwarding the HCI port to a vsock server.
     Command hci_vsock_proxy(SocketVsockProxyBinary());
     hci_vsock_proxy.AddParameter("--server_type=vsock");
@@ -113,14 +126,11 @@ class RootCanal : public CommandSource {
     link_ble_vsock_proxy.AddParameter("--client_tcp_port=",
                                       config_.rootcanal_link_ble_port());
 
-    std::vector<MonitorCommand> commands;
-    commands.emplace_back(
-        CF_EXPECT(log_tee_.CreateFullLogTee(rootcanal, "rootcanal")));
-    commands.emplace_back(std::move(rootcanal));
     commands.emplace_back(std::move(hci_vsock_proxy));
     commands.emplace_back(std::move(test_vsock_proxy));
     commands.emplace_back(std::move(link_vsock_proxy));
     commands.emplace_back(std::move(link_ble_vsock_proxy));
+#endif
     return commands;
   }
 
