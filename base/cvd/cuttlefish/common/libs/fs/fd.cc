@@ -279,7 +279,9 @@ Result<Fd> Fd::SocketLocalClient(int port, int type) {
   sockaddr_in addr{};
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
-  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  // Connecting to INADDR_ANY reaches the local host on Linux only; the BSDs
+  // reject it with EINVAL. The loopback address means the same everywhere.
+  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   Fd rval = CF_EXPECT(Fd::Socket(AF_INET, type, 0));
 
   auto addr_ptr = reinterpret_cast<const sockaddr*>(&addr);
