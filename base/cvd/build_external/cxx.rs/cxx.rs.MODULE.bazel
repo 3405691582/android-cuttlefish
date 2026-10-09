@@ -1,0 +1,8 @@
+# The crates that cxx.rs vendors for its code generator are rendered for the
+# triples rules_rust knew at the time; add the OpenBSD ones, which the patched
+# rules_rust (build_external/rules_rust) provides.
+single_version_override(
+    module_name = "cxx.rs",
+    patch_strip = 1,
+    patches = ["@//build_external/cxx.rs:openbsd.patch"],
+)
