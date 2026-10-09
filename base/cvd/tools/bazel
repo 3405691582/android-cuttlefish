@@ -96,8 +96,9 @@ if [ ! -x "${filename_abs}" ] ; then
   url_a="${BASEURL_MIRROR}/${VERSION}/${filename}"
   url_b="${BASEURL}/${VERSION}/${filename}"
   echo "Downloading bazel, will try URLs: ${url_a} ${url_b}" >&2
-  curl --fail -L --output "${filename_abs}" "${url_a}" \
-    || curl --fail -L --output "${filename_abs}" "${url_b}"
+  curl --fail -L --retry 5 --output "${filename_abs}" "${url_a}" \
+    || curl --fail -L --retry 5 --retry-all-errors \
+      --output "${filename_abs}" "${url_b}"
   chmod a+x "${filename_abs}"
 fi
 
