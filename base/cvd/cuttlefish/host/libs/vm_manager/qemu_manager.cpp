@@ -854,13 +854,25 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
         // site-local prefix without DNS, which Android cannot provision from,
         // and every router advertisement makes the guest regenerate its APF
         // program, which under TCG pushes DHCPv4 past IpClient's 18 s
-        // provisioning timeout.  There is no tunnel for adb either, so forward
-        // the adb host port to the guest adbd (TCP 5555) through this network.
+        // provisioning timeout.
         qemu_cmd.AddParameter(
-            "user,id=hostnet2,net=10.0.2.1/24,dns=10.0.2.3,ipv6=off",
-            ",hostfwd=tcp:127.0.0.1:", instance.adb_host_port(), "-:5555");
+            "user,id=hostnet2,net=10.0.2.1/24,dns=10.0.2.3,ipv6=off");
 #endif
       }
+#ifndef __linux__
+      // Without vsock there is no adb tunnel either, and neither network above
+      // is up at boot: the mobile NIC waits for a RIL that cannot reach the
+      // modem simulator, the ethernet NIC is a restricted network in the
+      // guest's overlay that nothing requests, and Wi-Fi has to be switched on
+      // and joined once by hand.  A fourth NIC that no guest service claims
+      // is picked up by Android's ethernet stack and configured from slirp's
+      // DHCP during boot, so the forward of the adb host port to adbd (TCP
+      // 5555) lives there and adb works before any guest-side step.
+      qemu_cmd.AddParameter("-netdev");
+      qemu_cmd.AddParameter(
+          "user,id=hostnet3,net=10.0.3.1/24,dns=10.0.3.3,ipv6=off",
+          ",hostfwd=tcp:127.0.0.1:", instance.adb_host_port(), "-:5555");
+#endif
       break;
     }
     default:
@@ -885,6 +897,18 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
           "virtio-net-pci-non-transitional,netdev=hostnet2,id=net2,mac=",
           instance.wifi_mac());
     }
+#ifndef __linux__
+    if (instance.external_network_mode() == ExternalNetworkMode::kSlirp) {
+      // The adb NIC, see the hostnet3 netdev above.  Its MAC follows the
+      // instance's scheme (00:1a:11:eX:cf:NN) with the next free X.
+      std::string adb_mac = instance.wifi_mac();
+      adb_mac.replace(9, 2, "e3");
+      qemu_cmd.AddParameter("-device");
+      qemu_cmd.AddParameter(
+          "virtio-net-pci-non-transitional,netdev=hostnet3,id=net3,mac=",
+          adb_mac);
+    }
+#endif
   }
 
   if (is_x86 || is_arm) {
