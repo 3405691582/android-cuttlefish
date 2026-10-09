@@ -126,3 +126,6 @@ build:openbsd --repo_env=RUSTC_BOOTSTRAP=1
 # py_binary tools (rootcanal's pdl generators) run with the python3 from the
 # packages through rules_python's runtime_env toolchain.
 build:openbsd --extra_toolchains=@rules_python//python/runtime_env_toolchains:all
+# bindgen (openssl-sys, for netsim) loads libclang through clang-sys, which
+# does not look under /usr/local/llvm<N>, where the llvm package installs it.
+build:openbsd --action_env=LIBCLANG_PATH=/usr/local/llvm20/lib
