@@ -1,0 +1,494 @@
+diff -ruN a/third-party/bazel/BUILD.anstyle-1.0.13.bazel b/third-party/bazel/BUILD.anstyle-1.0.13.bazel
+--- a/third-party/bazel/BUILD.anstyle-1.0.13.bazel	2026-10-09 16:14:42.477006903 +0000
++++ b/third-party/bazel/BUILD.anstyle-1.0.13.bazel	2026-10-09 16:14:42.564475842 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.cc-1.2.53.bazel b/third-party/bazel/BUILD.cc-1.2.53.bazel
+--- a/third-party/bazel/BUILD.cc-1.2.53.bazel	2026-10-09 16:14:42.482563489 +0000
++++ b/third-party/bazel/BUILD.cc-1.2.53.bazel	2026-10-09 16:14:42.564599072 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.clap-4.5.54.bazel b/third-party/bazel/BUILD.clap-4.5.54.bazel
+--- a/third-party/bazel/BUILD.clap-4.5.54.bazel	2026-10-09 16:14:42.483846274 +0000
++++ b/third-party/bazel/BUILD.clap-4.5.54.bazel	2026-10-09 16:14:42.564684730 +0000
+@@ -65,6 +65,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -91,6 +92,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.clap_builder-4.5.54.bazel b/third-party/bazel/BUILD.clap_builder-4.5.54.bazel
+--- a/third-party/bazel/BUILD.clap_builder-4.5.54.bazel	2026-10-09 16:14:42.485135481 +0000
++++ b/third-party/bazel/BUILD.clap_builder-4.5.54.bazel	2026-10-09 16:14:42.564768455 +0000
+@@ -65,6 +65,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -91,6 +92,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.clap_lex-0.7.7.bazel b/third-party/bazel/BUILD.clap_lex-0.7.7.bazel
+--- a/third-party/bazel/BUILD.clap_lex-0.7.7.bazel	2026-10-09 16:14:42.486622762 +0000
++++ b/third-party/bazel/BUILD.clap_lex-0.7.7.bazel	2026-10-09 16:14:42.564845986 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.codespan-reporting-0.13.1.bazel b/third-party/bazel/BUILD.codespan-reporting-0.13.1.bazel
+--- a/third-party/bazel/BUILD.codespan-reporting-0.13.1.bazel	2026-10-09 16:14:42.487937592 +0000
++++ b/third-party/bazel/BUILD.codespan-reporting-0.13.1.bazel	2026-10-09 16:14:42.564922709 +0000
+@@ -64,6 +64,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -90,6 +91,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.equivalent-1.0.2.bazel b/third-party/bazel/BUILD.equivalent-1.0.2.bazel
+--- a/third-party/bazel/BUILD.equivalent-1.0.2.bazel	2026-10-09 16:14:42.489236065 +0000
++++ b/third-party/bazel/BUILD.equivalent-1.0.2.bazel	2026-10-09 16:14:42.564995598 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.find-msvc-tools-0.1.8.bazel b/third-party/bazel/BUILD.find-msvc-tools-0.1.8.bazel
+--- a/third-party/bazel/BUILD.find-msvc-tools-0.1.8.bazel	2026-10-09 16:14:42.490513908 +0000
++++ b/third-party/bazel/BUILD.find-msvc-tools-0.1.8.bazel	2026-10-09 16:14:42.565067485 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.foldhash-0.2.0.bazel b/third-party/bazel/BUILD.foldhash-0.2.0.bazel
+--- a/third-party/bazel/BUILD.foldhash-0.2.0.bazel	2026-10-09 16:14:42.491766809 +0000
++++ b/third-party/bazel/BUILD.foldhash-0.2.0.bazel	2026-10-09 16:14:42.565139309 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.hashbrown-0.16.1.bazel b/third-party/bazel/BUILD.hashbrown-0.16.1.bazel
+--- a/third-party/bazel/BUILD.hashbrown-0.16.1.bazel	2026-10-09 16:14:42.493049135 +0000
++++ b/third-party/bazel/BUILD.hashbrown-0.16.1.bazel	2026-10-09 16:14:42.565209572 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.indexmap-2.13.0.bazel b/third-party/bazel/BUILD.indexmap-2.13.0.bazel
+--- a/third-party/bazel/BUILD.indexmap-2.13.0.bazel	2026-10-09 16:14:42.494462576 +0000
++++ b/third-party/bazel/BUILD.indexmap-2.13.0.bazel	2026-10-09 16:14:42.565281136 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.proc-macro2-1.0.105.bazel b/third-party/bazel/BUILD.proc-macro2-1.0.105.bazel
+--- a/third-party/bazel/BUILD.proc-macro2-1.0.105.bazel	2026-10-09 16:14:42.495732390 +0000
++++ b/third-party/bazel/BUILD.proc-macro2-1.0.105.bazel	2026-10-09 16:14:42.565358362 +0000
+@@ -68,6 +68,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -94,6 +95,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.quote-1.0.43.bazel b/third-party/bazel/BUILD.quote-1.0.43.bazel
+--- a/third-party/bazel/BUILD.quote-1.0.43.bazel	2026-10-09 16:14:42.497028345 +0000
++++ b/third-party/bazel/BUILD.quote-1.0.43.bazel	2026-10-09 16:14:42.565435169 +0000
+@@ -67,6 +67,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -93,6 +94,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.rustversion-1.0.22.bazel b/third-party/bazel/BUILD.rustversion-1.0.22.bazel
+--- a/third-party/bazel/BUILD.rustversion-1.0.22.bazel	2026-10-09 16:14:42.498509405 +0000
++++ b/third-party/bazel/BUILD.rustversion-1.0.22.bazel	2026-10-09 16:14:42.565511457 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.scratch-1.0.9.bazel b/third-party/bazel/BUILD.scratch-1.0.9.bazel
+--- a/third-party/bazel/BUILD.scratch-1.0.9.bazel	2026-10-09 16:14:42.499980245 +0000
++++ b/third-party/bazel/BUILD.scratch-1.0.9.bazel	2026-10-09 16:14:42.565586052 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.serde-1.0.228.bazel b/third-party/bazel/BUILD.serde-1.0.228.bazel
+--- a/third-party/bazel/BUILD.serde-1.0.228.bazel	2026-10-09 16:14:42.501392390 +0000
++++ b/third-party/bazel/BUILD.serde-1.0.228.bazel	2026-10-09 16:14:42.565660735 +0000
+@@ -72,6 +72,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -98,6 +99,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.serde_core-1.0.228.bazel b/third-party/bazel/BUILD.serde_core-1.0.228.bazel
+--- a/third-party/bazel/BUILD.serde_core-1.0.228.bazel	2026-10-09 16:14:42.502750223 +0000
++++ b/third-party/bazel/BUILD.serde_core-1.0.228.bazel	2026-10-09 16:14:42.565733369 +0000
+@@ -67,6 +67,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -93,6 +94,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.serde_derive-1.0.228.bazel b/third-party/bazel/BUILD.serde_derive-1.0.228.bazel
+--- a/third-party/bazel/BUILD.serde_derive-1.0.228.bazel	2026-10-09 16:14:42.504121832 +0000
++++ b/third-party/bazel/BUILD.serde_derive-1.0.228.bazel	2026-10-09 16:14:42.565814397 +0000
+@@ -62,6 +62,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -88,6 +89,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.shlex-1.3.0.bazel b/third-party/bazel/BUILD.shlex-1.3.0.bazel
+--- a/third-party/bazel/BUILD.shlex-1.3.0.bazel	2026-10-09 16:14:42.505421472 +0000
++++ b/third-party/bazel/BUILD.shlex-1.3.0.bazel	2026-10-09 16:14:42.565897179 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.syn-2.0.114.bazel b/third-party/bazel/BUILD.syn-2.0.114.bazel
+--- a/third-party/bazel/BUILD.syn-2.0.114.bazel	2026-10-09 16:14:42.506893854 +0000
++++ b/third-party/bazel/BUILD.syn-2.0.114.bazel	2026-10-09 16:14:42.565970408 +0000
+@@ -68,6 +68,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -94,6 +95,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.termcolor-1.4.1.bazel b/third-party/bazel/BUILD.termcolor-1.4.1.bazel
+--- a/third-party/bazel/BUILD.termcolor-1.4.1.bazel	2026-10-09 16:14:42.508167418 +0000
++++ b/third-party/bazel/BUILD.termcolor-1.4.1.bazel	2026-10-09 16:14:42.566043899 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.unicode-ident-1.0.22.bazel b/third-party/bazel/BUILD.unicode-ident-1.0.22.bazel
+--- a/third-party/bazel/BUILD.unicode-ident-1.0.22.bazel	2026-10-09 16:14:42.509448416 +0000
++++ b/third-party/bazel/BUILD.unicode-ident-1.0.22.bazel	2026-10-09 16:14:42.566115290 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.unicode-width-0.2.2.bazel b/third-party/bazel/BUILD.unicode-width-0.2.2.bazel
+--- a/third-party/bazel/BUILD.unicode-width-0.2.2.bazel	2026-10-09 16:14:42.510763711 +0000
++++ b/third-party/bazel/BUILD.unicode-width-0.2.2.bazel	2026-10-09 16:14:42.566187162 +0000
+@@ -63,6 +63,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -89,6 +90,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.winapi-util-0.1.11.bazel b/third-party/bazel/BUILD.winapi-util-0.1.11.bazel
+--- a/third-party/bazel/BUILD.winapi-util-0.1.11.bazel	2026-10-09 16:14:42.512051133 +0000
++++ b/third-party/bazel/BUILD.winapi-util-0.1.11.bazel	2026-10-09 16:14:42.566260512 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.windows-link-0.2.1.bazel b/third-party/bazel/BUILD.windows-link-0.2.1.bazel
+--- a/third-party/bazel/BUILD.windows-link-0.2.1.bazel	2026-10-09 16:14:42.513417882 +0000
++++ b/third-party/bazel/BUILD.windows-link-0.2.1.bazel	2026-10-09 16:14:42.566332911 +0000
+@@ -59,6 +59,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -85,6 +86,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
+diff -ruN a/third-party/bazel/BUILD.windows-sys-0.61.2.bazel b/third-party/bazel/BUILD.windows-sys-0.61.2.bazel
+--- a/third-party/bazel/BUILD.windows-sys-0.61.2.bazel	2026-10-09 16:14:42.514859378 +0000
++++ b/third-party/bazel/BUILD.windows-sys-0.61.2.bazel	2026-10-09 16:14:42.566411717 +0000
+@@ -69,6 +69,7 @@
+         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [],
+         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [],
++        "@rules_rust//rust/platform:aarch64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:aarch64-unknown-uefi": [],
+         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [],
+         "@rules_rust//rust/platform:armv7-linux-androideabi": [],
+@@ -95,6 +96,7 @@
+         "@rules_rust//rust/platform:x86_64-linux-android": [],
+         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [],
+         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [],
++        "@rules_rust//rust/platform:x86_64-unknown-openbsd": [],
+         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [],
+         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [],
+         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [],
