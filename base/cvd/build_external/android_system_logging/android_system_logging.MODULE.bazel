@@ -5,4 +5,6 @@ git_repository(
     build_file = "@//build_external/android_system_logging:BUILD.android_system_logging.bazel",
     commit = "bcac7c30d88a3773a7c0bc9f5617a23a886331fd",
     remote = "https://android.googlesource.com/platform/system/logging",
+    patches = ["@//build_external/android_system_logging:openbsd.patch"],
+    patch_args = ["-p1"],
 )
