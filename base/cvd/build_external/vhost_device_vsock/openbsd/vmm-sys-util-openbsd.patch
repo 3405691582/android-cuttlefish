@@ -1,0 +1,779 @@
+diff --git a/src/bsd/epoll.rs b/src/bsd/epoll.rs
+new file mode 100644
+index 0000000..1019fcb
+--- /dev/null
++++ b/src/bsd/epoll.rs
+@@ -0,0 +1,456 @@
++// Copyright 2026 Google LLC
++// SPDX-License-Identifier: BSD-3-Clause
++
++//! Safe wrapper over the Linux `epoll` API, emulated with `kqueue(2)` on
++//! OpenBSD.
++//!
++//! The mapping: `EPOLLIN` is an `EVFILT_READ` filter, `EPOLLOUT` an
++//! `EVFILT_WRITE` filter, both carrying the user's 64-bit data in `udata`;
++//! `EPOLLET` is `EV_CLEAR`, `EPOLLONESHOT` is `EV_ONESHOT`; a returned
++//! `EV_EOF` becomes `EPOLLHUP` (plus `EPOLLRDHUP` on the read filter, plus
++//! `EPOLLERR` when a socket error is reported with it) and `EV_ERROR`
++//! becomes `EPOLLERR`.  Where epoll reports one event per descriptor with
++//! the ready conditions merged, kqueue reports one per filter; `wait` merges
++//! them so that callers see epoll's shape.  `ctl` keeps epoll's error
++//! contract (`EEXIST` on a second `Add`, `ENOENT` on `Modify`/`Delete` of an
++//! unregistered descriptor) by probing the kqueue first.
++
++use std::io;
++use std::ops::Deref;
++use std::os::fd::{AsRawFd, RawFd};
++use std::ptr;
++
++use bitflags::bitflags;
++use libc::{c_void, kevent, kqueue, timespec, EVFILT_READ, EVFILT_WRITE, EV_ADD, EV_CLEAR,
++           EV_DELETE, EV_ENABLE, EV_EOF, EV_ERROR, EV_ONESHOT, EV_RECEIPT};
++
++use crate::syscall::SyscallReturnCode;
++
++/// Wrapper over `EPOLL_CTL_*`.
++#[repr(i32)]
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum ControlOperation {
++    /// Add a file descriptor to the interest list.
++    Add = 1,
++    /// Change the settings associated with a file descriptor that is
++    /// already in the interest list.
++    Modify = 3,
++    /// Remove a file descriptor from the interest list.
++    Delete = 2,
++}
++
++bitflags! {
++    /// The type of events we can monitor a file descriptor for (Linux values).
++    pub struct EventSet: u32 {
++        /// The associated file descriptor is available for read operations.
++        const IN = 0x001;
++        /// The associated file descriptor is available for write operations.
++        const OUT = 0x004;
++        /// Error condition happened on the associated file descriptor.
++        const ERROR = 0x008;
++        /// This can be used to detect peer shutdown when using Edge Triggered monitoring.
++        const READ_HANG_UP = 0x2000;
++        /// Sets the Edge Triggered behavior for the associated file descriptor.
++        const EDGE_TRIGGERED = 1 << 31;
++        /// Hang up happened on the associated file descriptor.
++        const HANG_UP = 0x010;
++        /// There is an exceptional condition on that file descriptor.
++        const PRIORITY = 0x002;
++        /// Not supported on this host; accepted and ignored.
++        const WAKE_UP = 1 << 29;
++        /// Sets the one-shot behavior for the associated file descriptor.
++        const ONE_SHOT = 1 << 30;
++        /// Not supported on this host; accepted and ignored.
++        const EXCLUSIVE = 1 << 28;
++    }
++}
++
++/// The epoll event record, laid out like Linux's `struct epoll_event`.
++#[allow(non_camel_case_types)]
++#[repr(C, packed)]
++#[derive(Clone, Copy)]
++pub struct epoll_event {
++    /// Event mask.
++    pub events: u32,
++    /// User data.
++    pub u64: u64,
++}
++
++impl std::fmt::Debug for epoll_event {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        let (events, data) = (self.events, self.u64);
++        write!(f, "epoll_event {{ events: {}, u64: {} }}", events, data)
++    }
++}
++
++/// Wrapper over `epoll_event`.
++#[repr(transparent)]
++#[derive(Clone, Copy)]
++pub struct EpollEvent(epoll_event);
++
++impl std::fmt::Debug for EpollEvent {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        write!(f, "{{ events: {}, data: {} }}", self.events(), self.data())
++    }
++}
++
++impl Deref for EpollEvent {
++    type Target = epoll_event;
++    fn deref(&self) -> &Self::Target {
++        &self.0
++    }
++}
++
++impl Default for EpollEvent {
++    fn default() -> Self {
++        EpollEvent(epoll_event { events: 0, u64: 0 })
++    }
++}
++
++impl EpollEvent {
++    /// Create a new epoll_event instance.
++    pub fn new(events: EventSet, data: u64) -> Self {
++        EpollEvent(epoll_event { events: events.bits(), u64: data })
++    }
++
++    /// Returns the `events` from `libc::epoll_event`.
++    pub fn events(&self) -> u32 {
++        let e = self.0;
++        e.events
++    }
++
++    /// Returns the `EventSet` corresponding to `epoll_event.events`.
++    pub fn event_set(&self) -> EventSet {
++        EventSet::from_bits_truncate(self.events())
++    }
++
++    /// Returns the `data` from the `libc::epoll_event`.
++    pub fn data(&self) -> u64 {
++        let e = self.0;
++        e.u64
++    }
++
++    /// Converts the `libc::epoll_event` data to a RawFd.
++    pub fn fd(&self) -> RawFd {
++        self.data() as i32
++    }
++}
++
++fn kev(fd: RawFd, filter: i16, flags: u16, data: u64) -> kevent {
++    kevent {
++        ident: fd as libc::uintptr_t,
++        filter,
++        flags,
++        fflags: 0,
++        data: 0,
++        udata: data as usize as *mut c_void,
++    }
++}
++
++fn apply(kq: RawFd, changes: &[kevent]) -> io::Result<()> {
++    // SAFETY: the change list is a valid slice; no event list is requested.
++    let ret = unsafe { kevent(kq, changes.as_ptr(), changes.len() as i32, ptr::null_mut(), 0, ptr::null()) };
++    if ret < 0 {
++        return Err(io::Error::last_os_error());
++    }
++    Ok(())
++}
++
++/// Whether `fd` has a read and/or a write knote in `kq`.
++///
++/// `EV_ENABLE` on a missing knote fails with `ENOENT` and does nothing to an
++/// existing, enabled one; `EV_RECEIPT` makes `kevent` report each change on
++/// its own without draining pending events.
++fn registered(kq: RawFd, fd: RawFd) -> io::Result<(bool, bool)> {
++    let changes = [
++        kev(fd, EVFILT_READ, EV_ENABLE | EV_RECEIPT, 0),
++        kev(fd, EVFILT_WRITE, EV_ENABLE | EV_RECEIPT, 0),
++    ];
++    let mut receipts = [kev(0, 0, 0, 0); 2];
++    let zero = timespec { tv_sec: 0, tv_nsec: 0 };
++    // SAFETY: both arrays are valid for the stated lengths.
++    let n = unsafe { kevent(kq, changes.as_ptr(), 2, receipts.as_mut_ptr(), 2, &zero) };
++    if n < 0 {
++        return Err(io::Error::last_os_error());
++    }
++    let mut found = (false, false);
++    for r in receipts.iter().take(n as usize) {
++        let present = r.flags & EV_ERROR == 0 || r.data == 0;
++        if r.filter == EVFILT_READ {
++            found.0 = present;
++        } else if r.filter == EVFILT_WRITE {
++            found.1 = present;
++        }
++    }
++    Ok(found)
++}
++
++/// Create a kqueue standing in for an epoll instance.
++#[doc(hidden)]
++pub fn kq_create() -> io::Result<RawFd> {
++    // SAFETY: kqueue descriptors are close-on-exec by nature.
++    SyscallReturnCode(unsafe { kqueue() }).into_result()
++}
++
++/// `epoll_ctl` on a kqueue: `events` is a Linux event mask, `data` the user data.
++///
++/// Like `epoll_ctl`, `Add` fails with `EEXIST` when the descriptor is already
++/// registered and `Modify`/`Delete` fail with `ENOENT` when it is not.  One
++/// difference remains: a one-shot registration that has fired is gone from
++/// the kqueue, where epoll would still hold it (disabled).
++#[doc(hidden)]
++pub fn kq_ctl(kq: RawFd, operation: ControlOperation, fd: RawFd, events: u32, data: u64) -> io::Result<()> {
++    let set = EventSet::from_bits_truncate(events);
++    let mut flags = EV_ADD | EV_ENABLE;
++    if set.contains(EventSet::EDGE_TRIGGERED) {
++        flags |= EV_CLEAR;
++    }
++    if set.contains(EventSet::ONE_SHOT) {
++        flags |= EV_ONESHOT;
++    }
++    // Hang-up and error conditions are reported through the read filter, so
++    // an interest set without IN/OUT still registers it.
++    let want_read = set.contains(EventSet::IN) || !set.contains(EventSet::OUT);
++    let want_write = set.contains(EventSet::OUT);
++    let (has_read, has_write) = registered(kq, fd)?;
++    match operation {
++        ControlOperation::Add | ControlOperation::Modify => {
++            if operation == ControlOperation::Add && (has_read || has_write) {
++                return Err(io::Error::from_raw_os_error(libc::EEXIST));
++            }
++            if operation == ControlOperation::Modify && !(has_read || has_write) {
++                return Err(io::Error::from_raw_os_error(libc::ENOENT));
++            }
++            let mut changes = Vec::with_capacity(2);
++            if want_read {
++                changes.push(kev(fd, EVFILT_READ, flags, data));
++            } else if has_read {
++                changes.push(kev(fd, EVFILT_READ, EV_DELETE, 0));
++            }
++            if want_write {
++                changes.push(kev(fd, EVFILT_WRITE, flags, data));
++            } else if has_write {
++                changes.push(kev(fd, EVFILT_WRITE, EV_DELETE, 0));
++            }
++            apply(kq, &changes)
++        }
++        ControlOperation::Delete => {
++            if !(has_read || has_write) {
++                return Err(io::Error::from_raw_os_error(libc::ENOENT));
++            }
++            let mut changes = Vec::with_capacity(2);
++            if has_read {
++                changes.push(kev(fd, EVFILT_READ, EV_DELETE, 0));
++            }
++            if has_write {
++                changes.push(kev(fd, EVFILT_WRITE, EV_DELETE, 0));
++            }
++            apply(kq, &changes)
++        }
++    }
++}
++
++/// `epoll_wait` on a kqueue.  `timeout` is in milliseconds, -1 blocks.
++#[doc(hidden)]
++pub fn kq_wait(kq: RawFd, timeout: i32, events: &mut [epoll_event]) -> io::Result<usize> {
++    if events.is_empty() {
++        return Err(io::Error::from_raw_os_error(libc::EINVAL));
++    }
++    let mut kevs: Vec<kevent> = vec![kev(0, 0, 0, 0); events.len()];
++    let ts = timespec {
++        tv_sec: (timeout / 1000) as libc::time_t,
++        tv_nsec: ((timeout % 1000) as libc::c_long) * 1_000_000,
++    };
++    let tsp = if timeout < 0 { ptr::null() } else { &ts as *const timespec };
++    // SAFETY: kevs is a valid, writable slice of the stated length.
++    let n = unsafe { kevent(kq, ptr::null(), 0, kevs.as_mut_ptr(), kevs.len() as i32, tsp) };
++    if n < 0 {
++        return Err(io::Error::last_os_error());
++    }
++    // epoll reports each descriptor at most once per wait, with its ready
++    // conditions merged; kqueue reports the read and write filters
++    // separately.  Merge them here, otherwise a consumer that unregisters a
++    // descriptor on its first event sees a second, stale one.
++    let mut idents: Vec<libc::uintptr_t> = Vec::with_capacity(n as usize);
++    let mut out = 0usize;
++    for k in kevs.iter().take(n as usize) {
++        let mut set = EventSet::empty();
++        if k.filter == EVFILT_READ {
++            set |= EventSet::IN;
++            if k.flags & EV_EOF != 0 {
++                set |= EventSet::READ_HANG_UP | EventSet::HANG_UP;
++            }
++        } else if k.filter == EVFILT_WRITE {
++            set |= EventSet::OUT;
++            if k.flags & EV_EOF != 0 {
++                // fflags carries the pending socket error, if any.
++                set |= EventSet::HANG_UP;
++                if k.fflags != 0 {
++                    set |= EventSet::ERROR;
++                }
++            }
++        }
++        if k.flags & EV_ERROR != 0 {
++            set |= EventSet::ERROR;
++        }
++        if let Some(i) = idents.iter().position(|&id| id == k.ident) {
++            events[i].events |= set.bits();
++        } else {
++            idents.push(k.ident);
++            events[out] = epoll_event { events: set.bits(), u64: k.udata as usize as u64 };
++            out += 1;
++        }
++    }
++    Ok(out)
++}
++
++/// Wrapper over epoll functionality.
++#[derive(Debug)]
++pub struct Epoll {
++    epoll_fd: RawFd,
++}
++
++impl Epoll {
++    /// Create a new epoll file descriptor.
++    pub fn new() -> io::Result<Self> {
++        Ok(Epoll { epoll_fd: kq_create()? })
++    }
++
++    /// Wrapper for `libc::epoll_ctl`.
++    pub fn ctl(&self, operation: ControlOperation, fd: RawFd, event: EpollEvent) -> io::Result<()> {
++        kq_ctl(self.epoll_fd, operation, fd, event.events(), event.data())
++    }
++
++    /// Wrapper for `libc::epoll_wait`.
++    pub fn wait(&self, timeout: i32, events: &mut [EpollEvent]) -> io::Result<usize> {
++        // SAFETY: EpollEvent is a transparent wrapper over epoll_event.
++        let raw: &mut [epoll_event] = unsafe {
++            std::slice::from_raw_parts_mut(events.as_mut_ptr() as *mut epoll_event, events.len())
++        };
++        kq_wait(self.epoll_fd, timeout, raw)
++    }
++}
++
++impl AsRawFd for Epoll {
++    fn as_raw_fd(&self) -> RawFd {
++        self.epoll_fd
++    }
++}
++
++impl std::os::fd::FromRawFd for Epoll {
++    unsafe fn from_raw_fd(fd: RawFd) -> Self {
++        Epoll { epoll_fd: fd }
++    }
++}
++
++impl Drop for Epoll {
++    fn drop(&mut self) {
++        // SAFETY: we own the descriptor.
++        unsafe {
++            libc::close(self.epoll_fd);
++        }
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use crate::eventfd::{EventFd, EFD_NONBLOCK};
++
++    #[test]
++    fn test_event_ops() {
++        let mut event = EpollEvent::default();
++        assert_eq!(event.events(), 0);
++        assert_eq!(event.data(), 0);
++        event = EpollEvent::new(EventSet::IN, 2);
++        assert_eq!(event.events(), 1);
++        assert_eq!(event.event_set(), EventSet::IN);
++        assert_eq!(event.data(), 2);
++        assert_eq!(event.fd(), 2);
++    }
++
++    #[test]
++    fn test_epoll() {
++        const DEFAULT__TIMEOUT: i32 = 250;
++        const EVENT_BUFFER_SIZE: usize = 128;
++        let epoll = Epoll::new().unwrap();
++        assert!(epoll.as_raw_fd() >= 0);
++        let mut ready_events = vec![EpollEvent::default(); EVENT_BUFFER_SIZE];
++        let event_fd_1 = EventFd::new(EFD_NONBLOCK).unwrap();
++        epoll.ctl(ControlOperation::Add, event_fd_1.as_raw_fd(),
++                  EpollEvent::new(EventSet::OUT | EventSet::IN, event_fd_1.as_raw_fd() as u64)).unwrap();
++        // Nothing written yet: only the write side is ready.
++        let n = epoll.wait(DEFAULT__TIMEOUT, &mut ready_events[..]).unwrap();
++        assert!(n >= 1);
++        assert!(ready_events[..n].iter().all(|e| e.event_set().contains(EventSet::OUT)));
++        event_fd_1.write(1).unwrap();
++        let n = epoll.wait(DEFAULT__TIMEOUT, &mut ready_events[..]).unwrap();
++        assert!(ready_events[..n].iter().any(|e| e.event_set().contains(EventSet::IN)
++                                                  && e.fd() == event_fd_1.as_raw_fd()));
++        // Modify to IN only, then delete.
++        epoll.ctl(ControlOperation::Modify, event_fd_1.as_raw_fd(),
++                  EpollEvent::new(EventSet::IN, 7)).unwrap();
++        let n = epoll.wait(DEFAULT__TIMEOUT, &mut ready_events[..]).unwrap();
++        assert_eq!(n, 1);
++        assert_eq!(ready_events[0].data(), 7);
++        assert!(!ready_events[0].event_set().contains(EventSet::OUT));
++        epoll.ctl(ControlOperation::Delete, event_fd_1.as_raw_fd(), EpollEvent::default()).unwrap();
++        assert_eq!(epoll.wait(0, &mut ready_events[..]).unwrap(), 0);
++        assert!(epoll.ctl(ControlOperation::Delete, event_fd_1.as_raw_fd(), EpollEvent::default()).is_err());
++    }
++
++    #[test]
++    fn test_one_event_per_fd() {
++        use std::io::Write;
++        use std::os::unix::net::UnixStream;
++
++        let epoll = Epoll::new().unwrap();
++        let mut ready = vec![EpollEvent::default(); 8];
++        let (mut a, b) = UnixStream::pair().unwrap();
++        epoll.ctl(ControlOperation::Add, b.as_raw_fd(),
++                  EpollEvent::new(EventSet::IN | EventSet::OUT, 42)).unwrap();
++        a.write_all(b"x").unwrap();
++        // Readable and writable at once: epoll merges them into one event.
++        let n = epoll.wait(250, &mut ready[..]).unwrap();
++        assert_eq!(n, 1);
++        assert_eq!(ready[0].data(), 42);
++        assert!(ready[0].event_set().contains(EventSet::IN | EventSet::OUT));
++        // Peer closed: still one event, now with the hang-up bits, and a
++        // consumer that unregisters on it must not see a second one.
++        drop(a);
++        let n = epoll.wait(250, &mut ready[..]).unwrap();
++        assert_eq!(n, 1);
++        assert!(ready[0].event_set().contains(EventSet::IN | EventSet::HANG_UP | EventSet::READ_HANG_UP));
++        epoll.ctl(ControlOperation::Delete, b.as_raw_fd(), EpollEvent::default()).unwrap();
++        assert_eq!(epoll.wait(0, &mut ready[..]).unwrap(), 0);
++    }
++
++    #[test]
++    fn test_ctl_errors_like_epoll() {
++        let epoll = Epoll::new().unwrap();
++        let mut ready = vec![EpollEvent::default(); 8];
++        let efd = EventFd::new(EFD_NONBLOCK).unwrap();
++        let fd = efd.as_raw_fd();
++        let modify = epoll.ctl(ControlOperation::Modify, fd, EpollEvent::new(EventSet::IN, 1));
++        assert_eq!(modify.unwrap_err().raw_os_error(), Some(libc::ENOENT));
++        let delete = epoll.ctl(ControlOperation::Delete, fd, EpollEvent::default());
++        assert_eq!(delete.unwrap_err().raw_os_error(), Some(libc::ENOENT));
++        epoll.ctl(ControlOperation::Add, fd, EpollEvent::new(EventSet::IN, 1)).unwrap();
++        let again = epoll.ctl(ControlOperation::Add, fd, EpollEvent::new(EventSet::IN, 1));
++        assert_eq!(again.unwrap_err().raw_os_error(), Some(libc::EEXIST));
++        // The registration probe must not consume pending events.
++        efd.write(1).unwrap();
++        epoll.ctl(ControlOperation::Modify, fd, EpollEvent::new(EventSet::IN | EventSet::OUT, 2)).unwrap();
++        let n = epoll.wait(250, &mut ready[..]).unwrap();
++        assert_eq!(n, 1);
++        assert_eq!(ready[0].data(), 2);
++        assert!(ready[0].event_set().contains(EventSet::IN));
++        // Switching to OUT only drops the read filter; a later Delete still works.
++        epoll.ctl(ControlOperation::Modify, fd, EpollEvent::new(EventSet::OUT, 3)).unwrap();
++        let n = epoll.wait(250, &mut ready[..]).unwrap();
++        assert_eq!(n, 1);
++        assert!(!ready[0].event_set().contains(EventSet::IN));
++        epoll.ctl(ControlOperation::Delete, fd, EpollEvent::default()).unwrap();
++        assert_eq!(epoll.wait(0, &mut ready[..]).unwrap(), 0);
++    }
++}
+diff --git a/src/bsd/eventfd.rs b/src/bsd/eventfd.rs
+new file mode 100644
+index 0000000..fe0c7d0
+--- /dev/null
++++ b/src/bsd/eventfd.rs
+@@ -0,0 +1,201 @@
++// Copyright 2026 Google LLC
++// SPDX-License-Identifier: BSD-3-Clause
++
++//! Structure and wrapper functions emulating `eventfd(2)` on hosts that do
++//! not have it (OpenBSD).
++//!
++//! An eventfd is a counter that readers wait on.  A `socketpair(2)` gives
++//! the same observable behaviour to the users of this crate: every `write`
++//! queues an 8-byte value, `read` drains what is queued and returns the sum
++//! (or one value in semaphore mode), and the read side is pollable.  An
++//! `EventFd` built from a foreign descriptor (`from_raw_fd`, e.g. a vring
++//! kick or call fd received over vhost-user) has a single descriptor and is
++//! used in one direction only; a pipe end works there because QEMU writes
++//! 8-byte values to its pipe-based notifiers as well.
++
++use std::fs::File;
++use std::io::{self, Read, Write};
++use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
++use std::result;
++
++use libc::{c_int, c_void, fcntl, poll, pollfd, socketpair, AF_UNIX, F_GETFL, F_SETFL, O_NONBLOCK,
++           POLLIN, SOCK_CLOEXEC, SOCK_STREAM};
++
++/// Flag: the read side is non-blocking.
++pub const EFD_NONBLOCK: i32 = O_NONBLOCK;
++/// Flag: close-on-exec (always set here).
++pub const EFD_CLOEXEC: i32 = libc::O_CLOEXEC;
++/// Flag: semaphore semantics (`read` returns 1 per queued event).
++pub const EFD_SEMAPHORE: i32 = 1;
++
++/// A safe wrapper around an emulated eventfd.
++#[derive(Debug)]
++pub struct EventFd {
++    /// The pollable, readable side.
++    eventfd: File,
++    /// The side `write` goes to when this object owns both ends.
++    wfd: Option<File>,
++    semaphore: bool,
++}
++
++fn set_nonblock(fd: RawFd, on: bool) -> io::Result<()> {
++    // SAFETY: fcntl on a descriptor we own.
++    let flags = unsafe { fcntl(fd, F_GETFL) };
++    if flags < 0 {
++        return Err(io::Error::last_os_error());
++    }
++    let flags = if on { flags | O_NONBLOCK } else { flags & !O_NONBLOCK };
++    // SAFETY: as above.
++    if unsafe { fcntl(fd, F_SETFL, flags) } < 0 {
++        return Err(io::Error::last_os_error());
++    }
++    Ok(())
++}
++
++impl EventFd {
++    /// Create a new EventFd with an initial value of 0.
++    ///
++    /// `flag` is a mask of `EFD_NONBLOCK`, `EFD_CLOEXEC` (implied) and
++    /// `EFD_SEMAPHORE`.
++    pub fn new(flag: i32) -> result::Result<EventFd, io::Error> {
++        let mut fds: [c_int; 2] = [-1, -1];
++        // SAFETY: fds is a valid array of two ints; the result is checked.
++        let ret = unsafe { socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, fds.as_mut_ptr()) };
++        if ret < 0 {
++            return Err(io::Error::last_os_error());
++        }
++        // SAFETY: both descriptors are fresh and owned by us from here on.
++        let (rfd, wfd) = unsafe { (File::from_raw_fd(fds[0]), File::from_raw_fd(fds[1])) };
++        // Writes never block (an eventfd write only blocks on counter
++        // overflow); the read side blocks unless asked not to.
++        set_nonblock(wfd.as_raw_fd(), true)?;
++        set_nonblock(rfd.as_raw_fd(), flag & EFD_NONBLOCK != 0)?;
++        Ok(EventFd {
++            eventfd: rfd,
++            wfd: Some(wfd),
++            semaphore: flag & EFD_SEMAPHORE != 0,
++        })
++    }
++
++    /// Add `v` to the counter: queue one 8-byte value.
++    pub fn write(&self, v: u64) -> result::Result<(), io::Error> {
++        let mut f: &File = self.wfd.as_ref().unwrap_or(&self.eventfd);
++        f.write_all(v.to_ne_bytes().as_slice())
++    }
++
++    /// Read the counter: drain the queued values and return their sum (one
++    /// value in semaphore mode).  Blocks for the first value unless the
++    /// EventFd is non-blocking, in which case `WouldBlock` is returned when
++    /// nothing is queued, like `eventfd(2)`.
++    pub fn read(&self) -> result::Result<u64, io::Error> {
++        let mut buf = [0u8; std::mem::size_of::<u64>()];
++        (&self.eventfd).read_exact(&mut buf)?;
++        let mut total = u64::from_ne_bytes(buf);
++        if self.semaphore {
++            return Ok(total);
++        }
++        loop {
++            let mut pfd = pollfd { fd: self.eventfd.as_raw_fd(), events: POLLIN, revents: 0 };
++            // SAFETY: pfd is a valid pollfd; zero timeout.
++            let n = unsafe { poll(&mut pfd, 1, 0) };
++            if n <= 0 || pfd.revents & POLLIN == 0 {
++                break;
++            }
++            match (&self.eventfd).read_exact(&mut buf) {
++                Ok(()) => total = total.wrapping_add(u64::from_ne_bytes(buf)),
++                Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => break,
++                Err(e) => return Err(e),
++            }
++        }
++        Ok(total)
++    }
++
++    /// Clone this EventFd, both sides included.
++    pub fn try_clone(&self) -> result::Result<EventFd, io::Error> {
++        Ok(EventFd {
++            eventfd: self.eventfd.try_clone()?,
++            wfd: match &self.wfd {
++                Some(w) => Some(w.try_clone()?),
++                None => None,
++            },
++            semaphore: self.semaphore,
++        })
++    }
++}
++
++impl AsRawFd for EventFd {
++    fn as_raw_fd(&self) -> RawFd {
++        self.eventfd.as_raw_fd()
++    }
++}
++
++impl FromRawFd for EventFd {
++    /// Wrap a descriptor received from elsewhere (a pipe end from QEMU, say).
++    /// It is read from or written to, never both.
++    unsafe fn from_raw_fd(fd: RawFd) -> Self {
++        EventFd {
++            eventfd: File::from_raw_fd(fd),
++            wfd: None,
++            semaphore: false,
++        }
++    }
++}
++
++impl IntoRawFd for EventFd {
++    /// Hands out the readable side; the write side, if any, is kept open on
++    /// purpose so that clones made from the returned descriptor keep working.
++    fn into_raw_fd(self) -> RawFd {
++        if let Some(w) = self.wfd {
++            let _ = w.into_raw_fd();
++        }
++        self.eventfd.into_raw_fd()
++    }
++}
++
++#[allow(dead_code)]
++fn _assert_c_void_used(_: *mut c_void) {}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn test_new() {
++        EventFd::new(EFD_NONBLOCK).unwrap();
++        EventFd::new(0).unwrap();
++    }
++
++    #[test]
++    fn test_read_write() {
++        let evt = EventFd::new(EFD_NONBLOCK).unwrap();
++        evt.write(55).unwrap();
++        assert_eq!(evt.read().unwrap(), 55);
++    }
++
++    #[test]
++    fn test_write_overflow() {
++        let evt = EventFd::new(EFD_NONBLOCK).unwrap();
++        evt.write(1).unwrap();
++        evt.write(2).unwrap();
++        assert_eq!(evt.read().unwrap(), 3);
++        assert!(evt.read().is_err());
++    }
++
++    #[test]
++    fn test_semaphore() {
++        let evt = EventFd::new(EFD_NONBLOCK | EFD_SEMAPHORE).unwrap();
++        evt.write(1).unwrap();
++        evt.write(1).unwrap();
++        assert_eq!(evt.read().unwrap(), 1);
++        assert_eq!(evt.read().unwrap(), 1);
++        assert!(evt.read().is_err());
++    }
++
++    #[test]
++    fn test_clone() {
++        let evt = EventFd::new(EFD_NONBLOCK).unwrap();
++        let evt_clone = evt.try_clone().unwrap();
++        evt.write(923).unwrap();
++        assert_eq!(evt_clone.read().unwrap(), 923);
++    }
++}
+diff --git a/src/bsd/mod.rs b/src/bsd/mod.rs
+new file mode 100644
+index 0000000..7542e63
+--- /dev/null
++++ b/src/bsd/mod.rs
+@@ -0,0 +1,7 @@
++// Copyright 2026 Google LLC
++// SPDX-License-Identifier: BSD-3-Clause
++
++//! OpenBSD stand-ins for the Linux-only pieces: eventfd and epoll.
++
++pub mod epoll;
++pub mod eventfd;
+diff --git a/src/lib.rs b/src/lib.rs
+index 3e0e0dc..5ea34ef 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -12,6 +12,11 @@ mod linux;
+ #[cfg(any(target_os = "linux", target_os = "android"))]
+ pub use crate::linux::*;
+ 
++#[cfg(target_os = "openbsd")]
++mod bsd;
++#[cfg(target_os = "openbsd")]
++pub use crate::bsd::*;
++
+ #[cfg(unix)]
+ mod unix;
+ #[cfg(unix)]
+diff --git a/src/unix/sock_ctrl_msg.rs b/src/unix/sock_ctrl_msg.rs
+index 65bbbb6..488669d 100644
+--- a/src/unix/sock_ctrl_msg.rs
++++ b/src/unix/sock_ctrl_msg.rs
+@@ -68,13 +68,24 @@ fn set_msg_controllen(msg: &mut msghdr, cmsg_capacity: c_uint) {
+     msg.msg_controllen = cmsg_capacity;
+ }
+ 
+-#[repr(transparent)]
+-struct CmsgHdr(cmsghdr);
++/// `struct cmsghdr` padded to `CMSG_LEN(0)`: the payload starts at
++/// `CMSG_DATA`, which on the BSDs is `_ALIGN(sizeof(struct cmsghdr))` (16 on
++/// 64-bit hosts) rather than `sizeof(struct cmsghdr)` (12).  On Linux and
++/// macOS the two are equal and the padding is empty.
++#[repr(C)]
++struct CmsgHdr(
++    cmsghdr,
++    #[cfg(all(
++        any(target_os = "openbsd", target_os = "freebsd", target_os = "netbsd"),
++        target_pointer_width = "64"
++    ))]
++    [u8; 4],
++);
+ 
+ impl Default for CmsgHdr {
+     fn default() -> Self {
+-        // SAFETY: all-zero is valid for cmsghdr on all architectures/targets.
+-        Self(unsafe { mem::zeroed() })
++        // SAFETY: all-zero is valid for cmsghdr (and padding) on all architectures/targets.
++        unsafe { mem::zeroed() }
+     }
+ }
+ 
+@@ -89,7 +100,7 @@ unsafe impl FamStruct for CmsgHdr {
+     // on gnu, size_t is usize, while on musl it is u32
+     #[allow(clippy::unnecessary_cast)]
+     fn len(&self) -> usize {
+-        (self.0.cmsg_len as usize - size_of::<cmsghdr>()) / size_of::<RawFd>()
++        (self.0.cmsg_len as usize - size_of::<CmsgHdr>()) / size_of::<RawFd>()
+     }
+ 
+     unsafe fn set_len(&mut self, len: usize) {
+@@ -101,20 +112,20 @@ unsafe impl FamStruct for CmsgHdr {
+     }
+ 
+     fn max_len() -> usize {
+-        (u32::MAX as usize - size_of::<cmsghdr>()) / size_of::<RawFd>()
++        (u32::MAX as usize - size_of::<CmsgHdr>()) / size_of::<RawFd>()
+     }
+ 
+     fn as_slice(&self) -> &[RawFd] {
+         // SAFETY: By the invariants of the trait impl and set_len, we have a payload of self.len()
+         // fds after the header itself
+-        unsafe { std::slice::from_raw_parts((&self.0 as *const cmsghdr).add(1).cast(), self.len()) }
++        unsafe { std::slice::from_raw_parts((self as *const CmsgHdr).add(1).cast(), self.len()) }
+     }
+ 
+     fn as_mut_slice(&mut self) -> &mut [RawFd] {
+         // SAFETY: By the invariants of the trait impl and set_len, we have a payload of self.len()
+         // fds after the header itself
+         unsafe {
+-            std::slice::from_raw_parts_mut((&mut self.0 as *mut cmsghdr).add(1).cast(), self.len())
++            std::slice::from_raw_parts_mut((self as *mut CmsgHdr).add(1).cast(), self.len())
+         }
+     }
+ }
+@@ -397,6 +408,14 @@ mod tests {
+     use std::os::unix::net::UnixDatagram;
+     use std::slice::from_raw_parts;
+ 
++    #[test]
++    fn cmsghdr_wrapper_matches_cmsg_len() {
++        // The payload offset the kernel uses is CMSG_LEN(0); CmsgHdr must be that size.
++        // SAFETY: CMSG_LEN has no invariants to uphold.
++        let hdr_len = unsafe { CMSG_LEN(0) } as usize;
++        assert_eq!(std::mem::size_of::<CmsgHdr>(), hdr_len);
++    }
++
+     #[test]
+     fn send_recv_no_fd() {
+         let (s1, s2) = UnixDatagram::pair().expect("failed to create socket pair");

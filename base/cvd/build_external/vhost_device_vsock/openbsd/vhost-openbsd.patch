@@ -1,0 +1,36 @@
+diff --git a/src/vhost_user/backend_req_handler.rs b/src/vhost_user/backend_req_handler.rs
+index 665c3dc..047dd9a 100644
+--- a/src/vhost_user/backend_req_handler.rs
++++ b/src/vhost_user/backend_req_handler.rs
+@@ -1083,9 +1083,28 @@ fn get_socket_opt(fd: BorrowedFd<'_>, opt: libc::c_int) -> std::io::Result<libc:
+ 
+ // Validate that the given file descriptor is an AF_UNIX SOCK_STREAM socket.
+ fn validate_unix_stream_socket_fd(fd: BorrowedFd<'_>) -> Result<()> {
+-    let domain = get_socket_opt(fd, libc::SO_DOMAIN).map_err(Error::InvalidSocketFd)?;
+-    if domain != libc::AF_UNIX {
+-        return Err(Error::NotUnixSocket);
++    #[cfg(any(target_os = "linux", target_os = "android"))]
++    {
++        let domain = get_socket_opt(fd, libc::SO_DOMAIN).map_err(Error::InvalidSocketFd)?;
++        if domain != libc::AF_UNIX {
++            return Err(Error::NotUnixSocket);
++        }
++    }
++    #[cfg(not(any(target_os = "linux", target_os = "android")))]
++    {
++        // No SO_DOMAIN here; ask the kernel for the local address family.
++        let mut addr: libc::sockaddr_storage = unsafe { std::mem::zeroed() };
++        let mut len = std::mem::size_of::<libc::sockaddr_storage>() as libc::socklen_t;
++        // SAFETY: addr/len describe a valid buffer for getsockname.
++        let ret = unsafe {
++            libc::getsockname(fd.as_raw_fd(), &mut addr as *mut _ as *mut libc::sockaddr, &mut len)
++        };
++        if ret < 0 {
++            return Err(Error::InvalidSocketFd(std::io::Error::last_os_error()));
++        }
++        if i32::from(addr.ss_family) != libc::AF_UNIX {
++            return Err(Error::NotUnixSocket);
++        }
+     }
+ 
+     let sock_type = get_socket_opt(fd, libc::SO_TYPE).map_err(Error::InvalidSocketFd)?;
