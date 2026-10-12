@@ -3,4 +3,9 @@ exports_files([
     "vhost-device-vsock-handshake-cleanup.patch",
     "vhost-device-vsock-snapshot.patch",
     "vhost-device-vsock-stream-io-error-reset.patch",
+    # WIP (OpenBSD port of the daemon, see openbsd/README.md); only used once
+    # the annotations in vhost_device_vsock.MODULE.bazel are enabled.
+    "openbsd/epoll-openbsd.patch",
+    "openbsd/vhost-openbsd.patch",
+    "openbsd/vmm-sys-util-openbsd.patch",
 ])
