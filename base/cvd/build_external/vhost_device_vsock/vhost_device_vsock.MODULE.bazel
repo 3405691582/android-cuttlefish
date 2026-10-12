@@ -18,6 +18,41 @@ vhost_device_vsock_crates.annotation(
     repositories = ["vhost_device_vsock_crates"],
 )
 
+# WIP, disabled: the OpenBSD port of the daemon (see openbsd/README.md). The
+# three annotations below apply the crate patches from openbsd/; the first two
+# are no-ops on Linux (cfg-gated modules, and CMSG_LEN(0) equals
+# sizeof(struct cmsghdr) there), the third gives the epoll crate a kqueue
+# implementation and the vmm-sys-util dependency it needs for it. Enable by
+# removing the WIP_OPENBSD_VSOCK markers; the daemon then also has to leave
+# _LINUX_ONLY_PACKAGE_FILES in //cuttlefish/package.
+# WIP_OPENBSD_VSOCK vhost_device_vsock_crates.annotation(
+# WIP_OPENBSD_VSOCK     crate = "vmm-sys-util",
+# WIP_OPENBSD_VSOCK     patch_args = ["-p1"],
+# WIP_OPENBSD_VSOCK     patches = [
+# WIP_OPENBSD_VSOCK         "@//build_external/vhost_device_vsock:openbsd/vmm-sys-util-openbsd.patch",
+# WIP_OPENBSD_VSOCK     ],
+# WIP_OPENBSD_VSOCK     repositories = ["vhost_device_vsock_crates"],
+# WIP_OPENBSD_VSOCK )
+# WIP_OPENBSD_VSOCK
+# WIP_OPENBSD_VSOCK vhost_device_vsock_crates.annotation(
+# WIP_OPENBSD_VSOCK     crate = "vhost",
+# WIP_OPENBSD_VSOCK     patch_args = ["-p1"],
+# WIP_OPENBSD_VSOCK     patches = [
+# WIP_OPENBSD_VSOCK         "@//build_external/vhost_device_vsock:openbsd/vhost-openbsd.patch",
+# WIP_OPENBSD_VSOCK     ],
+# WIP_OPENBSD_VSOCK     repositories = ["vhost_device_vsock_crates"],
+# WIP_OPENBSD_VSOCK )
+# WIP_OPENBSD_VSOCK
+# WIP_OPENBSD_VSOCK vhost_device_vsock_crates.annotation(
+# WIP_OPENBSD_VSOCK     crate = "epoll",
+# WIP_OPENBSD_VSOCK     deps = ["@vhost_device_vsock_crates__vmm-sys-util-0.15.0//:vmm_sys_util"],
+# WIP_OPENBSD_VSOCK     patch_args = ["-p1"],
+# WIP_OPENBSD_VSOCK     patches = [
+# WIP_OPENBSD_VSOCK         "@//build_external/vhost_device_vsock:openbsd/epoll-openbsd.patch",
+# WIP_OPENBSD_VSOCK     ],
+# WIP_OPENBSD_VSOCK     repositories = ["vhost_device_vsock_crates"],
+# WIP_OPENBSD_VSOCK )
+
 vhost_device_vsock_crates.from_specs(
     name = "vhost_device_vsock_crates",
     # Needed because it shares the extension with crosvm

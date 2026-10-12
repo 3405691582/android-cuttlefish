@@ -921,13 +921,30 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
                      guest_configs[instance_index].target_arch) !=
                      default_on_arch.end()) {
         instance.set_vhost_user_vsock(true);
+#if 0
+      // WIP, disabled: hosts without kernel vsock (OpenBSD) get the
+      // vhost_device_vsock daemon under QEMU by default; see the
+      // vhost-user-vsock-pci device in qemu_manager.cpp.
+#ifndef __linux__
+      } else if (tmp_config_obj.vm_manager() == VmmMode::kQemu) {
+        instance.set_vhost_user_vsock(true);
+#endif
+#endif
       } else {
         instance.set_vhost_user_vsock(false);
       }
     } else if (vhost_user_vsock_vec[instance_index] ==
                kVhostUserVsockModeTrue) {
+#if 0
+      // WIP, disabled: QEMU supports it too once qemu_manager.cpp adds the
+      // vhost-user-vsock-pci device.
+      CF_EXPECT(tmp_config_obj.vm_manager() == VmmMode::kCrosvm ||
+                    tmp_config_obj.vm_manager() == VmmMode::kQemu,
+                "Only crosvm and qemu support vhost_user_vsock");
+#else
       CF_EXPECT_EQ(tmp_config_obj.vm_manager(), VmmMode::kCrosvm,
                    "For now, only crosvm supports vhost_user_vsock");
+#endif
       instance.set_vhost_user_vsock(true);
     } else if (vhost_user_vsock_vec[instance_index] ==
                kVhostUserVsockModeFalse) {

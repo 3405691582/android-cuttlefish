@@ -54,28 +54,48 @@ revision (`vmm-sys-util` 0.15.0, `vhost` 0.17.0, `vhost-user-backend`
   and macOS. Unit tests included.
 * `vhost-openbsd.patch`: `backend_req_handler.rs` checks the socket family
   with `SO_DOMAIN`, which only Linux has; `getsockname()` elsewhere.
-* `epoll-kq/`: a stand-in for the `epoll` crate (the subset of its 4.4.0
-  API the daemon uses) over the kqueue helpers that the vmm-sys-util patch
-  exports. The real crate wraps `libc::epoll_*` and cannot build off
-  Linux. The cleaner end state is for `vhost-device-vsock` to use
-  `vmm_sys_util::epoll` directly, which removes the need for this crate.
+* `epoll-openbsd.patch`: gives the `epoll` crate (4.4.0, a thin
+  `libc::epoll_*` wrapper that cannot build off Linux) a `src/kqueue.rs`
+  for OpenBSD, delegating to the kqueue helpers the vmm-sys-util patch
+  exports; the Linux items are `cfg`-gated, `Event`, `close` and `cvt` are
+  shared. The crate needs `vmm-sys-util` as a dependency for it, which the
+  Bazel annotation adds. The cleaner end state is for `vhost-device-vsock`
+  to use `vmm_sys_util::epoll` directly, which removes the need for this.
+* `epoll-kq/`: the same thing as a stand-alone replacement crate, used by
+  the prototype through `[patch.crates-io]`; kept for cargo-based builds.
+
+## Wiring (present, disabled)
+
+* `../vhost_device_vsock.MODULE.bazel`: three `crate_universe`
+  annotations applying the patches (`-p1`, against the crates.io sources
+  of the versions the pinned `vhost-device` revision resolves to), behind
+  `WIP_OPENBSD_VSOCK` comment markers. The first two are no-ops on Linux
+  (`cfg`-gated modules; `CMSG_LEN(0)` equals `sizeof(struct cmsghdr)`
+  there); the third adds the kqueue module and the dependency to the
+  `epoll` crate. `../BUILD.bazel` exports the patches.
+* `host/libs/vm_manager/qemu_manager.cpp`: under `#if 0`, the
+  `--vhost_user_vsock` branch — `-chardev socket,id=vhost_vsock,path=
+  <TempDir>/vsock_<cid>_<uid>/vhost.socket -device
+  vhost-user-vsock-pci-non-transitional,chardev=vhost_vsock` — in place of
+  the kernel `vhost-vsock-pci` device. Guest RAM is already a shared
+  file-backed object in QEMU mode, which is what vhost-user needs, so no
+  memory-backend change. Linux QEMU mode lacks this branch too.
+* `host/commands/assemble_cvd/flags.cc`: under `#if 0`,
+  `--vhost_user_vsock=true` accepted for QEMU, and `auto` turning it on
+  for QEMU on hosts without kernel vsock.
 
 ## Left to do
 
-* Wire the patches into `vhost_device_vsock.MODULE.bazel`:
-  `vhost_device_vsock_crates.annotation(crate = "vmm-sys-util", patches =
-  [...], patch_args = ["-p1"])` and the same for `vhost`; both are no-ops
-  on Linux (the new modules are `cfg`-gated and `CMSG_LEN(0)` equals
-  `sizeof(struct cmsghdr)` there). Decide how the `epoll` crate is
-  replaced (annotation patch on the crate, or the upstream change to
-  `vhost-device-vsock`).
+* Enable the wiring and build the daemon through Bazel on OpenBSD; move
+  `bin/vhost_device_vsock` out of `_LINUX_ONLY_PACKAGE_FILES` in
+  `//cuttlefish/package` for that host.
+* Key the vsock users on `vhost_user_vsock()` instead of
+  `#ifdef __linux__`: the vsock proxies started next to rootcanal, adb
+  `vsock_tunnel`, the modem simulator default, the extra adb NIC.
 * Upstream the crate changes to rust-vmm (the cmsg fix first; then the
   BSD modules, the `SO_DOMAIN` change, the `epoll` crate removal) and ask
-  the OpenBSD `emulators/qemu` port to enable vhost-user.
-* `qemu_manager.cpp`: a `--vhost_user_vsock` branch (`-chardev socket,
-  id=vsock,path=<vhost.socket> -device vhost-user-vsock-pci,chardev=vsock`
-  plus the shared memory backend) and drop the `#ifdef __linux__` around
-  the vsock device and the vsock proxies in favour of `vhost_user_vsock()`.
-  Linux QEMU mode lacks that branch as well.
+  the OpenBSD `emulators/qemu` port to enable vhost-user (`--enable-
+  vhost-user --disable-vhost-net`); until then an own QEMU build is needed
+  on OpenBSD (`--qemu_binary_dir`).
 * Not exercised yet: daemon reconnect, many concurrent connections, guest
   reboot.

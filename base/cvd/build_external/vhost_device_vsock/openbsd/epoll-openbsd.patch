@@ -1,0 +1,138 @@
+diff -ruN epoll-4.4.0/src/kqueue.rs epoll-4.4.0-bsd/src/kqueue.rs
+--- epoll-4.4.0/src/kqueue.rs	1970-01-01 00:00:00.000000000 +0000
++++ epoll-4.4.0-bsd/src/kqueue.rs	2026-10-12 00:52:43.591641906 +0000
+@@ -0,0 +1,78 @@
++// Copyright 2026 Google LLC
++// SPDX-License-Identifier: MPL-2.0
++
++//! `create`/`ctl`/`wait` and the flag types over `kqueue(2)` on OpenBSD.
++//!
++//! The translation itself lives in vmm-sys-util's `epoll` module (its
++//! `kq_create`/`kq_ctl`/`kq_wait` helpers), so that this crate and the
++//! vmm-sys-util `Epoll` wrapper agree on the semantics; this file only maps
++//! the crate's API onto it.
++
++use std::io;
++use std::os::unix::io::RawFd;
++
++use vmm_sys_util::epoll::{epoll_event, kq_create, kq_ctl, kq_wait, ControlOperation};
++
++use crate::Event;
++
++#[repr(i32)]
++#[allow(non_camel_case_types)]
++pub enum ControlOptions {
++    /// Indicates an addition to the interest list.
++    EPOLL_CTL_ADD = 1,
++    /// Indicates a modification of flags for an interest already in list.
++    EPOLL_CTL_MOD = 3,
++    /// Indicates a removal of an interest from the list.
++    EPOLL_CTL_DEL = 2,
++}
++
++bitflags! {
++    /// Linux `EPOLL*` values; translated to kqueue filters and flags by
++    /// vmm-sys-util.
++    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
++    pub struct Events: u32 {
++        const EPOLLET = 1 << 31;
++        const EPOLLIN = 0x001;
++        const EPOLLERR = 0x008;
++        const EPOLLHUP = 0x010;
++        const EPOLLOUT = 0x004;
++        const EPOLLPRI = 0x002;
++        const EPOLLRDHUP = 0x2000;
++        const EPOLLWAKEUP = 1 << 29;
++        const EPOLLONESHOT = 1 << 30;
++        const EPOLLEXCLUSIVE = 1 << 28;
++    }
++}
++
++/// Creates a new kqueue standing in for an epoll file descriptor.  kqueue
++/// descriptors are always close-on-exec, so `cloexec` is accepted and
++/// ignored.
++pub fn create(_cloexec: bool) -> io::Result<RawFd> {
++    kq_create()
++}
++
++/// `epoll_ctl` equivalent.
++pub fn ctl(epfd: RawFd, op: ControlOptions, fd: RawFd, event: Event) -> io::Result<()> {
++    let op = match op {
++        ControlOptions::EPOLL_CTL_ADD => ControlOperation::Add,
++        ControlOptions::EPOLL_CTL_MOD => ControlOperation::Modify,
++        ControlOptions::EPOLL_CTL_DEL => ControlOperation::Delete,
++    };
++    let (events, data) = (event.events, event.data);
++    kq_ctl(epfd, op, fd, events, data)
++}
++
++/// `epoll_wait` equivalent.
++///
++/// If `timeout` is negative, it will block until an event is received.
++pub fn wait(epfd: RawFd, timeout: i32, buf: &mut [Event]) -> io::Result<usize> {
++    let timeout = if timeout < -1 { -1 } else { timeout };
++    // Copy rather than alias: Event is packed on x86_64 only, epoll_event
++    // always is.
++    let mut raw = vec![epoll_event { events: 0, u64: 0 }; buf.len()];
++    let n = kq_wait(epfd, timeout, &mut raw)?;
++    for (dst, src) in buf.iter_mut().zip(raw.iter().take(n)) {
++        *dst = Event { events: src.events, data: src.u64 };
++    }
++    Ok(n)
++}
+diff -ruN epoll-4.4.0/src/lib.rs epoll-4.4.0-bsd/src/lib.rs
+--- epoll-4.4.0/src/lib.rs	2006-07-24 01:21:28.000000000 +0000
++++ epoll-4.4.0-bsd/src/lib.rs	2026-10-12 00:56:35.618588951 +0000
+@@ -7,11 +7,21 @@
+ #[macro_use]
+ extern crate bitflags;
+ extern crate libc;
++#[cfg(target_os = "openbsd")]
++extern crate vmm_sys_util;
+ 
+ use std::fmt::{Debug, Formatter, Result};
+ use std::io::{self, Error};
+ use std::os::unix::io::RawFd;
+ 
++// On OpenBSD the interest-list operations are emulated with kqueue(2); the
++// `Event` type, `close` and `cvt` below are shared.
++#[cfg(target_os = "openbsd")]
++mod kqueue;
++#[cfg(target_os = "openbsd")]
++pub use kqueue::{create, ctl, wait, ControlOptions, Events};
++
++#[cfg(not(target_os = "openbsd"))]
+ #[repr(i32)]
+ #[allow(non_camel_case_types)]
+ pub enum ControlOptions {
+@@ -23,6 +33,7 @@
+     EPOLL_CTL_DEL = libc::EPOLL_CTL_DEL,
+ }
+ 
++#[cfg(not(target_os = "openbsd"))]
+ bitflags! {
+ 
+     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+@@ -138,12 +149,14 @@
+ /// ## Notes
+ ///
+ /// * `epoll_create1()` is the underlying syscall.
++#[cfg(not(target_os = "openbsd"))]
+ pub fn create(cloexec: bool) -> io::Result<RawFd> {
+     let flags = if cloexec { libc::EPOLL_CLOEXEC } else { 0 };
+     unsafe { cvt(libc::epoll_create1(flags)) }
+ }
+ 
+ /// Safe wrapper for `libc::epoll_ctl`
++#[cfg(not(target_os = "openbsd"))]
+ pub fn ctl(
+     epfd: RawFd,
+     op: ControlOptions,
+@@ -160,6 +173,7 @@
+ /// ## Notes
+ ///
+ /// * If `timeout` is negative, it will block until an event is received.
++#[cfg(not(target_os = "openbsd"))]
+ pub fn wait(epfd: RawFd, timeout: i32, buf: &mut [Event]) -> io::Result<usize> {
+     let timeout = if timeout < -1 { -1 } else { timeout };
+     let num_events = unsafe {

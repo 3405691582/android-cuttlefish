@@ -927,10 +927,37 @@ Result<std::vector<MonitorCommand>> QemuManager::StartCommands(
   qemu_cmd.AddParameter("-msg");
   qemu_cmd.AddParameter("timestamp=on");
 
+#if 0
+  // WIP, disabled: vsock through the vhost_device_vsock daemon instead of the
+  // kernel's vhost-vsock, for hosts without one (OpenBSD) and, in general,
+  // whenever --vhost_user_vsock is on. The daemon is started by
+  // run_cvd/launch/vhost_device_vsock.cpp and listens on this socket; QEMU
+  // connects to it. Guest RAM is already the shared, file-backed vm_ram
+  // object above, which is what vhost-user needs to map the virtqueues. QEMU
+  // has to be built with vhost-user (--enable-vhost-user; the OpenBSD package
+  // is not), and the daemon with the crate patches in
+  // build_external/vhost_device_vsock/openbsd/.
+  if (instance.vhost_user_vsock()) {
+    qemu_cmd.AddParameter("-chardev");
+    qemu_cmd.AddParameter("socket,id=vhost_vsock,path=",
+                          fmt::format("{}/vsock_{}_{}/vhost.socket", TempDir(),
+                                      instance.vsock_guest_cid(), getuid()));
+    qemu_cmd.AddParameter("-device");
+    qemu_cmd.AddParameter(
+        "vhost-user-vsock-pci-non-transitional,chardev=vhost_vsock");
+  } else {
+#ifdef __linux__
+    qemu_cmd.AddParameter("-device");
+    qemu_cmd.AddParameter("vhost-vsock-pci-non-transitional,guest-cid=",
+                          instance.vsock_guest_cid());
+#endif
+  }
+#else
 #ifdef __linux__
   qemu_cmd.AddParameter("-device");
   qemu_cmd.AddParameter("vhost-vsock-pci-non-transitional,guest-cid=",
                         instance.vsock_guest_cid());
+#endif
 #endif
 
   qemu_cmd.AddParameter("-device");
