@@ -921,6 +921,15 @@ Result<CuttlefishConfig> InitializeCuttlefishConfiguration(
                       default_on_arch.end() ||
                   GetInvoker() == Invoker::Podcvd)) {
         instance.set_vhost_user_vsock(true);
+#if 0
+      // WIP, disabled: hosts without kernel vsock (OpenBSD) get the
+      // vhost_device_vsock daemon under QEMU by default; see the
+      // vhost-user-vsock-pci device in qemu_manager.cpp.
+#ifndef __linux__
+      } else if (tmp_config_obj.vm_manager() == VmmMode::kQemu) {
+        instance.set_vhost_user_vsock(true);
+#endif
+#endif
       } else {
         instance.set_vhost_user_vsock(false);
       }
