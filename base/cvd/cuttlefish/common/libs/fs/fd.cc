@@ -75,6 +75,14 @@ Result<int> MemfdCreateWrapper(const std::string& name, unsigned int flags) {
   int fd = TEMP_FAILURE_RETRY(memfd_create(name.c_str(), flags));
   CF_EXPECTF(fd >= 0, "memfd_create('{}', {}) failed: {}", name, flags,
              StrError(errno));
+#elif defined(__OpenBSD__)
+  // Emulate an anonymous memory-backed file with a uniquely named shared
+  // memory object that is immediately unlinked.
+  (void)flags;
+  std::string path = fmt::format("/tmp/{}.XXXXXXXXXX", name);
+  int fd = TEMP_FAILURE_RETRY(shm_mkstemp(path.data()));
+  CF_EXPECTF(fd >= 0, "shm_mkstemp('{}') failed: {}", path, StrError(errno));
+  shm_unlink(path.c_str());
 #else
   (void)flags;
   int fd = TEMP_FAILURE_RETRY(shm_open(name.c_str(), O_RDWR));
