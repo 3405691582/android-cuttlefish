@@ -15,7 +15,12 @@
 
 #include "cuttlefish/host/commands/run_cvd/launch/vhal_proxy_server.h"
 
+#ifdef __linux__
 #include <linux/vm_sockets.h>
+#else
+// Well-known vsock CID of the host; only used to format a command line here.
+#define VMADDR_CID_HOST 2
+#endif
 
 #include <optional>
 
