@@ -30,7 +30,6 @@ SubprocessOptions SubprocessOptions::Verbose(bool verbose) && {
   return std::move(*this);
 }
 
-#ifdef __linux__
 SubprocessOptions& SubprocessOptions::ExitWithParent(bool exit_with_parent) & {
   exit_with_parent_ = exit_with_parent;
   return *this;
@@ -39,7 +38,6 @@ SubprocessOptions SubprocessOptions::ExitWithParent(bool exit_with_parent) && {
   exit_with_parent_ = exit_with_parent;
   return std::move(*this);
 }
-#endif
 
 SubprocessOptions& SubprocessOptions::InGroup(bool in_group) & {
   in_group_ = in_group;

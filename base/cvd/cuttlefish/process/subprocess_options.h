@@ -25,10 +25,10 @@ class SubprocessOptions {
       : verbose_(true), exit_with_parent_(true), in_group_(false) {}
   SubprocessOptions& Verbose(bool verbose) &;
   SubprocessOptions Verbose(bool verbose) &&;
-#ifdef __linux__
+  // Only honored on Linux (PR_SET_PDEATHSIG); accepted everywhere so callers
+  // need no platform conditionals.
   SubprocessOptions& ExitWithParent(bool exit_with_parent) &;
   SubprocessOptions ExitWithParent(bool exit_with_parent) &&;
-#endif
   // The subprocess runs as head of its own process group.
   SubprocessOptions& InGroup(bool in_group) &;
   SubprocessOptions InGroup(bool in_group) &&;
