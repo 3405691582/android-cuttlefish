@@ -154,7 +154,7 @@ Result<Fd> Fd::Dup(int unmanaged_fd) {
 
 Result<std::pair<Fd, Fd>> Fd::Pipe() {
   int fds[2];
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   const int rval = TEMP_FAILURE_RETRY(pipe2(fds, O_CLOEXEC));
   CF_EXPECTF(rval != -1, "pipe2(..., O_CLOEXEC) failed: {}",
              ::cuttlefish::StrError(errno));
