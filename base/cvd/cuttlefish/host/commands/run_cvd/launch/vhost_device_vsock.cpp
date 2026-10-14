@@ -116,10 +116,14 @@ bool VhostDeviceVsock::Enabled() const { return instance_.vhost_user_vsock(); }
 
 Result<void> VhostDeviceVsock::WaitForAvailability() {
   if (Enabled()) {
+#ifdef __linux__
     CF_EXPECT(WaitForUnixSocket(
         fmt::format("{}/vsock_{}_{}/vm.vsock", TempDir(),
                     instance_.vsock_guest_cid(), std::to_string(getuid())),
         30));
+#else
+    return CF_ERR("vhost-device-vsock is only supported on Linux.");
+#endif
   }
   return {};
 }
