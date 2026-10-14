@@ -32,6 +32,8 @@
 #include "cuttlefish/process/managed_stdio.h"
 #include "cuttlefish/result/result.h"
 
+#ifdef __linux__
+
 namespace cuttlefish {
 
 Result<void> WaitForUnixSocket(const std::string& path, int timeoutSec) {
@@ -107,3 +109,5 @@ Result<void> WaitForUnixSocketListeningWithoutConnect(const std::string& path,
 }
 
 }  // namespace cuttlefish
+
+#endif
