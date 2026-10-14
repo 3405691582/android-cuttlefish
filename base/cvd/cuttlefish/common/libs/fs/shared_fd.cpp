@@ -160,7 +160,7 @@ bool SharedFD::Pipe(SharedFD* fd0, SharedFD* fd1) {
   return false;
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
 SharedFD SharedFD::ShmOpen(const std::string& name, int oflag, int mode) {
   return Fd::ShmOpen(name, oflag, mode).value_or(Fd());
 }

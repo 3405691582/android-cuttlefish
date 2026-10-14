@@ -180,7 +180,9 @@ Result<Fd> Fd::Event(int initval, int flags) {
              ::cuttlefish::StrError(errno));
   return Fd(fd, 0);
 }
+#endif
 
+#if defined(__linux__) || defined(__OpenBSD__)
 Result<Fd> Fd::ShmOpen(std::string_view name, int oflag, int mode) {
   std::string name_str(name);
   const int fd = TEMP_FAILURE_RETRY(shm_open(name_str.c_str(), oflag, mode));

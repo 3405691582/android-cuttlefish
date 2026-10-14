@@ -131,6 +131,8 @@ class Fd : public ReaderWriterSeeker {
 #ifdef __linux__
   static Result<Fd> Event(int initval = 0, int flags = 0);
   static Result<Fd> InotifyFd();
+#endif
+#if defined(__linux__) || defined(__OpenBSD__)
   static Result<Fd> ShmOpen(std::string_view name, int oflag, int mode);
 #endif
   // Only functional on Linux (see vm_sockets.h); the AF_VSOCK variants fail

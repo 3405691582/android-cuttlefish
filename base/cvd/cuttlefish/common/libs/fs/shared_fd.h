@@ -137,7 +137,7 @@ class SharedFD {
   // All SharedFDs have the O_CLOEXEC flag after creation. To remove use the
   // Fcntl or Dup functions.
   static bool Pipe(SharedFD* fd0, SharedFD* fd1);
-#ifdef __linux__
+#if defined(__linux__) || defined(__OpenBSD__)
   static SharedFD ShmOpen(const std::string& name, int oflag, int mode);
 #endif
   static SharedFD MemfdCreateWithData(const std::string& name,
