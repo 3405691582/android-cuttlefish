@@ -1,0 +1,58 @@
+name: Kokoro merge queue gate
+
+# Kokoro posts `kokoro_*` commit statuses. On pull requests it runs on demand
+# (via the `kokoro:run` / `kokoro:force-run` labels); on the merge queue's
+# `gh-readonly-queue/*` branches it runs automatically.
+#
+# First step towards gating the merge queue on Kokoro without requiring it on
+# pull requests: on merge queue commits, check that Kokoro has been triggered
+# at all. Kokoro posts a `pending` status for its top-level jobs within about
+# a minute of the push, so if no `kokoro*` status has appeared after the
+# deadline, something is wrong with the trigger and we fail fast rather than
+# letting the queue wait for results that will never arrive. The job is
+# skipped on pull requests, which satisfies a required check.
+
+on:
+  # Needed so the check is reported (as skipped) on PR heads; a required
+  # check that never reports would block enqueueing.
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  kokoro-merge-queue-gate:
+    name: kokoro-merge-queue-gate
+    if: github.event_name == 'merge_group'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      statuses: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      COMMIT_SHA: ${{ github.sha }}
+      DEADLINE_SECONDS: 600  # 10 minutes
+      POLL_INTERVAL_SECONDS: 30
+    steps:
+      - name: Check that Kokoro was triggered on the merge queue commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          deadline=$(( SECONDS + DEADLINE_SECONDS ))
+          while true; do
+            contexts="$(gh api "repos/${GH_REPO}/commits/${COMMIT_SHA}/status" \
+              --jq '[.statuses[].context | select(startswith("kokoro"))] | join(" ")')"
+            if [[ -n "${contexts}" ]]; then
+              echo "Kokoro triggered on ${COMMIT_SHA}: ${contexts}"
+              exit 0
+            fi
+            if [[ "${SECONDS}" -ge "${deadline}" ]]; then
+              echo "::error::No kokoro* status on ${COMMIT_SHA} after ${DEADLINE_SECONDS}s; Kokoro was not triggered."
+              exit 1
+            fi
+            echo "$(date -u +%FT%TZ) no kokoro* status yet, retrying in ${POLL_INTERVAL_SECONDS}s"
+            sleep "${POLL_INTERVAL_SECONDS}"
+          done
