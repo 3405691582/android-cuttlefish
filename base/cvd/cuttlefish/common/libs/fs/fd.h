@@ -131,11 +131,11 @@ class Fd : public ReaderWriterSeeker {
                                            bool is_abstract, int in_type,
                                            mode_t mode);
   static Result<Fd, int> SocketLocalServer(int port, int type);
+  static Result<Fd, int> ShmOpen(std::string_view name, int oflag, int mode);
 
 #ifdef __linux__
   static Result<Fd, int> Event(int initval = 0, int flags = 0);
   static Result<Fd, int> InotifyFd();
-  static Result<Fd, int> ShmOpen(std::string_view name, int oflag, int mode);
 #endif
   // Only functional on Linux (see vm_sockets.h); the AF_VSOCK variants fail
   // with EAFNOSUPPORT elsewhere.
