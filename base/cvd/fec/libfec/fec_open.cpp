@@ -374,10 +374,15 @@ static int get_size(fec_handle *f)
     if (S_ISBLK(st.st_mode)) {
         debug("block device");
 
+#if defined(BLKGETSIZE64)
         if (ioctl(f->fd, BLKGETSIZE64, &f->size) == -1) {
             error("ioctl failed: %s", strerror(errno));
             return -1;
         }
+#else
+        error("block devices are not supported on this platform");
+        return -1;
+#endif
     } else if (S_ISREG(st.st_mode)) {
         debug("file");
         f->size = st.st_size;

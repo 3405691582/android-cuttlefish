@@ -41,6 +41,9 @@ extern "C" {
     #include <sys/disk.h>
     #define BLKGETSIZE64 DKIOCGETBLOCKCOUNT
     #define O_LARGEFILE 0
+#else
+    #define O_LARGEFILE 0
+    #define lseek64 lseek
 #endif
 
 void image_init(image *ctx)
