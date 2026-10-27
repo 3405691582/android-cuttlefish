@@ -14,4 +14,16 @@
  * limitations under the License.
  */
 
-/* Stub */
+#pragma once
+
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <android-base/macros.h>
+
+#ifndef __linux__
+static_assert(sizeof(off_t) >= 8, "This code requires a 64-bit off_t.");
+#define lseek64 lseek
+#define pread64 pread
+#define pwrite64 pwrite
+#endif
