@@ -40,6 +40,9 @@ extern "C" {
 #elif defined(__APPLE__)
     #include <sys/disk.h>
     #define BLKGETSIZE64 DKIOCGETBLOCKCOUNT
+#endif
+
+#ifndef O_LARGEFILE
     #define O_LARGEFILE 0
 #endif
 
