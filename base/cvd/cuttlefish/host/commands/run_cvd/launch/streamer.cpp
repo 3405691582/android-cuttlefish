@@ -280,8 +280,10 @@ class WebRtcServer : public virtual CommandSource,
 
   // SetupFeature
   bool Enabled() const override {
+    // crosvm depends on the streamer; qemu does not, so there it is optional.
     return sockets_.Enabled() && instance_.gpu_mode() != GpuMode::None &&
-           (VmManagerIsCrosvm(config_) || VmManagerIsQemu(config_));
+           (VmManagerIsCrosvm(config_) ||
+            (VmManagerIsQemu(config_) && instance_.enable_webrtc()));
   }
 
  private:
