@@ -29,6 +29,7 @@ constexpr std::string_view kAcloud = "acloud";
 constexpr std::string_view kCvdr = "cvdr";
 constexpr std::string_view kHostOrchestrator = "host_orchestrator";
 constexpr std::string_view kLaunchCvd = "launch_cvd";
+constexpr std::string_view kOxygenationContainer = "oxygenation_container";
 constexpr std::string_view kPodcvd = "podcvd";
 constexpr std::string_view kInvokerVariable = "CVD_INVOKER";
 
@@ -47,6 +48,8 @@ Invoker GetInvoker() {
     return Invoker::HostOrchestrator;
   } else if (invoker_value == kLaunchCvd) {
     return Invoker::LaunchCvd;
+  } else if (invoker_value == kOxygenationContainer) {
+    return Invoker::OxygenationContainer;
   } else if (invoker_value == kPodcvd) {
     return Invoker::Podcvd;
   } else {
