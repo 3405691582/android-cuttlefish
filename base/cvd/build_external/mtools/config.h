@@ -62,7 +62,9 @@
 #define HAVE_HTONS 1
 
 /* Define to 1 if you have the <iconv.h> header file. */
+#if !defined(__OpenBSD__)
 #define HAVE_ICONV_H 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -116,7 +118,9 @@
 #define HAVE_LSTAT 1
 
 /* Define to 1 if you have the <malloc.h> header file. */
+#if defined(__linux__)
 #define HAVE_MALLOC_H 1
+#endif
 
 /* Define to 1 if you have the `media_oldaliases' function. */
 /* #undef HAVE_MEDIA_OLDALIASES */
@@ -140,7 +144,9 @@
 #define HAVE_MKDIR 1
 
 /* Define to 1 if you have the <mntent.h> header file. */
+#if defined(__linux__)
 #define HAVE_MNTENT_H 1
+#endif
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #define HAVE_NETDB_H 1
@@ -296,7 +302,9 @@
 #define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/sysmacros.h> header file. */
+#if defined(__linux__)
 #define HAVE_SYS_SYSMACROS_H 1
+#endif
 
 /* Define to 1 if you have the <sys/termios.h> header file. */
 /* #undef HAVE_SYS_TERMIOS_H */
@@ -388,7 +396,9 @@
 
 /* Define to 1 if `major', `minor', and `makedev' are declared in
    <sysmacros.h>. */
+#if defined(__linux__)
 #define MAJOR_IN_SYSMACROS 1
+#endif
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
