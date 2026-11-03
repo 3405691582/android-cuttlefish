@@ -5,5 +5,9 @@ git_repository(
     name = "selinux",
     build_file = "@//build_external/selinux:BUILD.selinux.bazel",
     commit = "6f8f496eabd35f28dfa6b4be5fc82e325e1df620",
+    patch_strip = 1,
+    # Hosts without xattrs/netlink/selinuxfs (OpenBSD): keep the label file
+    # parsing used by sefcontext_compile/e2fsdroid, stub the kernel interfaces.
+    patches = ["@//build_external/selinux:openbsd.patch"],
     remote = "https://android.googlesource.com/platform/external/selinux",
 )
