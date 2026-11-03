@@ -1,0 +1,17 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+package(
+    default_visibility = [
+        "@libusb//:__subpackages__",
+    ],
+)
+
+# The libusb checkout only carries generated config.h files for Linux and
+# macOS; this is the OpenBSD one.
+cc_library(
+    name = "libusb_config_openbsd",
+    hdrs = [
+        "openbsd/config.h",
+    ],
+    strip_include_prefix = "//build_external/libusb/openbsd",
+)
