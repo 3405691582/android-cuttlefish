@@ -41,3 +41,15 @@ diff -ruN a/libcutils/include/private/fs_config.h b/libcutils/include/private/fs
  
  /* Rules for directories and files has moved to system/code/libcutils/fs_config.c */
  
+diff -ruN a/libcutils/include/cutils/fs.h b/libcutils/include/cutils/fs.h
+--- a/libcutils/include/cutils/fs.h
++++ b/libcutils/include/cutils/fs.h
+@@ -28,7 +28,7 @@
+ #ifndef TEMP_FAILURE_RETRY
+ /* Used to retry syscalls that can return EINTR. */
+ #define TEMP_FAILURE_RETRY(exp) ({         \
+-    typeof (exp) _rc;                      \
++    __typeof__(exp) _rc;                   \
+     do {                                   \
+         _rc = (exp);                       \
+     } while (_rc == -1 && errno == EINTR); \
