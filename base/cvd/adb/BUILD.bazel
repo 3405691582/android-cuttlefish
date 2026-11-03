@@ -92,9 +92,6 @@ cc_binary(
         "client/usb_libusb_hotplug.h",
         "client/usb_libusb_inhouse_hotplug.cpp",
         "client/usb_libusb_inhouse_hotplug.h",
-        "client/usb_linux.cpp",
-        "client/usb_linux_netlink.cpp",
-        "client/usb_linux_netlink.h",
         "compression_utils.h",
         "crypto/include/adb/crypto/key.h",
         "crypto/include/adb/crypto/rsa_2048_key.h",
@@ -108,6 +105,8 @@ cc_binary(
         "fdevent/fdevent.h",
         "fdevent/fdevent_epoll.cpp",
         "fdevent/fdevent_epoll.h",
+        "fdevent/fdevent_poll.cpp",
+        "fdevent/fdevent_poll.h",
         "file_sync_protocol.h",
         "libcrypto_utils/android_pubkey.cpp",
         "libcrypto_utils/include/crypto_utils/android_pubkey.h",
@@ -147,7 +146,15 @@ cc_binary(
         "types.h",
         "version/build/version.h",
         "version/platform_tools_version.h",
-    ],
+    ] + select({
+        # Native (non-libusb) USB backend.
+        "@platforms//os:linux": [
+            "client/usb_linux.cpp",
+            "client/usb_linux_netlink.cpp",
+            "client/usb_linux_netlink.h",
+        ],
+        "//conditions:default": ["client/usb_unsupported.cpp"],
+    }),
     copts = [
         "-Wno-inconsistent-missing-override",
         "-Wno-thread-safety-attributes",
