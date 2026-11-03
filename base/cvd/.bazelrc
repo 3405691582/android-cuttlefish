@@ -113,3 +113,6 @@ build:openbsd --linkopt=-Wl,-z,origin
 # Reused sandbox directories occasionally fail with "Could not copy inputs into
 # sandbox: ... (File exists)" on OpenBSD; set up a fresh one for every action.
 build:openbsd --noreuse_sandbox_directories
+# Packages (e.g. liblzma, needed by @libzip) live under /usr/local, which the
+# OpenBSD toolchain does not search by default.
+build:openbsd --linkopt=-L/usr/local/lib
