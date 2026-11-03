@@ -55,7 +55,7 @@
 #include "sysdeps/network.h"
 #include "sysdeps/stat.h"
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__OpenBSD__)
 static inline void* mempcpy(void* dst, const void* src, size_t n) {
     return static_cast<char*>(memcpy(dst, src, n)) + n;
 }
@@ -427,6 +427,10 @@ size_t ParseCompleteUTF8(const char* first, const char* last, std::vector<char>*
 
 #include <cutils/sockets.h>
 
+#if defined(__OpenBSD__)
+#include <pthread_np.h>
+#endif
+
 #define OS_PATH_SEPARATORS "/"
 #define OS_PATH_SEPARATOR '/'
 #define OS_PATH_SEPARATOR_STR "/"
@@ -528,7 +532,7 @@ static inline int adb_read(borrowed_fd fd, void* buf, size_t len) {
 }
 
 static inline int adb_pread(borrowed_fd fd, void* buf, size_t len, off64_t offset) {
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__OpenBSD__)
     return TEMP_FAILURE_RETRY(pread(fd.get(), buf, len, offset));
 #else
     return TEMP_FAILURE_RETRY(pread64(fd.get(), buf, len, offset));
@@ -550,7 +554,7 @@ static inline int adb_write(borrowed_fd fd, const void* buf, size_t len) {
 }
 
 static inline int adb_pwrite(int fd, const void* buf, size_t len, off64_t offset) {
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__OpenBSD__)
     return TEMP_FAILURE_RETRY(pwrite(fd, buf, len, offset));
 #else
     return TEMP_FAILURE_RETRY(pwrite64(fd, buf, len, offset));
@@ -563,7 +567,7 @@ static inline int adb_pwrite(int fd, const void* buf, size_t len, off64_t offset
 #define pwrite ___xxx_pwrite
 
 static inline int64_t adb_lseek(borrowed_fd fd, int64_t pos, int where) {
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__OpenBSD__)
     return lseek(fd.get(), pos, where);
 #else
     return lseek64(fd.get(), pos, where);
@@ -660,6 +664,9 @@ inline int adb_socket_get_local_port(borrowed_fd fd) {
 static inline int adb_thread_setname(const std::string& name) {
 #ifdef __APPLE__
     return pthread_setname_np(name.c_str());
+#elif defined(__OpenBSD__)
+    pthread_set_name_np(pthread_self(), name.c_str());
+    return 0;
 #else
     // Both bionic and glibc's pthread_setname_np fails rather than truncating long strings.
     // glibc doesn't have strlcpy, so we have to fake it.

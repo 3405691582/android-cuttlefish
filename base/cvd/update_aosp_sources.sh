@@ -143,7 +143,7 @@ update_adb() {
     find . -name '*.map.txt' -delete
 
     # Remove osx and windows support
-    find . \( -name '*_osx*' -o -name 'fdevent_poll*' -o -name '*_windows*' -o -name '*win32*' \) -exec rm -rf {} +
+    find . \( -name '*_osx*' -o -name '*_windows*' -o -name '*win32*' \) -exec rm -rf {} +
 
     # Remove all tests, as they are not built and have additional dependencies
     find . \( -name '*_test.*' -o -name tests -o -name 'test_*' \) -exec rm -rf {} +
@@ -169,6 +169,8 @@ update_adb() {
   # version.h and platform_tools_version.h are generated files in AOSP
   preserve_file "adb" "${staging}" "version/build/version.h"
   preserve_file "adb" "${staging}" "version/platform_tools_version.h"
+  # usb_unsupported.cpp stubs the native USB backend outside of Linux
+  preserve_file "adb" "${staging}" "client/usb_unsupported.cpp"
 }
 
 update_fastboot() {
