@@ -16,7 +16,6 @@ cc_library(
         "liblog/logger_write.cpp",
         "liblog/logger_write.h",
         "liblog/logprint.cpp",
-        "liblog/pmsg_reader.cpp",
         "liblog/pmsg_reader.h",
         "liblog/properties.cpp",
         "liblog/uio.h",
