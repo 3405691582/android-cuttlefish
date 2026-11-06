@@ -15,7 +15,7 @@
 
 #include "cuttlefish/io/lz4_legacy.h"
 
-#include <endian.h>
+#include <android-base/endian.h>
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>

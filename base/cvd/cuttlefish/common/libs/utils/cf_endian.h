@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <endian.h>
+#include <android-base/endian.h>
 #include <inttypes.h>
 
 // The utilities in android-base/endian.h still require the use of regular int

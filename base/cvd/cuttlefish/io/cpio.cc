@@ -15,7 +15,7 @@
 
 #include "cuttlefish/io/cpio.h"
 
-#include <endian.h>
+#include <android-base/endian.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
