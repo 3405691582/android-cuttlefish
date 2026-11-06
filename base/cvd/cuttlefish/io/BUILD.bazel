@@ -101,6 +101,7 @@ cf_cc_library(
         "//cuttlefish/io:reader_seeker",
         "//cuttlefish/result:expect",
         "//cuttlefish/result:result_type",
+        "@android_system_libbase//:endian",
     ],
 )
 
@@ -297,6 +298,7 @@ cf_cc_library(
         "//cuttlefish/io:writer",
         "//cuttlefish/result:expect",
         "//cuttlefish/result:result_type",
+        "@android_system_libbase//:endian",
         "@lz4",
     ],
 )
