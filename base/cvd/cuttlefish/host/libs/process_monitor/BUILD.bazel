@@ -22,6 +22,7 @@ cf_cc_library(
         "//cuttlefish/posix:strerror",
         "//cuttlefish/posix:temp_failure_retry",
         "//cuttlefish/process:command",
+        "//cuttlefish/process:parent_death_helper",
         "//cuttlefish/process:subprocess",
         "//cuttlefish/result",
         "@abseil-cpp//absl/log",

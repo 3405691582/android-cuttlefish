@@ -25,8 +25,8 @@ class SubprocessOptions {
       : verbose_(true), exit_with_parent_(true), in_group_(false) {}
   SubprocessOptions& Verbose(bool verbose) &;
   SubprocessOptions Verbose(bool verbose) &&;
-  // Only honored on Linux (PR_SET_PDEATHSIG); accepted everywhere so callers
-  // need no platform conditionals.
+  // The subprocess gets SIGHUP when its spawner exits: PR_SET_PDEATHSIG on
+  // Linux, the ParentDeathHelper elsewhere.
   SubprocessOptions& ExitWithParent(bool exit_with_parent) &;
   SubprocessOptions ExitWithParent(bool exit_with_parent) &&;
   // The subprocess runs as head of its own process group.

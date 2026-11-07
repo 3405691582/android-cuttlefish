@@ -50,6 +50,7 @@
 #include "cuttlefish/common/libs/utils/contains.h"
 #include "cuttlefish/common/libs/utils/files.h"
 #include "cuttlefish/posix/temp_failure_retry.h"  // IWYU pragma: keep
+#include "cuttlefish/process/parent_death_helper.h"
 #include "cuttlefish/process/subprocess.h"
 #include "cuttlefish/process/subprocess_options.h"
 #include "cuttlefish/result/result.h"
@@ -269,15 +270,27 @@ Subprocess Command::Start(SubprocessOptions options) const {
 
   // ToCharPointers allocates memory so it can't be called in the child process.
   auto envp = ToCharPointers(env_);
+  if (options.ExitWithParent() && ParentDeathHelper::Enabled()) {
+    Result<void> helper = ParentDeathHelper::Ensure();
+    if (!helper.has_value()) {
+      LOG(ERROR) << "Failed to start the parent death helper: "
+                 << helper.error();
+      return Subprocess(-1, {});
+    }
+  }
   pid_t pid = fork();
   if (!pid) {
     // LOG(...) can't be used in the child process because it may block waiting
     // for other threads which don't exist in the child process.
-#ifdef __linux__
     if (options.ExitWithParent()) {
-      prctl(PR_SET_PDEATHSIG, SIGHUP);  // Die when parent dies
-    }
+      if (ParentDeathHelper::Enabled()) {
+        ParentDeathHelper::RegisterSelfPreExec(SIGHUP);
+      } else {
+#ifdef __linux__
+        prctl(PR_SET_PDEATHSIG, SIGHUP);  // Die when parent dies
 #endif
+      }
+    }
 
     do_redirects(redirects_);
 

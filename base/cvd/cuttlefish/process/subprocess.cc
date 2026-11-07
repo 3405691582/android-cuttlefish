@@ -29,6 +29,7 @@
 
 #include "cuttlefish/posix/strerror.h"
 #include "cuttlefish/posix/temp_failure_retry.h"  // IWYU pragma: keep
+#include "cuttlefish/process/parent_death_helper.h"
 #include "cuttlefish/result/expect.h"
 #include "cuttlefish/result/result_type.h"
 
@@ -71,6 +72,9 @@ int Subprocess::Wait() {
     return wait_ret;
   }
   int retval = 0;
+  if (WIFEXITED(wstatus) || WIFSIGNALED(wstatus)) {
+    ParentDeathHelper::Forget(pid);
+  }
   if (WIFEXITED(wstatus)) {
     pid_ = -1;
     retval = WEXITSTATUS(wstatus);
@@ -98,6 +102,7 @@ Result<siginfo_t> Subprocess::Wait(int options) {
   bool reaped = !(options & WNOWAIT);
   pid_t tracked = pid_;
   if (exited && reaped) {
+    ParentDeathHelper::Forget(pid_);
     pid_ = -1;
   }
   CF_EXPECT_EQ(retval, 0,

@@ -44,6 +44,7 @@
 #include "cuttlefish/posix/strerror.h"
 #include "cuttlefish/posix/temp_failure_retry.h"  // IWYU pragma: keep
 #include "cuttlefish/process/command.h"
+#include "cuttlefish/process/parent_death_helper.h"
 #include "cuttlefish/process/subprocess.h"
 #include "cuttlefish/result/result.h"
 
@@ -447,8 +448,14 @@ Result<void> ProcessMonitor::StartAndMonitorProcesses() {
   SharedFD parent_sock;
   SharedFD child_sock;
   SharedFD::SocketPair(AF_UNIX, SOCK_STREAM, 0, &parent_sock, &child_sock);
+  if (ParentDeathHelper::Enabled()) {
+    CF_EXPECT(ParentDeathHelper::Ensure());
+  }
   monitor_ = fork();
   if (monitor_ == 0) {
+    if (ParentDeathHelper::Enabled()) {
+      ParentDeathHelper::RegisterSelfPreExec(SIGHUP);  // Die when parent dies
+    }
     pipe_read->Close();
     child_channel_ = transport::SharedFdChannel(child_sock, child_sock);
     child_sock_ = std::move(child_sock);
@@ -471,7 +478,9 @@ Result<void> ProcessMonitor::MonitorRoutine() {
   // Make this process a subreaper to reliably catch subprocess exits.
   // See https://man7.org/linux/man-pages/man2/prctl.2.html
   prctl(PR_SET_CHILD_SUBREAPER, 1);
-  prctl(PR_SET_PDEATHSIG, SIGHUP);  // Die when parent dies
+  if (!ParentDeathHelper::Enabled()) {
+    prctl(PR_SET_PDEATHSIG, SIGHUP);  // Die when parent dies
+  }
 #endif
 
   VLOG(0) << "Monitoring subprocesses";
