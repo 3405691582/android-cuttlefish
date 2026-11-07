@@ -38,6 +38,8 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/inotify.h>
+#else
+#include <sys/event.h>
 #endif
 
 #include <chrono>
@@ -136,6 +138,8 @@ class Fd : public ReaderWriterSeeker {
 #ifdef __linux__
   static Result<Fd, int> Event(int initval = 0, int flags = 0);
   static Result<Fd, int> InotifyFd();
+#else
+  static Result<Fd, int> Kqueue();
 #endif
   // Usages outside of Linux without vhost-user-vsock use AF_VSOCK and fail
   // with EAFNOSUPPORT.
@@ -264,6 +268,11 @@ class Fd : public ReaderWriterSeeker {
   // inotify related functions
   int InotifyAddWatch(const std::string& pathname, uint32_t mask);
   void InotifyRmWatch(int watch);
+#else
+  // kqueue related functions
+  int Kevent(const struct kevent* changes, int nchanges, struct kevent* events,
+             int nevents, const struct timespec* timeout);
+  Result<void, int> KqueueWatchVnode(const Fd& vnode, uint32_t fflags);
 #endif
 
  private:

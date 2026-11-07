@@ -110,6 +110,30 @@ cf_cc_test(
 )
 
 cf_cc_library(
+    name = "file_watch",
+    srcs = ["file_watch.cc"],
+    hdrs = ["file_watch.h"],
+    deps = [
+        "//cuttlefish/common/libs/fs",
+        "//cuttlefish/common/libs/fs:fd",
+        "//cuttlefish/posix:strerror",
+        "//cuttlefish/result",
+    ],
+)
+
+cf_cc_test(
+    name = "file_watch_test",
+    srcs = ["file_watch_test.cc"],
+    deps = [
+        "//cuttlefish/common/libs/fs",
+        "//cuttlefish/common/libs/utils:file_watch",
+        "//cuttlefish/result",
+        "//cuttlefish/result:result_matchers",
+        "@android_system_libbase//:file_logging",
+    ],
+)
+
+cf_cc_library(
     name = "files",
     srcs = ["files.cpp"],
     hdrs = ["files.h"],

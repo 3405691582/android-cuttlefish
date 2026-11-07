@@ -217,6 +217,12 @@ Result<Fd, int> Fd::InotifyFd(void) {
               ::cuttlefish::StrError());
   return Fd(fd, 0);
 }
+#else
+Result<Fd, int> Fd::Kqueue() {
+  const int fd = kqueue();
+  CF_EXPECTVF(fd >= 0, errno, "kqueue() failed: {}", ::cuttlefish::StrError());
+  return Fd(fd, 0);
+}
 #endif
 
 Result<Fd, int> Fd::Creat(std::string_view path, mode_t mode) {
@@ -985,6 +991,26 @@ int Fd::InotifyAddWatch(const std::string& pathname, uint32_t mask) {
 }
 
 void Fd::InotifyRmWatch(int watch) { inotify_rm_watch(fd_, watch); }
+#else
+// kqueue related functions
+int Fd::Kevent(const struct kevent* changes, int nchanges,
+               struct kevent* events, int nevents,
+               const struct timespec* timeout) {
+  errno = 0;
+  int rval = TEMP_FAILURE_RETRY(
+      kevent(fd_, changes, nchanges, events, nevents, timeout));
+  errno_ = errno;
+  return rval;
+}
+
+Result<void, int> Fd::KqueueWatchVnode(const Fd& vnode, uint32_t fflags) {
+  struct kevent change;
+  EV_SET(&change, vnode.fd_, EVFILT_VNODE, EV_ADD | EV_CLEAR, fflags, 0,
+         nullptr);
+  CF_EXPECTVF(Kevent(&change, 1, nullptr, 0, nullptr) >= 0, errno_,
+              "kevent(EV_ADD) failed: {}", StrError());
+  return {};
+}
 #endif
 
 Fd::Fd(int fd, int in_errno)
