@@ -16,30 +16,29 @@
 
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/monitor.h"
 
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/inotify.h>
 #include <sys/poll.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "absl/cleanup/cleanup.h"
 #include "absl/strings/str_cat.h"
 
 #include "cuttlefish/ansi_codes/ansi_codes.h"
-#include "cuttlefish/common/libs/fs/fd.h"
 #include "cuttlefish/common/libs/fs/shared_fd.h"
+#include "cuttlefish/common/libs/utils/file_watch.h"
 #include "cuttlefish/common/libs/utils/tee_logging.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/display.h"
-#include "cuttlefish/host/commands/cvd/cli/commands/monitor/drain_inotify.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/log_sources.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/monitor_source.h"
 #include "cuttlefish/host/commands/cvd/cli/utils.h"
@@ -58,14 +57,11 @@ Result<void> MonitorLogs(const LocalInstance& instance, SharedFD stop_fd,
   std::unique_ptr<MonitorSource> launcher_monitor_source;
   std::unique_ptr<MonitorSource> logcat_monitor_source;
 
-  const SharedFD dir_inotify_fd = CF_EXPECT(Fd::InotifyFd());
-  const int flags = dir_inotify_fd->Fcntl(F_GETFL, 0);
-  CF_EXPECT(dir_inotify_fd->Fcntl(F_SETFL, flags | O_NONBLOCK) != -1,
-            "Failed to set inotify fd to non-blocking");
-
   const std::string logs_dir =
       absl::StrCat(instance.InstanceDirectory(), "/logs");
-  dir_inotify_fd->InotifyAddWatch(logs_dir, IN_CREATE | IN_DELETE);
+  // The logs directory may not exist yet while the device is starting;
+  // keep trying until it does.
+  std::optional<FileWatch> dir_watch;
 
   std::chrono::steady_clock::time_point last_draw_time =
       std::chrono::steady_clock::time_point();
@@ -78,6 +74,13 @@ Result<void> MonitorLogs(const LocalInstance& instance, SharedFD stop_fd,
   };
 
   while (true) {
+    if (!dir_watch.has_value()) {
+      Result<FileWatch> watch =
+          FileWatch::Create(logs_dir, FileWatch::kCreate | FileWatch::kRemove);
+      if (watch.has_value()) {
+        dir_watch = std::move(*watch);
+      }
+    }
     if (!kernel_monitor_source.get()) {
       kernel_monitor_source = KernelLogMonitorSource(instance);
     }
@@ -131,12 +134,18 @@ Result<void> MonitorLogs(const LocalInstance& instance, SharedFD stop_fd,
     last_draw_time = std::chrono::steady_clock::now();
 
     // Setup poll_fds
-    std::vector<PollSharedFd> poll_fds = {
-        PollSharedFd{.fd = dir_inotify_fd, .events = POLLIN, .revents = 0},
-    };
+    std::vector<PollSharedFd> poll_fds;
     if (stop_fd->IsOpen()) {
       poll_fds.push_back(
           PollSharedFd{.fd = stop_fd, .events = POLLIN, .revents = 0});
+    }
+    const size_t stop_index = 0;
+    const size_t dir_index = poll_fds.size();
+    if (dir_watch.has_value()) {
+      poll_fds.push_back(PollSharedFd{
+          .fd = dir_watch->ReadyFd(), .events = POLLIN, .revents = 0});
+    } else {
+      missing_source = true;
     }
     for (MonitorSource* source : sources) {
       if (source == nullptr) {
@@ -156,13 +165,13 @@ Result<void> MonitorLogs(const LocalInstance& instance, SharedFD stop_fd,
     int poll_res = SharedFD::Poll(poll_fds, missing_source ? 200 : -1);
     CF_EXPECT_GE(poll_res, 0, StrError());
 
-    if (stop_fd->IsOpen() && (poll_fds[1].revents & POLLIN)) {
+    if (stop_fd->IsOpen() && (poll_fds[stop_index].revents & POLLIN)) {
       return {};
     }
 
-    if (poll_fds[0].revents & POLLIN) {
-      uint32_t events = DrainInotifyEvents(dir_inotify_fd).value_or(IN_DELETE);
-      if ((events & IN_DELETE) > 0) {
+    if (dir_watch.has_value() && (poll_fds[dir_index].revents & POLLIN)) {
+      uint32_t events = dir_watch->Drain().value_or(FileWatch::kRemove);
+      if ((events & FileWatch::kRemove) > 0) {
         launcher_monitor_source.reset();
         kernel_monitor_source.reset();
         logcat_monitor_source.reset();

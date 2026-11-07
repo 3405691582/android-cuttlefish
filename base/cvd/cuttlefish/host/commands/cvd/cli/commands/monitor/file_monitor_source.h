@@ -24,6 +24,7 @@
 #include <string_view>
 
 #include "cuttlefish/common/libs/fs/shared_fd.h"
+#include "cuttlefish/common/libs/utils/file_watch.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/monitor_source.h"
 #include "cuttlefish/io/reader_seeker.h"
 #include "cuttlefish/result/result_type.h"
@@ -47,7 +48,7 @@ class FileMonitorSource : public MonitorSource {
   std::unique_ptr<ReaderSeeker> file_io_;
   std::function<Result<std::string>(std::string_view)> colorize_line_;
   std::function<Result<bool>(std::string_view)> filter_line_;
-  SharedFD inotify_fd_;
+  std::unique_ptr<FileWatch> watch_;
 };
 
 }  // namespace cuttlefish

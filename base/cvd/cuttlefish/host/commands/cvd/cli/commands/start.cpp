@@ -58,9 +58,7 @@
 #include "cuttlefish/flag_parser/gflags_compat.h"
 #include "cuttlefish/host/commands/cvd/cli/command_request.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/host_tool_target.h"
-#ifdef __linux__
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/monitor.h"
-#endif
 #include "cuttlefish/host/commands/cvd/cli/help_format.h"
 #include "cuttlefish/host/commands/cvd/cli/selector/selector.h"
 #include "cuttlefish/host/commands/cvd/cli/utils.h"
@@ -467,7 +465,6 @@ Result<void> CvdStartCommandHandler::Handle(const CommandRequest& request) {
   CF_EXPECT(instance_manager_.UpdateInstanceGroup(group));
 
   Result<void> monitor_res;
-#ifdef __linux__
   std::thread monitor_thread;
 
   if (!own_flags_.daemon) {
@@ -488,15 +485,6 @@ Result<void> CvdStartCommandHandler::Handle(const CommandRequest& request) {
       monitor_thread.join();
     }
   };
-#else
-  // Without the log monitor the foreground start just waits for the stop.
-  auto wait_for_monitor = [stop_read]() {
-    if (stop_read->IsOpen()) {
-      char unused;
-      (void)stop_read->Read(&unused, 1);
-    }
-  };
-#endif
 
   Result<void> launch_res =
       LaunchDeviceInterruptible(std::move(command), group, envs, request);

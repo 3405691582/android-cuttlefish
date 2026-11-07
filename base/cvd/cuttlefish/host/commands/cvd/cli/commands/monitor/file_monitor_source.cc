@@ -16,10 +16,8 @@
 
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/file_monitor_source.h"
 
-#include <fcntl.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/inotify.h>
 
 #include <algorithm>
 #include <functional>
@@ -34,9 +32,8 @@
 #include "absl/strings/str_split.h"
 #include "android-base/file.h"
 
-#include "cuttlefish/common/libs/fs/fd.h"
 #include "cuttlefish/common/libs/fs/shared_fd.h"
-#include "cuttlefish/host/commands/cvd/cli/commands/monitor/drain_inotify.h"
+#include "cuttlefish/common/libs/utils/file_watch.h"
 #include "cuttlefish/host/commands/cvd/cli/commands/monitor/monitor_source.h"
 #include "cuttlefish/host/commands/cvd/cli/format_byte_size.h"
 #include "cuttlefish/io/read_exact.h"
@@ -113,11 +110,10 @@ FileMonitorSource::FileMonitorSource(
       file_io_(std::move(file_io)),
       colorize_line_(std::move(colorize_line)),
       filter_line_(std::move(filter_line)) {
-  inotify_fd_ = Fd::InotifyFd().value_or(Fd());
-  CHECK(inotify_fd_->IsOpen()) << inotify_fd_->StrError();
-  CHECK_GE(inotify_fd_->InotifyAddWatch(path_, IN_DELETE_SELF | IN_MODIFY), 0);
-  const int flags = inotify_fd_->Fcntl(F_GETFL, 0);
-  CHECK_GE(inotify_fd_->Fcntl(F_SETFL, flags | O_NONBLOCK), 0);
+  Result<FileWatch> watch =
+      FileWatch::Create(path_, FileWatch::kModify | FileWatch::kDelete);
+  CHECK(watch.has_value()) << watch.error().FormatForEnv(true);
+  watch_ = std::make_unique<FileWatch>(std::move(*watch));
 }
 
 FileMonitorSource::~FileMonitorSource() = default;
@@ -135,11 +131,11 @@ MonitorOutput FileMonitorSource::Report(size_t rows, size_t) {
     line = colorize_line_(line).value_or(line);
   }
   std::string size = FormatByteSize(file_data->total_size);
-  Result<uint32_t> unused = DrainInotifyEvents(inotify_fd_);
+  Result<uint32_t> unused = watch_->Drain();
   return MonitorOutput(absl::StrCat(basename, " (", size, ")"),
                        file_data->last_lines);
 }
 
-SharedFD FileMonitorSource::ReadyFd() { return inotify_fd_; }
+SharedFD FileMonitorSource::ReadyFd() { return watch_->ReadyFd(); }
 
 }  // namespace cuttlefish
