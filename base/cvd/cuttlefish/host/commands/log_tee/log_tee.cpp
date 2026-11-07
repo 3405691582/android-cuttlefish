@@ -13,12 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdint.h>
-#ifdef __linux__
-#include <sys/signalfd.h>
-#endif
 #include <unistd.h>
 
 #include <regex>
@@ -63,6 +62,15 @@ const std::regex kCrosvmLogPattern(
     "\\s"
     "(ERROR|WARN|INFO|DEBUG|TRACE)");
 
+// Write end of the self-pipe the SIGINT handler reports through.
+int sigint_pipe_write = -1;
+
+void OnSigint(int) {
+  char byte = 0;
+  // The pipe is non-blocking; a full pipe means a wakeup is pending.
+  (void)!write(sigint_pipe_write, &byte, sizeof(byte));
+}
+
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, /* remove_flags */ true);
 
@@ -89,18 +97,27 @@ int main(int argc, char** argv) {
                  << FLAGS_process_name;
   }
 
-  // mask SIGINT and handle it using signalfd
+  // Turn SIGINT into a readable fd (self-pipe) so the loop below can poll
+  // for it; the signal may arrive blocked from the parent, so unblock it.
+  int sigint_fds[2];
+  CHECK_EQ(pipe(sigint_fds), 0) << "pipe failed: " << StrError();
+  CHECK_NE(fcntl(sigint_fds[1], F_SETFL, O_NONBLOCK), -1)
+      << "fcntl failed: " << StrError();
+  sigint_pipe_write = sigint_fds[1];
+  struct sigaction action = {};
+  action.sa_handler = OnSigint;
+  action.sa_flags = SA_RESTART;  // poll is still interrupted, see below
+  sigemptyset(&action.sa_mask);
+  CHECK_EQ(sigaction(SIGINT, &action, nullptr), 0)
+      << "sigaction failed: " << StrError();
   sigset_t mask;  // NOLINT(misc-include-cleaner): <signal.h>
   sigemptyset(&mask);
   sigaddset(&mask, SIGINT);
-  CHECK_EQ(sigprocmask(SIG_BLOCK, &mask, nullptr), 0)
+  CHECK_EQ(sigprocmask(SIG_UNBLOCK, &mask, nullptr), 0)
       << "sigprocmask failed: " << StrError();
-#ifdef __linux__
-  int sfd = signalfd(-1, &mask, 0);
-  CHECK(sfd >= 0) << "signalfd failed: " << StrError();
-  auto int_fd = cuttlefish::SharedFD::Dup(sfd);
-  close(sfd);
-#endif
+  auto int_fd = cuttlefish::SharedFD::Dup(sigint_fds[0]);
+  CHECK(int_fd->IsOpen()) << "Failed to dup pipe: " << int_fd->StrError();
+  close(sigint_fds[0]);
 
   auto poll_fds = std::vector<cuttlefish::PollSharedFd>{
       cuttlefish::PollSharedFd{
@@ -108,13 +125,11 @@ int main(int argc, char** argv) {
           .events = POLLIN,  // NOLINT(misc-include-cleaner): poll.h
           .revents = 0,
       },
-#ifdef __linux__
       cuttlefish::PollSharedFd{
           .fd = int_fd,
           .events = POLLIN,  // NOLINT(misc-include-cleaner): poll.h
           .revents = 0,
       },
-#endif
   };
 
   VLOG(0) << "Starting to read from process " << FLAGS_process_name;
@@ -130,8 +145,11 @@ int main(int argc, char** argv) {
     // This could be simpler if all the writers would close their FDs when they
     // are finished. Then, we could just read until EOF. However that would
     // require more work elsewhere in cuttlefish.
-    CHECK(cuttlefish::SharedFD::Poll(poll_fds, /*timeout=*/-1) >= 0)
-        << "poll failed: " << StrError();
+    int polled = cuttlefish::SharedFD::Poll(poll_fds, /*timeout=*/-1);
+    if (polled < 0 && errno == EINTR) {
+      continue;
+    }
+    CHECK(polled >= 0) << "poll failed: " << StrError();
     if (poll_fds[0].revents) {
       chars_read = log_fd->Read(buf, sizeof(buf));
       if (!chars_read.has_value()) {
@@ -190,17 +208,12 @@ int main(int argc, char** argv) {
       // handle any signals yet.
       continue;
     }
-#ifdef __linux__
     if (poll_fds[1].revents) {
-      struct signalfd_siginfo siginfo;
-      uint64_t s = int_fd->Read(&siginfo, sizeof(siginfo)).value_or(0);
-      CHECK(s == sizeof(siginfo)) << "bad read size on signalfd, expected "
-                                  << sizeof(siginfo) << " got " << s;
-      CHECK(siginfo.ssi_signo == SIGINT)
-          << "unexpected signal: " << siginfo.ssi_signo;
+      char byte;
+      CHECK_EQ(int_fd->Read(&byte, sizeof(byte)).value_or(0), 1)
+          << "bad read on the SIGINT pipe: " << int_fd->StrError();
       break;
     }
-#endif
   }
 
   VLOG(0) << "Finished reading from process " << FLAGS_process_name;
