@@ -46,8 +46,6 @@
 #include "cuttlefish/files/file_is_socket.h"
 #include "cuttlefish/result/result.h"
 
-#ifdef __linux__
-
 namespace cuttlefish {
 namespace {
 
@@ -164,5 +162,3 @@ Result<void> WaitForUnixSocketListeningWithoutConnect(const std::string& path,
 }
 
 }  // namespace cuttlefish
-
-#endif

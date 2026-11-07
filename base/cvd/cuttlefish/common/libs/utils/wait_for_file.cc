@@ -16,48 +16,22 @@
 
 #include "cuttlefish/common/libs/utils/wait_for_file.h"
 
-#include <errno.h>
-#include <string.h>
-#ifdef __linux__
-#include <sys/inotify.h>
-#endif
-#include <sys/select.h>
-#include <sys/time.h>  // IWYU pragma: keep
+#include <poll.h>
 
 #include <chrono>
 #include <string>
 #include <vector>
 
 #include "android-base/file.h"
-#include "android-base/unique_fd.h"
 
-#include "cuttlefish/common/libs/utils/contains.h"
-#ifdef __linux__
-#include "cuttlefish/common/libs/utils/inotify.h"
-#endif
+#include "cuttlefish/common/libs/fs/shared_fd.h"
+#include "cuttlefish/common/libs/utils/file_watch.h"
 #include "cuttlefish/files/file_exists.h"
 #include "cuttlefish/result/result.h"
 
 namespace cuttlefish {
 
-#ifdef __linux__
-
-namespace {
-class InotifyWatcher {
- public:
-  InotifyWatcher(int inotify, const std::string& path, int watch_mode)
-      : inotify_(inotify) {
-    watch_ = inotify_add_watch(inotify_, path.c_str(), watch_mode);
-  }
-  virtual ~InotifyWatcher() { inotify_rm_watch(inotify_, watch_); }
-
- private:
-  int inotify_;
-  int watch_;
-};
-
-Result<void> WaitForFileInternal(const std::string& path, int timeoutSec,
-                                 int inotify) {
+Result<void> WaitForFile(const std::string& path, int timeoutSec) {
   CF_EXPECT_NE(path, "", "Path is empty");
 
   if (FileExists(path, true)) {
@@ -68,18 +42,16 @@ Result<void> WaitForFileInternal(const std::string& path, int timeoutSec,
       std::chrono::system_clock::now() + std::chrono::seconds(timeoutSec);
 
   const std::string parentPath = android::base::Dirname(path);
-  const std::string filename = android::base::Basename(path);
 
   CF_EXPECT(WaitForFile(parentPath, timeoutSec),
             "Error while waiting for parent directory creation");
 
-  auto watcher = InotifyWatcher(inotify, parentPath.c_str(), IN_CREATE);
+  // Arm the watch before re-checking, so that a file created in between
+  // is not missed.
+  FileWatch watch =
+      CF_EXPECT(FileWatch::Create(parentPath, FileWatch::kCreate));
 
-  if (FileExists(path, true)) {
-    return {};
-  }
-
-  while (true) {
+  while (!FileExists(path, true)) {
     const auto currentTime = std::chrono::system_clock::now();
 
     if (currentTime >= targetTime) {
@@ -87,52 +59,25 @@ Result<void> WaitForFileInternal(const std::string& path, int timeoutSec,
     }
 
     const auto timeRemain =
-        std::chrono::duration_cast<std::chrono::microseconds>(targetTime -
+        std::chrono::duration_cast<std::chrono::milliseconds>(targetTime -
                                                               currentTime)
             .count();
-    const auto secondInUsec =
-        std::chrono::microseconds(std::chrono::seconds(1)).count();
-    struct timeval timeout;  // NOLINT(misc-include-cleaner): sys/time.h
-
-    timeout.tv_sec = timeRemain / secondInUsec;
-    timeout.tv_usec = timeRemain % secondInUsec;
-
-    fd_set readfds;
-
-    FD_ZERO(&readfds);
-    FD_SET(inotify, &readfds);
-
-    auto ret = select(inotify + 1, &readfds, nullptr, nullptr, &timeout);
+    std::vector<PollSharedFd> fds = {
+        // NOLINTNEXTLINE(misc-include-cleaner): <poll.h>
+        PollSharedFd{.fd = watch.ReadyFd(), .events = POLLIN, .revents = 0},
+    };
+    const int ret = SharedFD::Poll(fds, timeRemain);
 
     if (ret == 0) {
-      return CF_ERR("select() timed out");
+      return CF_ERR("Timed out");
     } else if (ret < 0) {
-      return CF_ERRNO("select() failed");
+      return CF_ERRNO("poll() failed");
     }
 
-    auto names = GetCreatedFileListFromInotifyFd(inotify);
-
-    CF_EXPECT(!names.empty(),
-              "Failed to get names from inotify " << strerror(errno));
-
-    if (Contains(names, filename)) {
-      return {};
-    }
+    CF_EXPECT(watch.Drain());
   }
-
-  return CF_ERR("This shouldn't be executed");
-}
-
-}  // namespace
-
-Result<void> WaitForFile(const std::string& path, int timeoutSec) {
-  android::base::unique_fd inotify(inotify_init1(IN_CLOEXEC));
-
-  CF_EXPECT(WaitForFileInternal(path, timeoutSec, inotify.get()));
 
   return {};
 }
-
-#endif
 
 }  // namespace cuttlefish

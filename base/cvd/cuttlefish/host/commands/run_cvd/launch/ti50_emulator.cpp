@@ -124,11 +124,7 @@ class Ti50Emulator : public vm_manager::VmmDependencyCommand {
   Result<void> ResetGPIO() const {
     // Write '1' to 'gpioPltRst' to initialize the emulator.
     std::string gpio_sock = instance_.PerInstancePath("gpioPltRst");
-#ifdef __linux__
     CF_EXPECT(WaitForUnixSocket(gpio_sock, 30));
-#else
-    return CF_ERR("Cannot start the ti50 emulator outside of Linux.");
-#endif
 
     // Wait for the emulator's internal state to be initialized.
     // Since the emulator polls the socket at 100 ms intervals before
@@ -149,11 +145,7 @@ class Ti50Emulator : public vm_manager::VmmDependencyCommand {
     // Connects to direct_tpm_fifo socket, which is a bi-directional Unix domain
     // socket.
     std::string fifo_sock = instance_.PerInstancePath("direct_tpm_fifo");
-#ifdef __linux__
     CF_EXPECT(WaitForUnixSocket(fifo_sock, 30));
-#else
-    return CF_ERR("Cannot start the ti50 emulator outside of Linux.");
-#endif
 
     SharedFD cl =
         CF_EXPECT(Fd::SocketLocalClient(fifo_sock, false, SOCK_STREAM),

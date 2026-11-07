@@ -116,7 +116,6 @@ bool VhostDeviceVsock::Enabled() const { return instance_.vhost_user_vsock(); }
 
 Result<void> VhostDeviceVsock::WaitForAvailability() {
   if (Enabled()) {
-#ifdef __linux__
     CF_EXPECT(
         WaitForUnixSocket(fmt::format("{}/vsock_{}_{}/vm.vsock", TempDir(),
                                       instance_.vsock_guest_cid(), getuid()),
@@ -129,9 +128,6 @@ Result<void> VhostDeviceVsock::WaitForAvailability() {
                       instance_.vsock_guest_cid(), getuid()),
           30));
     }
-#else
-    return CF_ERR("Cannot start vhost-device-vsock outside of Linux.");
-#endif
   }
   return {};
 }

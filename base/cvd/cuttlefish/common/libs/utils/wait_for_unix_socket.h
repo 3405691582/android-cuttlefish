@@ -22,10 +22,8 @@
 
 namespace cuttlefish {
 
-#ifdef __linux__
 Result<void> WaitForUnixSocket(const std::string& path, int timeoutSec);
 Result<void> WaitForUnixSocketListeningWithoutConnect(const std::string& path,
                                                       int timeoutSec);
-#endif
 
 }  // namespace cuttlefish

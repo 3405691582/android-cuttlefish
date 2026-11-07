@@ -21,8 +21,6 @@
 
 namespace cuttlefish {
 
-#ifdef __linux__
 Result<void> WaitForFile(const std::string& path, int timeoutSec);
-#endif
 
 }  // namespace cuttlefish

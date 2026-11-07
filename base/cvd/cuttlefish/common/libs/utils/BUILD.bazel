@@ -226,18 +226,6 @@ cf_cc_library(
 )
 
 cf_cc_library(
-    name = "inotify",
-    srcs = ["inotify.cpp"],
-    hdrs = ["inotify.h"],
-    target_compatible_with = [
-        "@platforms//os:linux",
-    ],
-    deps = [
-        "@abseil-cpp//absl/log",
-    ],
-)
-
-cf_cc_library(
     name = "is_google_corp",
     srcs = ["is_google_corp.cpp"],
     hdrs = ["is_google_corp.h"],
@@ -459,15 +447,12 @@ cf_cc_library(
     srcs = ["wait_for_file.cc"],
     hdrs = ["wait_for_file.h"],
     deps = [
-        "//cuttlefish/common/libs/utils:contains",
+        "//cuttlefish/common/libs/fs",
+        "//cuttlefish/common/libs/utils:file_watch",
         "//cuttlefish/files:file_exists",
         "//cuttlefish/result",
         "@android_system_libbase//:file_logging",
-        "@android_system_libbase//:unique_fd",
-    ] + select({
-        "@platforms//os:linux": ["//cuttlefish/common/libs/utils:inotify"],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 cf_cc_library(
