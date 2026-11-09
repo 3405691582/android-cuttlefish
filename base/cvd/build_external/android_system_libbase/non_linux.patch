@@ -1,0 +1,27 @@
+diff -ruN a/include/android-base/off64_t.h b1/include/android-base/off64_t.h
+--- a/include/android-base/off64_t.h	2026-10-10 06:56:18.388219024 +0000
++++ b1/include/android-base/off64_t.h	2026-10-10 06:56:31.926091863 +0000
+@@ -16,7 +16,7 @@
+ 
+ #pragma once
+ 
+-#if defined(__APPLE__)
+-/** Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
++#if defined(__APPLE__) || defined(__OpenBSD__)
++/** Mac OS and OpenBSD have always had a 64-bit off_t, so they don't have off64_t. */
+ typedef off_t off64_t;
+ #endif
+diff -ruN a/logging.cpp b1/logging.cpp
+--- a/logging.cpp	2026-10-10 06:56:18.372218779 +0000
++++ b1/logging.cpp	2026-10-10 06:56:31.911292525 +0000
+@@ -61,8 +61,8 @@
+ namespace android {
+ namespace base {
+ 
+-// BSD-based systems like Android/macOS have getprogname(). Others need us to provide one.
+-#if !defined(__APPLE__) && !defined(__BIONIC__)
++// BSD-based systems like Android/macOS/OpenBSD have getprogname(). Others need us to provide one.
++#if !defined(__APPLE__) && !defined(__BIONIC__) && !defined(__OpenBSD__)
+ static const char* getprogname() {
+ #ifdef _WIN32
+   static bool first = true;
