@@ -1,0 +1,12 @@
+diff -ruN a/logging.cpp b1/logging.cpp
+--- a/logging.cpp	2026-10-10 06:56:18.372218779 +0000
++++ b1/logging.cpp	2026-10-10 06:56:31.911292525 +0000
+@@ -62,7 +62,7 @@
+ namespace base {
+ 
+ // BSD-based systems like Android/macOS have getprogname(). Others need us to provide one.
+-#if !defined(__APPLE__) && !defined(__BIONIC__)
++#if !defined(__APPLE__) && !defined(__BIONIC__) && !defined(__OpenBSD__)
+ static const char* getprogname() {
+ #ifdef _WIN32
+   static bool first = true;
