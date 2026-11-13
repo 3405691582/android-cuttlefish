@@ -40,7 +40,6 @@ package_files(
         "bin/cvd_send_sms": "//cuttlefish/host/commands/cvd_send_sms",
         "bin/cvd_update_location": "//cuttlefish/host/commands/cvd_update_location",
         "bin/cvd_update_security_algorithm": "//cuttlefish/host/commands/cvd_update_security_algorithm",
-        "bin/cvdalloc": "//cuttlefish/host/commands/cvdalloc",
         "bin/e2fsck": "@e2fsprogs//:e2fsck",
         "bin/e2fsdroid": "@e2fsprogs//:e2fsdroid",
         "bin/echo_server": "//cuttlefish/host/commands/echo_server",
@@ -135,6 +134,11 @@ package_files(
         "usr/share/webrtc/assets/js/touch.js": "//cuttlefish/host/frontend/webrtc/html_client:js/touch.js",
         "bin/cf_defaults": "//cuttlefish/host/commands/defaults:cf_defaults",
         "bin/metrics_transmitter": "//cuttlefish/metrics/metrics_transmitter:metrics_transmitter",
-    },
+    } | select({
+        "@platforms//os:linux": {
+            "bin/cvdalloc": "//cuttlefish/host/commands/cvdalloc",
+        },
+        "//conditions:default": {},
+    }),
     visibility = ["//:android_cuttlefish"],
 )
