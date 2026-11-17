@@ -32,3 +32,11 @@ toolchain(
     toolchain = ":preinstalled_gmake",
     toolchain_type = "@rules_foreign_cc//toolchains:make_toolchain",
 )
+
+# The m4 module in the registry does not build on OpenBSD.
+toolchain(
+    name = "openbsd_preinstalled_m4_toolchain",
+    exec_compatible_with = ["@platforms//os:openbsd"],
+    toolchain = "@rules_foreign_cc//toolchains/private:preinstalled_m4",
+    toolchain_type = "@rules_foreign_cc//toolchains:m4_toolchain",
+)
