@@ -1,0 +1,24 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+package(
+    default_visibility = ["//:android_cuttlefish"],
+)
+
+# A single-file C99 vhost-user-vsock back-end that serves cuttlefish's
+# host-initiated (adb, proxies) connections only. It exists so the vsock
+# path does not depend on rules_rust on hosts where the rust-vmm daemon
+# cannot be built. To use it, point package:common's
+# "bin/vhost_device_vsock" at this target. Plain cc_binary because
+# cf_cc_binary forces -std=c++20.
+cc_binary(
+    name = "vhost_device_vsock_c",
+    srcs = ["main.c"],
+    copts = [
+        "-std=c99",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-D_GNU_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+)
